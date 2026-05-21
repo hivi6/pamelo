@@ -1,0 +1,29 @@
+========================================
+GRAMMAR
+========================================
+
+<prog> := <decl>
+
+<decl>    := <fn-decl>
+<fn-decl> := FN_KEYWORD LPAREN RPAREN <block-stmt>
+
+<block-stmt> := LBRACE <stmt> RBRACE
+<stmt>       := <block-stmt> | <expr-stmt>
+<expr-stmt>  := <expr> SEMICOLON
+
+<expr> := INT_LITERAL
+
+========================================
+GRAMMAR
+========================================
+
+LBRACE    := "{"
+LPAREN    := "("
+RBRACE    := "}"
+RPAREN    := ")"
+SEMICOLON := ";"
+
+INT_LITERAL := [1-9][0-9] | "0x" [0-9A-Fa-f]+ | "0b" [0-1]+
+
+FN_KEYWORD := "fn"
+
