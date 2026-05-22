@@ -7,6 +7,7 @@
 // ========================================
 
 static void usage(FILE *f);
+static char *read_file(const char *filepath);
 
 // ========================================
 // main
@@ -18,19 +19,9 @@ int main(int argc, const char **argv) {
 		return 1;
 	}
 
-	pos_t start = POS_INIT();
-
-	sbuilder_t s;
-	sbuilder_init(&s);
-	sbuilder_appendf(&s, "Hello World! start %d | line %d | column %d\n", 
-		start.index, start.line, start.column);
-	sbuilder_appendf(&s, "More line: %s\n", "hehe");
-	char *res = NULL;
-	sbuilder_build(&s, &res);
-	sbuilder_free(&s);
-
-	printf("%s", res);
-	free(res);
+	const char *filepath = argv[1];
+	const char *source = read_file(filepath);
+	printf("FILEPATH: %s\n\n%s\n", filepath, source);
 
 	return 0;
 }
@@ -50,5 +41,30 @@ static void usage(FILE *f) {
 		"    --help, -h    This screen\n"
 		"\n"
 	);
+}
+
+static char *read_file(const char *filepath) {
+	char *res = NULL;
+	sbuilder_t s;
+	sbuilder_init(&s);
+
+	FILE *f = stdin;
+	if (strcmp(filepath, "-") != 0) f = fopen(filepath, "r");
+	if (f == NULL) {
+		perror(filepath);
+		exit(1);
+	}
+
+	char ch = 0;
+	while ((ch = fgetc(f)) != EOF) {
+		sbuilder_appendf(&s, "%c", ch);
+	}
+
+	sbuilder_build(&s, &res);
+	sbuilder_free(&s);
+
+	if (strcmp(filepath, "-") != 0) fclose(f);
+
+	return res;
 }
 

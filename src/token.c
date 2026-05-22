@@ -1,5 +1,6 @@
 #include "token.h"
 #include "common.h"
+#include "util.h"
 
 // ========================================
 // helper declaration
@@ -32,6 +33,49 @@ token_t *generate_tokens(const char *filepath, const char *source) {
 	}
 	append_token(TOKEN_EOF);
 	return g_head;
+}
+
+char *token_type(token_t token) {
+	char *res = NULL;
+
+	sbuilder_t s;
+	sbuilder_init(&s);
+
+	if (token.kind == TOKEN_LBRACE) 
+		sbuilder_appendf(&s, "LBRACE");
+	else if (token.kind == TOKEN_LPAREN) 
+		sbuilder_appendf(&s, "LPAREN");
+	else if (token.kind == TOKEN_RBRACE) 
+		sbuilder_appendf(&s, "RBRACE");
+	else if (token.kind == TOKEN_RPAREN) 
+		sbuilder_appendf(&s, "RPAREN");
+	else if (token.kind == TOKEN_SEMICOLON) 
+		sbuilder_appendf(&s, "SEMICOLON");
+	else if (token.kind == TOKEN_INT_LITERAL) 
+		sbuilder_appendf(&s, "INT_LITERAL");
+	else if (token.kind == TOKEN_FN_KEYWORD) 
+		sbuilder_appendf(&s, "FN_KEYWORD");
+
+	sbuilder_build(&s, &res);
+	sbuilder_free(&s);
+
+	return res;
+}
+
+char *token_lexical(token_t token) {
+	char *res = NULL;
+	
+	sbuilder_t s;
+	sbuilder_init(&s);
+
+	for (int i = token.start.index; i < token.end.index; i++) {
+		sbuilder_appendf(&s, "%c", token.source[i]);
+	}
+
+	sbuilder_build(&s, &res);
+	sbuilder_free(&s);
+
+	return res;
 }
 
 // ========================================
