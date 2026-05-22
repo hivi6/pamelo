@@ -9,7 +9,8 @@
 static token_t *g_head;
 static token_t *g_cur;
 
-static void print_ast_helper(ast_t *ast, char *indent, int depth);
+static void print_ast_helper(ast_t *ast, char *indent, int depth, 
+	const char *extra);
 static char *token_str(token_t *token);
 
 static void init(token_t *tokens);
@@ -54,14 +55,15 @@ void append_ast(ast_t ***list, int *len, ast_t *ast) {
 
 void print_ast(ast_t *ast) {
 	char indent[1024] = {};
-	print_ast_helper(ast, indent, 0);
+	print_ast_helper(ast, indent, 0, NULL);
 }
 
 // ========================================
 // helper definition
 // ========================================
 
-static void print_ast_helper(ast_t *ast, char *indent, int depth) {
+static void print_ast_helper(ast_t *ast, char *indent, int depth,
+	const char *extra) {
 	if (depth+1 >= 1024) {
 		printf("[...] Too deep\n");
 		return;
@@ -73,42 +75,46 @@ static void print_ast_helper(ast_t *ast, char *indent, int depth) {
 	}
 
 	indent[depth+1] = 1;
+	if (extra) printf("+- %s: ", extra);
+	else printf("+- ");
 	switch (ast->kind) {
 	case AST_FN_DECL: {
 		char *str = token_str(ast->ast.fn_decl.name);
-		printf("+- AST_FN_DECL(%s)\n", str);
+		printf("AST_FN_DECL(%s)\n", str);
 		free(str);
 		print_ast_helper(ast->ast.fn_decl.type_specifier, indent, 
-			depth+1);
+			depth+1, "RETURN TYPE");
 		indent[depth+1] = 0;
-		print_ast_helper(ast->ast.fn_decl.block_stmt, indent, depth+1);
+		print_ast_helper(ast->ast.fn_decl.block_stmt, indent, depth+1, 
+			"FUNCTION BODY");
 		break;
 	}
 	case AST_TYPE_SPECIFIER: {
 		char *str = token_str(ast->ast.type_specifier.name);
-		printf("+- AST_TYPE_SPECIFIER(%s)\n", str);
+		printf("AST_TYPE_SPECIFIER(%s)\n", str);
 		free(str);
 		break;
 	}
 	case AST_BLOCK_STMT: {
-		printf("+- AST_BLOCK_STMT\n");
+		printf("AST_BLOCK_STMT\n");
 		ast_t **stmts = ast->ast.block_stmt.stmts;
 		int stmts_len = ast->ast.block_stmt.stmts_len;
 		for (int i = 0; i < stmts_len; i++) {
 			if (i == stmts_len-1) indent[depth+1] = 0;
-			print_ast_helper(stmts[i], indent, depth+1);
+			print_ast_helper(stmts[i], indent, depth+1, NULL);
 		}
 		break;
 	}
 	case AST_EXPR_STMT: {
-		printf("+- AST_EXPR_STMT\n");
+		printf("AST_EXPR_STMT\n");
 		indent[depth+1] = 0;
-		print_ast_helper(ast->ast.expr_stmt.expr, indent, depth+1);
+		print_ast_helper(ast->ast.expr_stmt.expr, indent, 
+			depth+1, NULL);
 		break;
 	}
 	case AST_LITERAL_EXPR: {
 		char *str = token_str(ast->ast.literal_expr.token);
-		printf("+- AST_LITERAL_EXPR(%s)\n", str);
+		printf("AST_LITERAL_EXPR(%s)\n", str);
 		free(str);
 		break;
 	}
