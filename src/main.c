@@ -1,5 +1,6 @@
 #include "common.h"
 #include "pos.h"
+#include "util.h"
 
 // ========================================
 // helper declaration
@@ -19,8 +20,18 @@ int main(int argc, const char **argv) {
 
 	pos_t start = POS_INIT();
 
-	printf("Hello, World! start: %d | line: %d | column: %d\n", 
+	sbuilder_t s;
+	sbuilder_init(&s);
+	sbuilder_appendf(&s, "Hello World! start %d | line %d | column %d\n", 
 		start.index, start.line, start.column);
+	sbuilder_appendf(&s, "More line: %s\n", "hehe");
+	char *res = NULL;
+	sbuilder_build(&s, &res);
+	sbuilder_free(&s);
+
+	printf("%s", res);
+	free(res);
+
 	return 0;
 }
 
