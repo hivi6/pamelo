@@ -7,11 +7,12 @@ GRAMMAR
 <decl>    := <fn-decl>
 <fn-decl> := FN_KEYWORD LPAREN RPAREN <block-stmt>
 
-<block-stmt> := LBRACE <stmt> RBRACE
 <stmt>       := <block-stmt> | <expr-stmt>
+<block-stmt> := LBRACE <stmt>* RBRACE
 <expr-stmt>  := <expr> SEMICOLON
 
-<expr> := INT_LITERAL
+<expr>         := <literal-expr>
+<literal-expr> := INT_LITERAL
 
 ========================================
 GRAMMAR

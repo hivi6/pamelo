@@ -2,33 +2,49 @@
 #include "pos.h"
 #include "util.h"
 #include "token.h"
+#include "ast.h"
 
 // ========================================
 // helper declaration
 // ========================================
 
+static int g_help_flag = 0;
+static int g_print_token_flag = 0;
+
 static void usage(FILE *f);
 static char *read_file(const char *filepath);
+static int get_opts(int argc, const char **argv);
 
 // ========================================
 // main
 // ========================================
 
 int main(int argc, const char **argv) {
-	if (argc == 1) {
+	int index = get_opts(argc, argv);
+	if (g_help_flag) {
+		usage(stdout);
+		return 0;
+	}
+
+	if (index >= argc) {
 		usage(stderr);
 		return 1;
 	}
 
-	const char *filepath = argv[1];
+	const char *filepath = argv[index];
 	const char *source = read_file(filepath);
 	token_t *tokens = generate_tokens(filepath, source);
 
-	for (token_t *head = tokens; head; head = head->next) {
-		char *lexical = token_lexical(*head);
-		char *type = token_type(*head);
-		printf("%s(%s)\n", type, lexical);
+	if (g_print_token_flag) {
+		for (token_t *head = tokens; head; head = head->next) {
+			char *lexical = token_lexical(*head);
+			char *type = token_type(*head);
+			printf("%s(%s)\n", type, lexical);
+		}
+		return 0;
 	}
+
+	ast_t *ast = parse(tokens);
 
 	return 0;
 }
@@ -45,7 +61,8 @@ static void usage(FILE *f) {
 		"    A Programming Language\n"
 		"\n"
 		"OPTIONS:\n"
-		"    --help, -h    This screen\n"
+		"    --help, -h       This screen\n"
+		"    --print-token    Print the token to the screen\n"
 		"\n"
 	);
 }
@@ -73,5 +90,19 @@ static char *read_file(const char *filepath) {
 	if (strcmp(filepath, "-") != 0) fclose(f);
 
 	return res;
+}
+
+static int get_opts(int argc, const char **argv) {
+	int i = 1;
+	for (i = 1; i < argc; i++) {
+		if (strcmp(argv[i], "--help") == 0 
+			|| strcmp(argv[i], "-h") == 0) 
+			g_help_flag = 1;
+		else if (strcmp(argv[i], "--print-token") == 0)
+			g_print_token_flag = 1;
+		else
+			break;
+	}
+	return i;
 }
 
