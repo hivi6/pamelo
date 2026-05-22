@@ -23,7 +23,7 @@ RBRACE    := "}"
 RPAREN    := ")"
 SEMICOLON := ";"
 
-INT_LITERAL := [1-9][0-9] | "0x" [0-9A-Fa-f]+ | "0b" [0-1]+
+INT_LITERAL := "0" | [1-9][0-9] | "0x" [0-9A-Fa-f]+ | "0b" [0-1]+ | "0" [0-7]+
 
 FN_KEYWORD := "fn"
 

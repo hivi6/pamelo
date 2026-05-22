@@ -21,6 +21,10 @@ static void append_token(int kind);
 static char char_at(int offset);
 static char is_whitespace(char ch);
 static void char_skip(int skip);
+static char is_octal(char ch);
+static char is_hexadecimal(char ch);
+static int int_literal_skip();
+static int keyword_skip();
 
 // ========================================
 // token.h - definition
@@ -31,6 +35,7 @@ token_t *generate_tokens(const char *filepath, const char *source) {
 	while (!eof()) {
 		generate_token();
 	}
+	g_prev = g_cur;
 	append_token(TOKEN_EOF);
 	return g_head;
 }
@@ -41,7 +46,9 @@ char *token_type(token_t token) {
 	sbuilder_t s;
 	sbuilder_init(&s);
 
-	if (token.kind == TOKEN_LBRACE) 
+	if (token.kind == TOKEN_EOF) 
+		sbuilder_appendf(&s, "EOF");
+	else if (token.kind == TOKEN_LBRACE) 
 		sbuilder_appendf(&s, "LBRACE");
 	else if (token.kind == TOKEN_LPAREN) 
 		sbuilder_appendf(&s, "LPAREN");
@@ -55,6 +62,8 @@ char *token_type(token_t token) {
 		sbuilder_appendf(&s, "INT_LITERAL");
 	else if (token.kind == TOKEN_FN_KEYWORD) 
 		sbuilder_appendf(&s, "FN_KEYWORD");
+	else
+		sbuilder_appendf(&s, "UNKNOWN");
 
 	sbuilder_build(&s, &res);
 	sbuilder_free(&s);
@@ -109,9 +118,17 @@ static void generate_token() {
 	else if (char_at(0) == '}') kind = TOKEN_RBRACE;
 	else if (char_at(0) == ')') kind = TOKEN_RPAREN;
 	else if (char_at(0) == ';') kind = TOKEN_SEMICOLON;
+	else if (isdigit(char_at(0))) {
+		kind = int_literal_skip();
+		skip = 0;
+	}
+	else if (isalpha(char_at(0)) || char_at(0) == '_') {
+		kind = keyword_skip();
+		skip = 0;
+	}
 
 	if (kind == TOKEN_EOF) {
-		printf("Invalid token!\n");
+		eprintf(g_filepath, g_source, g_prev, g_cur, "Invalid token!");
 		exit(1);
 	}
 
@@ -153,5 +170,63 @@ static void char_skip(int skip) {
 			g_cur.column = 1;
 		}
 	}
+}
+
+static char is_octal(char ch) {
+	return '0' <= ch && ch <= '7';
+}
+
+static char is_hexadecimal(char ch) {
+	return isdigit(ch) || ('a' <= ch && ch <= 'f') 
+		|| ('A' <= ch && ch <= 'F');
+}
+
+static int int_literal_skip() {
+	if (char_at(0) == '0' && tolower(char_at(1)) == 'x') {
+		char_skip(2);
+		while (is_hexadecimal(char_at(0))) 
+			char_skip(1);
+	}
+	else if (char_at(0) == '0' && tolower(char_at(1)) == 'b') {
+		char_skip(2);
+		while (char_at(0) == '0' || char_at(0) == '1')
+			char_skip(1);
+	}
+	else if (char_at(0) == '0' && is_octal(char_at(1))) {
+		char_skip(2);
+		while (is_octal(char_at(0)))
+			char_skip(1);
+	}
+
+	int invalid = 0;
+	while (isalnum(char_at(0)) || char_at(0) == '_') {
+		invalid = 1;
+		char_skip(1);
+	}
+
+	if (invalid) return TOKEN_EOF;
+
+	return TOKEN_INT_LITERAL;
+}
+
+static int keyword_skip() {
+	sbuilder_t s;
+	sbuilder_init(&s);
+
+	while (isalnum(char_at(0)) || char_at(0) == '_') {
+		sbuilder_appendf(&s, "%c", char_at(0));
+		char_skip(1);
+	}
+
+	char *res = NULL;
+	sbuilder_build(&s, &res);
+	sbuilder_free(&s);
+
+	int kind = TOKEN_EOF;
+	if (strcmp(res, "fn") == 0) kind = TOKEN_FN_KEYWORD;
+
+	free(res);
+
+	return kind;
 }
 
