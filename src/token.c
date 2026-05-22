@@ -197,6 +197,13 @@ static int int_literal_skip() {
 		while (is_octal(char_at(0)))
 			char_skip(1);
 	}
+	else if (char_at(0) == '0') {
+		char_skip(1);
+	}
+	else {
+		while (isdigit(char_at(0)))
+			char_skip(1);
+	}
 
 	int invalid = 0;
 	while (isalnum(char_at(0)) || char_at(0) == '_') {
