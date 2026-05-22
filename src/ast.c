@@ -20,8 +20,9 @@ static void skip(int inc);
 
 static ast_t *malloc_ast(int kind, const char *filepath, const char *source,
 	pos_t start, pos_t end);
-static ast_t *malloc_ast_fn_decl(token_t *fn_keyword, token_t *lparen, 
-	token_t *rparen, ast_t *block_stmt);
+static ast_t *malloc_ast_fn_decl(token_t *fn_keyword, token_t *name,
+	token_t *lparen, token_t *rparen, ast_t *t, ast_t *block_stmt);
+static ast_t *malloc_ast_type_specifier(token_t *id);
 static ast_t *malloc_ast_block_stmt(token_t *lbrace);
 static ast_t *malloc_ast_expr_stmt(ast_t *expr, token_t *semicolon);
 static ast_t *malloc_ast_literal_expr(token_t *token);
@@ -29,6 +30,7 @@ static ast_t *malloc_ast_literal_expr(token_t *token);
 static ast_t *prog();
 static ast_t *decl();
 static ast_t *fn_decl();
+static ast_t *type_specifier();
 static ast_t *stmt();
 static ast_t *block_stmt();
 static ast_t *expr_stmt();
@@ -73,9 +75,19 @@ static void print_ast_helper(ast_t *ast, char *indent, int depth) {
 	indent[depth+1] = 1;
 	switch (ast->kind) {
 	case AST_FN_DECL: {
-		printf("+- AST_FN_DECL\n");
+		char *str = token_str(ast->ast.fn_decl.name);
+		printf("+- AST_FN_DECL(%s)\n", str);
+		free(str);
+		print_ast_helper(ast->ast.fn_decl.type_specifier, indent, 
+			depth+1);
 		indent[depth+1] = 0;
 		print_ast_helper(ast->ast.fn_decl.block_stmt, indent, depth+1);
+		break;
+	}
+	case AST_TYPE_SPECIFIER: {
+		char *str = token_str(ast->ast.type_specifier.name);
+		printf("+- AST_TYPE_SPECIFIER(%s)\n", str);
+		free(str);
 		break;
 	}
 	case AST_BLOCK_STMT: {
@@ -163,14 +175,23 @@ static ast_t *malloc_ast(int kind, const char *filepath, const char *source,
 	return res;
 }
 
-static ast_t *malloc_ast_fn_decl(token_t *fn_keyword, token_t *lparen, 
-	token_t *rparen, ast_t *block_stmt) {
+static ast_t *malloc_ast_fn_decl(token_t *fn_keyword, token_t *name,
+	token_t *lparen, token_t *rparen, ast_t *t, ast_t *block_stmt) {
 	ast_t *res = malloc_ast(AST_FN_DECL, fn_keyword->filepath, 
 		fn_keyword->source, fn_keyword->start, block_stmt->end);
 	res->ast.fn_decl.fn_keyword = fn_keyword;
+	res->ast.fn_decl.name = name;
 	res->ast.fn_decl.lparen = lparen;
 	res->ast.fn_decl.rparen = rparen;
+	res->ast.fn_decl.type_specifier = t;
 	res->ast.fn_decl.block_stmt = block_stmt;
+	return res;
+}
+
+static ast_t *malloc_ast_type_specifier(token_t *id) {
+	ast_t *res = malloc_ast(AST_TYPE_SPECIFIER, id->filepath,
+		id->source, id->start, id->end);
+	res->ast.type_specifier.name = id;
 	return res;
 }
 
@@ -206,10 +227,17 @@ static ast_t *decl() {
 
 static ast_t *fn_decl() {
 	token_t *fn_keyword = match(TOKEN_FN_KEYWORD, "Expected fn keyword");
+	token_t *name = match(TOKEN_ID, "Expected name for function");
 	token_t *lparen = match(TOKEN_LPAREN, "Expected (");
 	token_t *rparen = match(TOKEN_RPAREN, "Expected )");
+	ast_t *t = type_specifier();
 	ast_t *s = block_stmt();
-	return malloc_ast_fn_decl(fn_keyword, lparen, rparen, s);
+	return malloc_ast_fn_decl(fn_keyword, name, lparen, rparen, t, s);
+}
+
+static ast_t *type_specifier() {
+	token_t *id = match(TOKEN_ID, "Expected type id");
+	return malloc_ast_type_specifier(id);
 }
 
 static ast_t *stmt() {

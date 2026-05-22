@@ -14,6 +14,8 @@ enum {
 
 	TOKEN_INT_LITERAL,
 
+	TOKEN_ID,
+
 	TOKEN_FN_KEYWORD,
 };
 

@@ -60,6 +60,8 @@ char *token_type(token_t token) {
 		sbuilder_appendf(&s, "SEMICOLON");
 	else if (token.kind == TOKEN_INT_LITERAL) 
 		sbuilder_appendf(&s, "INT_LITERAL");
+	else if (token.kind == TOKEN_ID)
+		sbuilder_appendf(&s, "ID");
 	else if (token.kind == TOKEN_FN_KEYWORD) 
 		sbuilder_appendf(&s, "FN_KEYWORD");
 	else
@@ -233,7 +235,7 @@ static int keyword_skip() {
 	sbuilder_build(&s, &res);
 	sbuilder_free(&s);
 
-	int kind = TOKEN_EOF;
+	int kind = TOKEN_ID;
 	if (strcmp(res, "fn") == 0) kind = TOKEN_FN_KEYWORD;
 
 	free(res);

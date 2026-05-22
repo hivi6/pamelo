@@ -6,6 +6,8 @@
 enum {
 	AST_FN_DECL,
 
+	AST_TYPE_SPECIFIER,
+
 	AST_BLOCK_STMT,
 	AST_EXPR_STMT,
 	
@@ -23,10 +25,16 @@ struct ast_t {
 	union {
 		struct {
 			token_t *fn_keyword;
+			token_t *name;
 			token_t *lparen;
 			token_t *rparen;
+			ast_t *type_specifier;
 			ast_t *block_stmt;
 		} fn_decl;
+
+		struct {
+			token_t *name;
+		} type_specifier;
 
 		struct {
 			token_t *lbrace;
