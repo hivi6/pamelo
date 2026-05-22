@@ -83,9 +83,12 @@ void eprintf(const char *filepath, const char *source, pos_t start, pos_t end,
 	sbuilder_appendf(&s, "%*c | ", padding_size, ' ');
 	int temp = index;
 	while (source[temp] && source[temp] != '\n') {
+		int cnt = 1;
+		if (source[temp] == '\t') cnt = ERROR_TAB_INDENT_SIZE;
 		char ch = ' ';
 		if (start.index <= temp && temp < end.index) ch = 'v';
-		sbuilder_appendf(&s, "%c", ch);
+		for (int i = 0; i < cnt; i++) 
+			sbuilder_appendf(&s, "%c", ch);
 		temp++;
 	}
 	sbuilder_appendf(&s, "\n");
@@ -95,7 +98,14 @@ void eprintf(const char *filepath, const char *source, pos_t start, pos_t end,
 	for (int line = start.line; line <= end.line; line++) {
 		sbuilder_appendf(&s, "%*d > ", padding_size, line);
 		while (source[temp] && source[temp] != '\n') {
-			sbuilder_appendf(&s, "%c", source[temp]);
+			int cnt = 1;
+			char ch = source[temp];
+			if (ch == '\t') {
+				cnt = ERROR_TAB_INDENT_SIZE;
+				ch = ' ';
+			}
+			for (int i = 0; i < cnt; i++)
+				sbuilder_appendf(&s, "%c", ch);
 			temp++;
 		}
 		sbuilder_appendf(&s, "\n");
