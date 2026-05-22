@@ -50,6 +50,7 @@ struct ast_t {
 
 ast_t *parse(token_t *tokens);
 void append_ast(ast_t ***list, int *len, ast_t *ast);
+void print_ast(ast_t *ast);
 
 #endif /* AST_H */
 

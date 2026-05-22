@@ -44,6 +44,23 @@ void sbuilder_free(sbuilder_t *self) {
 	sbuilder_init(self);
 }
 
+char *sbuildf(const char *format, ...) {
+	char *res = NULL;
+
+	sbuilder_t s;
+	sbuilder_init(&s);
+
+	va_list args;
+	va_start(args, format);
+	sbuilder_appendvf(&s, format, args);
+	va_end(args);
+
+	sbuilder_build(&s, &res);
+	sbuilder_free(&s);
+
+	return res;
+}
+
 // ++++++++++++++++++++++++++++++++++++++++ error printer
 
 void eprintf(const char *filepath, const char *source, pos_t start, pos_t end,

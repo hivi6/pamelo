@@ -19,6 +19,7 @@ void sbuilder_appendvf(sbuilder_t *self, const char *format, va_list args);
 void sbuilder_appendf(sbuilder_t *self, const char *format, ...);
 void sbuilder_build(sbuilder_t *self, char **out);
 void sbuilder_free(sbuilder_t *self);
+char *sbuildf(const char *format, ...);
 
 // ++++++++++++++++++++++++++++++++++++++++ error printer
 

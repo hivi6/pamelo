@@ -45,6 +45,7 @@ int main(int argc, const char **argv) {
 	}
 
 	ast_t *ast = parse(tokens);
+	print_ast(ast);
 
 	return 0;
 }

@@ -9,6 +9,9 @@
 static token_t *g_head;
 static token_t *g_cur;
 
+static void print_ast_helper(ast_t *ast, char *indent, int depth);
+static char *token_str(token_t *token);
+
 static void init(token_t *tokens);
 static token_t *token_at(int offset);
 static char check(int offset, int token_kind);
@@ -44,12 +47,74 @@ ast_t *parse(token_t *tokens) {
 void append_ast(ast_t ***list, int *len, ast_t *ast) {
 	*len += 1;
 	*list = realloc(*list, *len * sizeof(ast_t*));
-	*list[*len-1] = ast;
+	(*list)[*len-1] = ast;
+}
+
+void print_ast(ast_t *ast) {
+	char indent[1024] = {};
+	print_ast_helper(ast, indent, 0);
 }
 
 // ========================================
 // helper definition
 // ========================================
+
+static void print_ast_helper(ast_t *ast, char *indent, int depth) {
+	if (depth+1 >= 1024) {
+		printf("[...] Too deep\n");
+		return;
+	}
+
+	for (int i = 0; i < depth; i++) {
+		if (indent[i]) printf("|  ");
+		else printf("   ");
+	}
+
+	indent[depth+1] = 1;
+	switch (ast->kind) {
+	case AST_FN_DECL: {
+		printf("+- AST_FN_DECL\n");
+		indent[depth+1] = 0;
+		print_ast_helper(ast->ast.fn_decl.block_stmt, indent, depth+1);
+		break;
+	}
+	case AST_BLOCK_STMT: {
+		printf("+- AST_BLOCK_STMT\n");
+		ast_t **stmts = ast->ast.block_stmt.stmts;
+		int stmts_len = ast->ast.block_stmt.stmts_len;
+		for (int i = 0; i < stmts_len; i++) {
+			if (i == stmts_len-1) indent[depth+1] = 0;
+			print_ast_helper(stmts[i], indent, depth+1);
+		}
+		break;
+	}
+	case AST_EXPR_STMT: {
+		printf("+- AST_EXPR_STMT\n");
+		indent[depth+1] = 0;
+		print_ast_helper(ast->ast.expr_stmt.expr, indent, depth+1);
+		break;
+	}
+	case AST_LITERAL_EXPR: {
+		char *str = token_str(ast->ast.literal_expr.token);
+		printf("+- AST_LITERAL_EXPR(%s)\n", str);
+		free(str);
+		break;
+	}
+	default: {
+		printf("WHAT IS THIS AST?\n");
+		exit(1);
+	}
+	}
+}
+
+static char *token_str(token_t *token) {
+	char *lexical = token_lexical(*token);
+	char *type = token_type(*token);
+	char *res = sbuildf("type: %s | lexical: %s", type, lexical);
+	free(lexical);
+	free(type);
+	return res;
+}
 
 static void init(token_t *tokens) {
 	g_head = g_cur = tokens;
