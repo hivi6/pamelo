@@ -80,7 +80,7 @@ void eprintf(const char *filepath, const char *source, pos_t start, pos_t end,
 	// add something like below:
 	//                 vvvvvvvvvvvvvvvvv
 	// This is a line. This is the error
-	sbuilder_appendf(&s, "%*c   ", padding_size, ' ');
+	sbuilder_appendf(&s, "%*c | ", padding_size, ' ');
 	int temp = index;
 	while (source[temp] && source[temp] != '\n') {
 		char ch = ' ';
@@ -93,7 +93,7 @@ void eprintf(const char *filepath, const char *source, pos_t start, pos_t end,
 	// print each line in the source code
 	temp = index;
 	for (int line = start.line; line <= end.line; line++) {
-		sbuilder_appendf(&s, "%*d | ", padding_size, line);
+		sbuilder_appendf(&s, "%*d > ", padding_size, line);
 		while (source[temp] && source[temp] != '\n') {
 			sbuilder_appendf(&s, "%c", source[temp]);
 			temp++;
@@ -102,6 +102,7 @@ void eprintf(const char *filepath, const char *source, pos_t start, pos_t end,
 		if (!source[temp]) break;
 		temp++;
 	}
+	sbuilder_appendf(&s, "%*c | \n", padding_size, ' ');
 
 	char *res = NULL;
 	sbuilder_build(&s, &res);
