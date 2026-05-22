@@ -204,7 +204,11 @@ static int int_literal_skip() {
 		char_skip(1);
 	}
 
-	if (invalid) return TOKEN_EOF;
+	if (invalid) {
+		eprintf(g_filepath, g_source, g_prev, g_cur,
+			"Invalid int literal");
+		exit(1);
+	}
 
 	return TOKEN_INT_LITERAL;
 }
