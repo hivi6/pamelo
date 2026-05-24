@@ -244,6 +244,13 @@ static ast_t *prog() {
 	while (!check(0, TOKEN_EOF)) {
 		ast_t *d = decl();
 		append_ast(&ast->ast.prog.decls, &ast->ast.prog.decls_len, d);
+		if (!ast->filepath) {
+			ast->filepath = d->filepath;
+			ast->source = d->source;
+			ast->start = d->start;
+			ast->end = d->end;
+		}
+		ast->end = d->end;
 	}
 	return ast;
 }

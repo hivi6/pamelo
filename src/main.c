@@ -3,6 +3,7 @@
 #include "util.h"
 #include "token.h"
 #include "ast.h"
+#include "semantic.h"
 
 // ========================================
 // helper declaration
@@ -10,6 +11,7 @@
 
 static int g_help_flag = 0;
 static int g_print_token_flag = 0;
+static int g_print_ast_flag = 0;
 
 static void usage(FILE *f);
 static char *read_file(const char *filepath);
@@ -45,7 +47,12 @@ int main(int argc, const char **argv) {
 	}
 
 	ast_t *ast = parse(tokens);
-	print_ast(ast);
+	if (g_print_ast_flag) {
+		print_ast(ast);
+		return 0;
+	}
+
+	semantic_analyse(ast);
 
 	return 0;
 }
@@ -64,6 +71,7 @@ static void usage(FILE *f) {
 		"OPTIONS:\n"
 		"    --help, -h       This screen\n"
 		"    --print-token    Print the token to the screen\n"
+		"    --print-ast      Print the ast to the screen\n"
 		"\n"
 	);
 }
@@ -101,6 +109,8 @@ static int get_opts(int argc, const char **argv) {
 			g_help_flag = 1;
 		else if (strcmp(argv[i], "--print-token") == 0)
 			g_print_token_flag = 1;
+		else if (strcmp(argv[i], "--print-ast") == 0)
+			g_print_ast_flag = 1;
 		else
 			break;
 	}
