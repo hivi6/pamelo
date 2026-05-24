@@ -4,6 +4,8 @@
 #include "token.h"
 
 enum {
+	AST_PROG,
+
 	AST_FN_DECL,
 
 	AST_TYPE_SPECIFIER,
@@ -23,6 +25,11 @@ struct ast_t {
 	pos_t end;
 
 	union {
+		struct {
+			ast_t **decls;
+			int decls_len;
+		} prog;
+
 		struct {
 			token_t *fn_keyword;
 			token_t *name;

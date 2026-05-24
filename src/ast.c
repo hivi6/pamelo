@@ -21,6 +21,7 @@ static void skip(int inc);
 
 static ast_t *malloc_ast(int kind, const char *filepath, const char *source,
 	pos_t start, pos_t end);
+static ast_t *malloc_ast_prog();
 static ast_t *malloc_ast_fn_decl(token_t *fn_keyword, token_t *name,
 	token_t *lparen, token_t *rparen, ast_t *t, ast_t *block_stmt);
 static ast_t *malloc_ast_type_specifier(token_t *id);
@@ -78,6 +79,16 @@ static void print_ast_helper(ast_t *ast, char *indent, int depth,
 	if (extra) printf("+- %s: ", extra);
 	else printf("+- ");
 	switch (ast->kind) {
+	case AST_PROG: {
+		printf("AST_PROG\n");
+		for (int i = 0; i < ast->ast.prog.decls_len; i++) {
+			if (i == ast->ast.prog.decls_len-1) 
+				indent[depth+1] = 0;
+			print_ast_helper(ast->ast.prog.decls[i], indent, 
+				depth+1, NULL);
+		}
+		break;
+	}
 	case AST_FN_DECL: {
 		char *str = token_str(ast->ast.fn_decl.name);
 		printf("AST_FN_DECL(%s)\n", str);
@@ -181,6 +192,11 @@ static ast_t *malloc_ast(int kind, const char *filepath, const char *source,
 	return res;
 }
 
+static ast_t *malloc_ast_prog() {
+	ast_t *res = malloc_ast(AST_PROG, NULL, NULL, POS_INIT(), POS_INIT());
+	return res;
+}
+
 static ast_t *malloc_ast_fn_decl(token_t *fn_keyword, token_t *name,
 	token_t *lparen, token_t *rparen, ast_t *t, ast_t *block_stmt) {
 	ast_t *res = malloc_ast(AST_FN_DECL, fn_keyword->filepath, 
@@ -224,7 +240,12 @@ static ast_t *malloc_ast_literal_expr(token_t *token) {
 }
 
 static ast_t *prog() {
-	return decl();
+	ast_t *ast = malloc_ast_prog();
+	while (!check(0, TOKEN_EOF)) {
+		ast_t *d = decl();
+		append_ast(&ast->ast.prog.decls, &ast->ast.prog.decls_len, d);
+	}
+	return ast;
 }
 
 static ast_t *decl() {

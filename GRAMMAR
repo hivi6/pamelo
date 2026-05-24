@@ -2,7 +2,7 @@
 GRAMMAR
 ========================================
 
-<prog> := <decl>
+<prog> := <decl>+
 
 <decl>    := <fn-decl>
 <fn-decl> := FN_KEYWORD ID LPAREN RPAREN <type-specifier> <block-stmt>
