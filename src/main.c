@@ -43,13 +43,14 @@ int main(int argc, const char **argv) {
 			char *type = token_type(*head);
 			printf("%s(%s)\n", type, lexical);
 		}
-		return 0;
+		printf("\n");
 	}
 
 	ast_t *ast = parse(tokens);
 	if (g_print_ast_flag) {
+		printf("file: %s\n", filepath);
 		print_ast(ast);
-		return 0;
+		printf("\n");
 	}
 
 	semantic_analyse(ast);
