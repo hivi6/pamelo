@@ -2,6 +2,7 @@
 #define AST_H
 
 #include "token.h"
+#include "scope.h"
 
 enum {
 	AST_PROG,
@@ -23,6 +24,8 @@ struct ast_t {
 	const char *source;
 	pos_t start;
 	pos_t end;
+
+	scope_t *scope;
 
 	union {
 		struct {

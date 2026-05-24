@@ -13,9 +13,15 @@ static scope_t *g_global_declaration = NULL;
 
 scope_t *get_global_scope() {
 	if (g_global_declaration == NULL) {
-		g_global_declaration = calloc(sizeof(scope_t), 1);
+		g_global_declaration = create_scope(NULL);
 	}
 	return g_global_declaration;
+}
+
+scope_t *create_scope(scope_t *parent_scope) {
+	scope_t *scope = calloc(sizeof(scope_t), 1);
+	scope->parent_scope = parent_scope;
+	return scope;
 }
 
 int add_type(scope_t *scope, type_t *type) {
