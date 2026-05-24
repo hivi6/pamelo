@@ -38,6 +38,7 @@ int main(int argc, const char **argv) {
 	token_t *tokens = generate_tokens(filepath, source);
 
 	if (g_print_token_flag) {
+		printf("file: %s\n", filepath);
 		for (token_t *head = tokens; head; head = head->next) {
 			char *lexical = token_lexical(*head);
 			char *type = token_type(*head);
