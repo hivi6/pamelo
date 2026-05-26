@@ -34,3 +34,12 @@ int add_type(scope_t *scope, type_t *type) {
 	return 1; // success
 }
 
+type_t *get_type(scope_t *scope, const char *name) {
+	for (int i = 0; i < scope->types_len; i++) {
+		if (strcmp(scope->types[i]->name, name) == 0) {
+			return scope->types[i];
+		}
+	}
+	return NULL;
+}
+

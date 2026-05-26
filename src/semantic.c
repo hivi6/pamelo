@@ -11,7 +11,7 @@ static int g_first_time = 1;
 
 static void init(ast_t *ast);
 static void match(ast_t *ast, int kind, const char *message);
-static void create_fn(ast_t *ast);
+static void create_fn(ast_t *ast, scope_t *scope);
 
 static void prog(ast_t *ast, scope_t *scope);
 
@@ -58,8 +58,24 @@ static void match(ast_t *ast, int kind, const char *message) {
 	exit(1);
 }
 
-static void create_fn(ast_t *ast) {
+static void create_fn(ast_t *ast, scope_t *scope) {
 	match(ast, AST_FN_DECL, "Expected AST_FN_DECL; create_fn(ast_t*)");
+
+	scope_t *fn_scope = create_scope(scope);
+	ast->scope = fn_scope;
+
+	token_t *tok = ast->ast.fn_decl.name;
+	char *name = token_lexical(*tok);
+
+	// Add the function type in the parent scope
+	type_t *fn_type = create_type(TYPE_FN, name, 0);
+	if (!add_type(scope, fn_type)) {
+		eprintf(tok->filepath, tok->source, tok->start, tok->end,
+			"Function already defined");
+		exit(1);
+	}
+
+	free(name);
 }
 
 static void prog(ast_t *ast, scope_t *scope) {
@@ -67,6 +83,15 @@ static void prog(ast_t *ast, scope_t *scope) {
 
 	scope_t *new_scope = create_scope(scope);
 	ast->scope = new_scope;
+
+	// first go through all the function declaration and 
+	// create the function
+	for (int i = 0; i < ast->ast.prog.decls_len; i++) {
+		ast_t *decl = ast->ast.prog.decls[i];
+		if (decl->kind == AST_FN_DECL) {
+			create_fn(decl, new_scope);
+		}
+	}
 
 	// first go through all the function declaration
 	for (int i = 0; i < ast->ast.prog.decls_len; i++) {
@@ -79,11 +104,7 @@ static void prog(ast_t *ast, scope_t *scope) {
 
 static void fn_decl(ast_t *ast, scope_t *scope) {
 	match(ast, AST_FN_DECL, "Expected AST_FN_DECL");
-
-	ast->scope = scope;
-
-	create_fn(ast);
-	block_stmt(ast->ast.fn_decl.block_stmt, scope);
+	block_stmt(ast->ast.fn_decl.block_stmt, ast->scope);
 }
 
 static void stmt(ast_t *ast, scope_t *scope) {

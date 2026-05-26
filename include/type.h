@@ -4,6 +4,7 @@
 enum {
 	TYPE_VOID,
 	TYPE_PRIMITIVE,
+	TYPE_FN,
 };
 
 typedef struct type_t type_t;

@@ -4,5 +4,6 @@
 - [v] Print the ast
 
 2026.05.26:
-- [ ] Create fn type during semantic analysis in the ast prog scope
+- [x] Create fn type during semantic analysis in the ast prog scope
+- [ ] Generate the type using the type-specifier ast
 
