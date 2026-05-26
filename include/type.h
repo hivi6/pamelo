@@ -12,6 +12,12 @@ struct type_t {
 	int kind;
 	const char *name;
 	int size;
+
+	union {
+		struct {
+			type_t *return_type;
+		} fn_type;
+	} type;
 };
 
 type_t *create_type(int kind, const char *name, int size);

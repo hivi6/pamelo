@@ -15,6 +15,8 @@ static void create_fn(ast_t *ast, scope_t *scope);
 
 static void prog(ast_t *ast, scope_t *scope);
 
+static type_t *type_specifier(ast_t *ast, scope_t *scope);
+
 static void fn_decl(ast_t *ast, scope_t *scope);
 
 static void stmt(ast_t *ast, scope_t *scope);
@@ -67,6 +69,9 @@ static void create_fn(ast_t *ast, scope_t *scope) {
 	token_t *tok = ast->ast.fn_decl.name;
 	char *name = token_lexical(*tok);
 
+	type_t *return_type = type_specifier(ast->ast.fn_decl.type_specifier,
+		scope);
+
 	// Add the function type in the parent scope
 	type_t *fn_type = create_type(TYPE_FN, name, 0);
 	if (!add_type(scope, fn_type)) {
@@ -74,6 +79,7 @@ static void create_fn(ast_t *ast, scope_t *scope) {
 			"Function already defined");
 		exit(1);
 	}
+	fn_type->type.fn_type.return_type = return_type;
 
 	free(name);
 }
@@ -105,6 +111,34 @@ static void prog(ast_t *ast, scope_t *scope) {
 static void fn_decl(ast_t *ast, scope_t *scope) {
 	match(ast, AST_FN_DECL, "Expected AST_FN_DECL");
 	block_stmt(ast->ast.fn_decl.block_stmt, ast->scope);
+}
+
+static type_t *type_specifier(ast_t *ast, scope_t *scope) {
+	match(ast, AST_TYPE_SPECIFIER, "Expected AST_TYPE_SPECIFIER");
+
+	token_t *tok = ast->ast.type_specifier.name;
+	char *name = token_lexical(*tok);
+
+	type_t *t = NULL;
+	for (scope_t *head = scope; head; head = head->parent_scope) {
+		t = get_type(head, name);
+		if (t) break;
+	}
+
+	if (t == NULL) {
+		eprintf(tok->filepath, tok->source, tok->start, tok->end,
+			"Type not defined");
+		exit(1);
+	}
+	if (t->kind == TYPE_FN) {
+		eprintf(tok->filepath, tok->source, tok->start, tok->end,
+			"Cannot be a function type");
+		exit(1);
+	}
+
+	free(name);
+
+	return t;
 }
 
 static void stmt(ast_t *ast, scope_t *scope) {

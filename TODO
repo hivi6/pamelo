@@ -5,5 +5,7 @@
 
 2026.05.26:
 - [x] Create fn type during semantic analysis in the ast prog scope
-- [ ] Generate the type using the type-specifier ast
+- [x] Generate the type using the type-specifier ast
+- [x] Fix bug related to memory freeing
+- [ ] Semantic analyse the expression
 
