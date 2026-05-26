@@ -63,6 +63,12 @@ int main(int argc, const char **argv) {
 		for (int i = 0; i < scope_list_len; i++) {
 			printf("id: %p\n", scope_list[i]);
 			printf("parent-id: %p\n", scope_list[i]->parent_scope);
+			printf("types:\n");
+			for (int j = 0; j < scope_list[i]->types_len; j++) {
+				char *name = type_str(scope_list[i]->types[j]);
+				printf("    %d. %s\n", j+1, name);
+				free(name);
+			}
 			printf("\n");
 		}
 	}

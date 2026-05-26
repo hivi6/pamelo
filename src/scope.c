@@ -30,10 +30,8 @@ scope_t *create_scope(scope_t *parent_scope) {
 }
 
 int add_type(scope_t *scope, type_t *type) {
-	for (int i = 0; i < scope->types_len; i++) {
-		if (strcmp(scope->types[i]->name, type->name) == 0) {
-			return 0; // fail; type already exists in the scope
-		}
+	if (get_type(scope, type->name)) {
+		return 0;
 	}
 	append_type(&scope->types, &scope->types_len, type);
 	return 1; // success

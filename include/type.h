@@ -22,6 +22,7 @@ struct type_t {
 
 type_t *create_type(int kind, const char *name, int size);
 void append_type(type_t ***list, int *len, type_t *type);
+char *type_str(type_t *type);
 
 #endif /* TYPE_H */
 
