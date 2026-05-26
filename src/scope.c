@@ -6,6 +6,10 @@
 // ========================================
 
 static scope_t *g_global_declaration = NULL;
+static scope_t **g_scope_list = NULL;
+static int g_scope_list_len = 0;
+
+static void append_scope(scope_t ***list, int *len, scope_t *scope);
 
 // ========================================
 // scope.h - definition
@@ -21,6 +25,7 @@ scope_t *get_global_scope() {
 scope_t *create_scope(scope_t *parent_scope) {
 	scope_t *scope = calloc(sizeof(scope_t), 1);
 	scope->parent_scope = parent_scope;
+	append_scope(&g_scope_list, &g_scope_list_len, scope);
 	return scope;
 }
 
@@ -49,5 +54,20 @@ type_t *get_type_in_chain(scope_t *scope, const char *name) {
 		if (t) return t;
 	}
 	return NULL;
+}
+
+void get_scope_list(scope_t ***scope_list, int *scope_list_len) {
+	*scope_list = g_scope_list;
+	*scope_list_len = g_scope_list_len;
+}
+
+// ========================================
+// helper definition
+// ========================================
+
+static void append_scope(scope_t ***list, int *len, scope_t *scope) {
+	*len += 1;
+	*list = realloc(*list, *len * sizeof(scope_t*));
+	(*list)[*len-1] = scope;
 }
 

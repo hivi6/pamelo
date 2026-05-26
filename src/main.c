@@ -12,6 +12,7 @@
 static int g_help_flag = 0;
 static int g_print_token_flag = 0;
 static int g_print_ast_flag = 0;
+static int g_print_scope_flag = 0;
 
 static void usage(FILE *f);
 static char *read_file(const char *filepath);
@@ -55,6 +56,16 @@ int main(int argc, const char **argv) {
 	}
 
 	semantic_analyse(ast);
+	if (g_print_scope_flag) {
+		scope_t **scope_list = NULL;
+		int scope_list_len = 0;
+		get_scope_list(&scope_list, &scope_list_len);
+		for (int i = 0; i < scope_list_len; i++) {
+			printf("id: %p\n", scope_list[i]);
+			printf("parent-id: %p\n", scope_list[i]->parent_scope);
+			printf("\n");
+		}
+	}
 
 	return 0;
 }
@@ -113,6 +124,8 @@ static int get_opts(int argc, const char **argv) {
 			g_print_token_flag = 1;
 		else if (strcmp(argv[i], "--print-ast") == 0)
 			g_print_ast_flag = 1;
+		else if (strcmp(argv[i], "--print-scope") == 0)
+			g_print_scope_flag = 1;
 		else
 			break;
 	}

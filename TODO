@@ -8,4 +8,5 @@
 - [x] Generate the type using the type-specifier ast
 - [x] Fix bug related to memory freeing
 - [x] Semantic analyse the expression
+- [ ] Print basic scope information like pointer and parent pointer
 
