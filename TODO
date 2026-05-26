@@ -3,3 +3,6 @@
 - [v] Create a basic parser
 - [v] Print the ast
 
+2026.05.26:
+- [ ] Create fn type during semantic analysis in the ast prog scope
+
