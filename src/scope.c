@@ -43,3 +43,11 @@ type_t *get_type(scope_t *scope, const char *name) {
 	return NULL;
 }
 
+type_t *get_type_in_chain(scope_t *scope, const char *name) {
+	for (scope_t *cur = scope; cur; cur = cur->parent_scope) {
+		type_t *t = get_type(cur, name);
+		if (t) return t;
+	}
+	return NULL;
+}
+

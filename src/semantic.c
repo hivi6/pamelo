@@ -23,6 +23,9 @@ static void stmt(ast_t *ast, scope_t *scope);
 static void block_stmt(ast_t *ast, scope_t *scope);
 static void expr_stmt(ast_t *ast, scope_t *scope);
 
+static type_t *expr(ast_t *ast, scope_t *scope);
+static type_t *literal_expr(ast_t *ast, scope_t *scope);
+
 // ========================================
 // semantic.h - definition
 // ========================================
@@ -119,12 +122,7 @@ static type_t *type_specifier(ast_t *ast, scope_t *scope) {
 	token_t *tok = ast->ast.type_specifier.name;
 	char *name = token_lexical(*tok);
 
-	type_t *t = NULL;
-	for (scope_t *head = scope; head; head = head->parent_scope) {
-		t = get_type(head, name);
-		if (t) break;
-	}
-
+	type_t *t = get_type_in_chain(scope, name);
 	if (t == NULL) {
 		eprintf(tok->filepath, tok->source, tok->start, tok->end,
 			"Type not defined");
@@ -170,7 +168,42 @@ static void block_stmt(ast_t *ast, scope_t *scope) {
 
 static void expr_stmt(ast_t *ast, scope_t *scope) {
 	match(ast, AST_EXPR_STMT, "Expected AST_EXPR_STMT");
-
 	ast->scope = scope;
+	expr(ast->ast.expr_stmt.expr, scope);
+}
+
+static type_t *expr(ast_t *ast, scope_t *scope) {
+	ast->scope = scope;
+
+	type_t *type = NULL;
+	if (ast->kind == AST_LITERAL_EXPR) {
+		type = literal_expr(ast, scope);
+	}
+
+	if (type == NULL) {
+		eprintf(ast->filepath, ast->source, ast->start, ast->end,
+			"What is this ast(kind: %d)?", ast->kind);
+		exit(1);
+	}
+
+	return ast->type = type;
+}
+
+static type_t *literal_expr(ast_t *ast, scope_t *scope) {
+	match(ast, AST_LITERAL_EXPR, "Expected AST_LITERAL_EXPR");
+
+	token_t *tok = ast->ast.literal_expr.token;
+	type_t *type = NULL;
+	if (tok->kind == TOKEN_INT_LITERAL) {
+		type = get_type_in_chain(scope, "u32");
+	}
+
+	if (type == NULL) {
+		eprintf(tok->filepath, tok->source, tok->start, tok->end,
+			"Invalid token literal type");
+		exit(1);
+	}
+
+	return type;
 }
 

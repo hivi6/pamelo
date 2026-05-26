@@ -26,6 +26,7 @@ struct ast_t {
 	pos_t end;
 
 	scope_t *scope;
+	type_t *type;
 
 	union {
 		struct {
