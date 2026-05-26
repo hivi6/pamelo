@@ -20,9 +20,19 @@ void sbuilder_reserve(sbuilder_t *self, int new_cap) {
 }
 
 void sbuilder_appendvf(sbuilder_t *self, const char *format, va_list args) {
-	int len = vsnprintf(NULL, 0, format, args);
+	va_list temp;
+	va_copy(temp, args);
+	int len = vsnprintf(NULL, 0, format, temp);
+	va_end(temp);
+
+	if (len < 0) return;
+
 	sbuilder_reserve(self, self->cap + len + 2);
-	vsprintf(self->elems + self->len, format, args);
+
+	va_copy(temp, args);
+	vsprintf(self->elems + self->len, format, temp);
+	va_end(temp);
+
 	self->len += len;
 }
 
@@ -35,7 +45,8 @@ void sbuilder_appendf(sbuilder_t *self, const char *format, ...) {
 
 void sbuilder_build(sbuilder_t *self, char **out) {
 	char *res = malloc((self->len + 1) * sizeof(char));
-	sprintf(res, "%s", self->elems);
+	if (self->len <= 0) sprintf(res, "");
+	else sprintf(res, "%s", self->elems);
 	*out = res;
 }
 
