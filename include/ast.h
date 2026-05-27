@@ -12,6 +12,7 @@ enum {
 	AST_TYPE_SPECIFIER,
 
 	AST_BLOCK_STMT,
+	AST_VAR_STMT,
 	AST_EXPR_STMT,
 	
 	AST_LITERAL_EXPR,
@@ -57,6 +58,14 @@ struct ast_t {
 
 			token_t *rbrace;
 		} block_stmt;
+
+		struct {
+			token_t *var_keyword;
+			token_t *name;
+			ast_t *type_specifier;
+			ast_t *expr;
+			token_t *semicolon;
+		} var_stmt;
 
 		struct {
 			ast_t *expr;

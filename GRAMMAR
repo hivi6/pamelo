@@ -9,8 +9,9 @@ GRAMMAR
 
 <type-specifier> := ID
 
-<stmt>       := <block-stmt> | <expr-stmt>
+<stmt>       := <block-stmt> | <var-expr> | <expr-stmt>
 <block-stmt> := LBRACE <stmt>* RBRACE
+<var-expr>   := VAR_KEYWORD ID <type-specifier>? (EQUAL <expr>)? SEMICOLON
 <expr-stmt>  := <expr> SEMICOLON
 
 <expr>         := <add-expr>
@@ -29,6 +30,7 @@ RPAREN    := ")"
 SEMICOLON := ";"
 PLUS      := "+"
 MINUS     := "-"
+EQUAL     := "="
 
 INT_LITERAL := "0" 
              | "0" ("x" | "X") [a-fA-F0-9]+
@@ -38,6 +40,7 @@ INT_LITERAL := "0"
 
 ID := [a-zA-Z_][a-zA-Z0-9_]*
 
-FN_KEYWORD := "fn"
-AS_KEYWORD := "as"
+FN_KEYWORD  := "fn"
+AS_KEYWORD  := "as"
+VAR_KEYWORD := "var"
 

@@ -69,6 +69,12 @@ int main(int argc, const char **argv) {
 				printf("    %d. %s\n", j+1, name);
 				free(name);
 			}
+			printf("symbols:\n");
+			for (int j = 0; j < scope_list[i]->symbols_len; j++) {
+				char *name = symbol_str(scope_list[i]->symbols[j]);
+				printf("    %d. %s\n", j+1, name);
+				free(name);
+			}
 			printf("\n");
 		}
 	}

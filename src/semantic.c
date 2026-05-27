@@ -18,6 +18,7 @@ static void init(ast_t *ast);
 static void match(ast_t *ast, int kind, const char *message);
 static void create_fn(ast_t *ast, scope_t *scope);
 static char is_numeric(type_t *type);
+static char is_castable(type_t *out, type_t *in);
 
 static void prog(ast_t *ast, scope_t *scope);
 
@@ -27,6 +28,7 @@ static void fn_decl(ast_t *ast, scope_t *scope);
 
 static void stmt(ast_t *ast, scope_t *scope);
 static void block_stmt(ast_t *ast, scope_t *scope);
+static void var_stmt(ast_t *ast, scope_t *scope);
 static void expr_stmt(ast_t *ast, scope_t *scope);
 
 static type_t *expr(ast_t *ast, scope_t *scope);
@@ -104,6 +106,10 @@ static char is_numeric(type_t *type) {
 	return type == g_u8 || type == g_u16 || type == g_u32 || type == g_u64;
 }
 
+static char is_castable(type_t *out, type_t *in) {
+	return is_numeric(out) && is_numeric(in);
+}
+
 static void prog(ast_t *ast, scope_t *scope) {
 	match(ast, AST_PROG, "Expected AST_PROG; prog(ast_t*)");
 
@@ -162,6 +168,9 @@ static void stmt(ast_t *ast, scope_t *scope) {
 	if (ast->kind == AST_BLOCK_STMT) {
 		block_stmt(ast, scope);
 	}
+	else if (ast->kind == AST_VAR_STMT) {
+		var_stmt(ast, scope);
+	}
 	else if (ast->kind == AST_EXPR_STMT) {
 		expr_stmt(ast, scope);
 	}
@@ -181,6 +190,40 @@ static void block_stmt(ast_t *ast, scope_t *scope) {
 	for (int i = 0; i < ast->ast.block_stmt.stmts_len; i++) {
 		stmt(ast->ast.block_stmt.stmts[i], new_scope);
 	}
+}
+
+static void var_stmt(ast_t *ast, scope_t *scope) {
+	match(ast, AST_VAR_STMT, "Expected AST_VAR_STMT");
+
+	type_t *t1 = NULL, *t2 = NULL;
+	if (ast->ast.var_stmt.type_specifier) {
+		t1 = type_specifier(ast->ast.var_stmt.type_specifier, scope);
+	}
+	if (ast->ast.var_stmt.expr) {
+		t2 = expr(ast->ast.var_stmt.expr, scope);
+	}
+
+	if (t1 == NULL && t2 == NULL) {
+		token_t *name = ast->ast.var_stmt.name;
+		eprintf(name->filepath, name->source, name->start, name->end,
+			"Cannot infer type as type info and "
+			"expression is missing");
+		exit(1);
+	}
+
+	type_t *final_type = (t1 ? t1 : t2);
+	token_t *tok = ast->ast.var_stmt.name;
+	char *name = token_lexical(*tok);
+	symbol_t *var_symbol = create_symbol(name, final_type);
+	if (!add_symbol(scope, var_symbol)) {
+		eprintf(tok->filepath, tok->source, tok->start, tok->end,
+			"Symbol already defined");
+		exit(1);
+	}
+
+	free(name);
+
+	ast->type = final_type;
 }
 
 static void expr_stmt(ast_t *ast, scope_t *scope) {

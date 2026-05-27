@@ -13,6 +13,7 @@ enum {
 	TOKEN_SEMICOLON,
 	TOKEN_PLUS,
 	TOKEN_MINUS,
+	TOKEN_EQUAL,
 
 	TOKEN_INT_LITERAL,
 
@@ -20,6 +21,7 @@ enum {
 
 	TOKEN_FN_KEYWORD,
 	TOKEN_AS_KEYWORD,
+	TOKEN_VAR_KEYWORD,
 };
 
 typedef struct token_t token_t;

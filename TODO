@@ -14,5 +14,7 @@
 - [x] Add addition and substraction expression to grammar
 - [x] Add printing of semantic type information in ast tree for each expression
 - [x] Add a cast expression
-- [ ] Add a symbol list per scope
+- [x] Add a symbol list per scope
+- [x] Add support for variable declaration in functions
+- [ ] Add support for variable use in expression
 

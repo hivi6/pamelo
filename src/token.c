@@ -126,6 +126,7 @@ static void generate_token() {
 	else if (char_at(0) == ';') kind = TOKEN_SEMICOLON;
 	else if (char_at(0) == '+') kind = TOKEN_PLUS;
 	else if (char_at(0) == '-') kind = TOKEN_MINUS;
+	else if (char_at(0) == '=') kind = TOKEN_EQUAL;
 	else if (isdigit(char_at(0))) {
 		kind = int_literal_skip();
 		skip = 0;
@@ -245,6 +246,7 @@ static int keyword_skip() {
 	int kind = TOKEN_ID;
 	if (strcmp(res, "fn") == 0) kind = TOKEN_FN_KEYWORD;
 	if (strcmp(res, "as") == 0) kind = TOKEN_AS_KEYWORD;
+	if (strcmp(res, "var") == 0) kind = TOKEN_VAR_KEYWORD;
 
 	free(res);
 

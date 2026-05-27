@@ -26,6 +26,8 @@ static ast_t *malloc_ast_fn_decl(token_t *fn_keyword, token_t *name,
 	token_t *lparen, token_t *rparen, ast_t *t, ast_t *block_stmt);
 static ast_t *malloc_ast_type_specifier(token_t *id);
 static ast_t *malloc_ast_block_stmt(token_t *lbrace);
+static ast_t *malloc_ast_var_stmt(token_t *var_keyword, token_t *name,
+	ast_t *type_specifier, ast_t *expr, token_t *semicolon);
 static ast_t *malloc_ast_expr_stmt(ast_t *expr, token_t *semicolon);
 static ast_t *malloc_ast_literal_expr(token_t *token);
 static ast_t *malloc_ast_cast_expr(ast_t *left, token_t *as_keyword, 
@@ -38,6 +40,7 @@ static ast_t *fn_decl();
 static ast_t *type_specifier();
 static ast_t *stmt();
 static ast_t *block_stmt();
+static ast_t *var_stmt();
 static ast_t *expr_stmt();
 static ast_t *expr();
 static ast_t *literal_expr();
@@ -120,6 +123,24 @@ static void print_ast_helper(ast_t *ast, char *indent, int depth,
 		for (int i = 0; i < stmts_len; i++) {
 			if (i == stmts_len-1) indent[depth+1] = 0;
 			print_ast_helper(stmts[i], indent, depth+1, NULL);
+		}
+		break;
+	}
+	case AST_VAR_STMT: {
+		char *type_info = type_str(ast->type);
+		char *name = token_str(ast->ast.var_stmt.name);
+		printf("AST_VAR_STMT(%s) [%s]\n", name, type_info);
+		free(type_info);
+		free(name);
+		if (ast->ast.var_stmt.type_specifier) {
+			if (ast->ast.var_stmt.expr == NULL) indent[depth+1] = 0;
+			print_ast_helper(ast->ast.var_stmt.type_specifier, 
+				indent, depth+1, NULL);
+		}
+		indent[depth+1] = 0;
+		if (ast->ast.var_stmt.expr) {
+			print_ast_helper(ast->ast.var_stmt.expr, indent, 
+				depth+1, NULL);
 		}
 		break;
 	}
@@ -257,6 +278,18 @@ static ast_t *malloc_ast_block_stmt(token_t *lbrace) {
 	return res;
 }
 
+static ast_t *malloc_ast_var_stmt(token_t *var_keyword, token_t *name,
+	ast_t *type_specifier, ast_t *expr, token_t *semicolon) {
+	ast_t *res = malloc_ast(AST_VAR_STMT, var_keyword->filepath,
+		var_keyword->source, var_keyword->start, semicolon->end);
+	res->ast.var_stmt.var_keyword = var_keyword;
+	res->ast.var_stmt.name = name;
+	res->ast.var_stmt.type_specifier = type_specifier;
+	res->ast.var_stmt.expr = expr;
+	res->ast.var_stmt.semicolon = semicolon;
+	return res;
+}
+
 static ast_t *malloc_ast_expr_stmt(ast_t *expr, token_t *semicolon) {
 	ast_t *res = malloc_ast(AST_EXPR_STMT, expr->filepath,
 		expr->source, expr->start, semicolon->end);
@@ -328,6 +361,7 @@ static ast_t *type_specifier() {
 
 static ast_t *stmt() {
 	if (check(0, TOKEN_LBRACE)) return block_stmt();
+	if (check(0, TOKEN_VAR_KEYWORD)) return var_stmt();
 	return expr_stmt();
 }
 
@@ -346,6 +380,27 @@ static ast_t *block_stmt() {
 
 	return ast;
 }
+
+static ast_t *var_stmt() {
+	token_t *var_keyword = match(TOKEN_VAR_KEYWORD, 
+		"Expected 'var' keyword");
+	token_t *name = match(TOKEN_ID, "Expected var name");
+	ast_t *t = NULL;
+	ast_t *e = NULL;
+
+	if (!check(0, TOKEN_SEMICOLON) && !check(0, TOKEN_EQUAL)) {
+		t = type_specifier();
+	}
+
+	if (check(0, TOKEN_EQUAL)) {
+		skip(1);
+		e = expr();
+	}
+
+	token_t *semicolon = match(TOKEN_SEMICOLON, "Expected ';' at the end");
+
+	return malloc_ast_var_stmt(var_keyword, name, t, e, semicolon);
+}	
 
 static ast_t *expr_stmt() {
 	ast_t *e = expr();
