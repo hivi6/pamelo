@@ -28,6 +28,8 @@ static ast_t *malloc_ast_type_specifier(token_t *id);
 static ast_t *malloc_ast_block_stmt(token_t *lbrace);
 static ast_t *malloc_ast_var_stmt(token_t *var_keyword, token_t *name,
 	ast_t *type_specifier, ast_t *expr, token_t *semicolon);
+static ast_t *malloc_ast_return_stmt(token_t *return_keyword, ast_t *expr,
+	token_t *semicolon);
 static ast_t *malloc_ast_expr_stmt(ast_t *expr, token_t *semicolon);
 static ast_t *malloc_ast_literal_expr(token_t *token);
 static ast_t *malloc_ast_var_expr(token_t *token);
@@ -42,6 +44,7 @@ static ast_t *type_specifier();
 static ast_t *stmt();
 static ast_t *block_stmt();
 static ast_t *var_stmt();
+static ast_t *return_stmt();
 static ast_t *expr_stmt();
 static ast_t *expr();
 static ast_t *literal_expr();
@@ -147,6 +150,15 @@ static void print_ast_helper(ast_t *ast, char *indent, int depth,
 		}
 		break;
 	}
+	case AST_RETURN_STMT: {
+		printf("AST_RETURN_STMT\n");
+		indent[depth+1] = 0;
+		if (ast->ast.return_stmt.expr) {
+			print_ast_helper(ast->ast.return_stmt.expr, indent,
+				depth+1, NULL);
+		}
+		break;
+	}
 	case AST_EXPR_STMT: {
 		printf("AST_EXPR_STMT\n");
 		indent[depth+1] = 0;
@@ -195,7 +207,8 @@ static void print_ast_helper(ast_t *ast, char *indent, int depth,
 		break;
 	}
 	default: {
-		printf("WHAT IS THIS AST?\n");
+		eprintf(ast->filepath, ast->source, ast->start, ast->end,
+			"What is this ast?");
 		exit(1);
 	}
 	}
@@ -301,6 +314,16 @@ static ast_t *malloc_ast_var_stmt(token_t *var_keyword, token_t *name,
 	return res;
 }
 
+static ast_t *malloc_ast_return_stmt(token_t *return_keyword, ast_t *expr,
+	token_t *semicolon) {
+	ast_t *res = malloc_ast(AST_RETURN_STMT, return_keyword->filepath,
+		return_keyword->source, return_keyword->start, semicolon->end);
+	res->ast.return_stmt.return_keyword = return_keyword;
+	res->ast.return_stmt.expr = expr;
+	res->ast.return_stmt.semicolon = semicolon;
+	return res;
+}
+
 static ast_t *malloc_ast_expr_stmt(ast_t *expr, token_t *semicolon) {
 	ast_t *res = malloc_ast(AST_EXPR_STMT, expr->filepath,
 		expr->source, expr->start, semicolon->end);
@@ -380,6 +403,7 @@ static ast_t *type_specifier() {
 static ast_t *stmt() {
 	if (check(0, TOKEN_LBRACE)) return block_stmt();
 	if (check(0, TOKEN_VAR_KEYWORD)) return var_stmt();
+	if (check(0, TOKEN_RETURN_KEYWORD)) return return_stmt();
 	return expr_stmt();
 }
 
@@ -415,10 +439,23 @@ static ast_t *var_stmt() {
 		e = expr();
 	}
 
-	token_t *semicolon = match(TOKEN_SEMICOLON, "Expected ';' at the end");
+	token_t *semicolon = match(TOKEN_SEMICOLON, 
+		"Expected ';' at the end of var statement");
 
 	return malloc_ast_var_stmt(var_keyword, name, t, e, semicolon);
 }	
+
+static ast_t *return_stmt() {
+	token_t *return_keyword = match(TOKEN_RETURN_KEYWORD,
+		"Expected 'return' keyword");
+	ast_t *e = NULL;
+	if (!check(0, TOKEN_SEMICOLON)) {
+		e = expr();
+	}
+	token_t *semicolon = match(TOKEN_SEMICOLON, 
+		"Expected ';' at the end of return statement");
+	return malloc_ast_return_stmt(return_keyword, e, semicolon);
+}
 
 static ast_t *expr_stmt() {
 	ast_t *e = expr();

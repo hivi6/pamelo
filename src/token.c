@@ -74,6 +74,8 @@ char *token_type(token_t token) {
 		sbuilder_appendf(&s, "AS_KEYWORD");
 	else if (token.kind == TOKEN_VAR_KEYWORD) 
 		sbuilder_appendf(&s, "VAR_KEYWORD");
+	else if (token.kind == TOKEN_RETURN_KEYWORD) 
+		sbuilder_appendf(&s, "RETURN_KEYWORD");
 	else {
 		eprintf(token.filepath, token.source, token.start, token.end,
 			"What is this token type?");
@@ -265,6 +267,7 @@ static int keyword_skip() {
 	if (strcmp(res, "fn") == 0) kind = TOKEN_FN_KEYWORD;
 	if (strcmp(res, "as") == 0) kind = TOKEN_AS_KEYWORD;
 	if (strcmp(res, "var") == 0) kind = TOKEN_VAR_KEYWORD;
+	if (strcmp(res, "return") == 0) kind = TOKEN_RETURN_KEYWORD;
 
 	free(res);
 

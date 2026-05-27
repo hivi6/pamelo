@@ -13,6 +13,7 @@ enum {
 
 	AST_BLOCK_STMT,
 	AST_VAR_STMT,
+	AST_RETURN_STMT,
 	AST_EXPR_STMT,
 
 	AST_LITERAL_EXPR,
@@ -67,6 +68,12 @@ struct ast_t {
 			ast_t *expr;
 			token_t *semicolon;
 		} var_stmt;
+
+		struct {
+			token_t *return_keyword;
+			ast_t *expr;
+			token_t *semicolon;
+		} return_stmt;
 
 		struct {
 			ast_t *expr;

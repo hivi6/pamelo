@@ -20,4 +20,5 @@
 - [x] Fix bug related to UNKNOWN printing of token for EQUAL, AS_KEYWORD, etc.
 - [x] Fix bug related to var statement of void type.
 - [x] Reject malformed int literal suffixes like 0x and 0b
+- [x] Add support for return statement
 

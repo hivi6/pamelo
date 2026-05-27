@@ -9,10 +9,11 @@ GRAMMAR
 
 <type-specifier> := ID
 
-<stmt>       := <block-stmt> | <var-expr> | <expr-stmt>
-<block-stmt> := LBRACE <stmt>* RBRACE
-<var-stmt>   := VAR_KEYWORD ID <type-specifier>? (EQUAL <expr>)? SEMICOLON
-<expr-stmt>  := <expr> SEMICOLON
+<stmt>        := <block-stmt> | <var-expr> | <return-stmt> | <expr-stmt>
+<block-stmt>  := LBRACE <stmt>* RBRACE
+<var-stmt>    := VAR_KEYWORD ID <type-specifier>? (EQUAL <expr>)? SEMICOLON
+<return-stmt> := RETURN_KEYWORD <expr>? SEMICOLON
+<expr-stmt>   := <expr> SEMICOLON
 
 <expr>         := <add-expr>
 <add-expr>     := <cast-expr> ((PLUS | MINUS) <cast-expr>)*
@@ -42,7 +43,8 @@ INT_LITERAL := "0"
 
 ID := [a-zA-Z_][a-zA-Z0-9_]*
 
-FN_KEYWORD  := "fn"
-AS_KEYWORD  := "as"
-VAR_KEYWORD := "var"
+FN_KEYWORD     := "fn"
+AS_KEYWORD     := "as"
+VAR_KEYWORD    := "var"
+RETURN_KEYWORD := "return"
 

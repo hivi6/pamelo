@@ -13,6 +13,7 @@ static type_t *g_u8 = NULL;
 static type_t *g_u16 = NULL;
 static type_t *g_u32 = NULL;
 static type_t *g_u64 = NULL;
+static type_t *g_current_return_type = NULL;
 
 static void init(ast_t *ast);
 static void match(ast_t *ast, int kind, const char *message);
@@ -29,6 +30,7 @@ static void fn_decl(ast_t *ast, scope_t *scope);
 static void stmt(ast_t *ast, scope_t *scope);
 static void block_stmt(ast_t *ast, scope_t *scope);
 static void var_stmt(ast_t *ast, scope_t *scope);
+static void return_stmt(ast_t *ast, scope_t *scope);
 static void expr_stmt(ast_t *ast, scope_t *scope);
 
 static type_t *expr(ast_t *ast, scope_t *scope);
@@ -99,6 +101,7 @@ static void create_fn(ast_t *ast, scope_t *scope) {
 		exit(1);
 	}
 	fn_type->type.fn_type.return_type = return_type;
+	ast->type = fn_type;
 
 	free(name);
 }
@@ -137,6 +140,7 @@ static void prog(ast_t *ast, scope_t *scope) {
 
 static void fn_decl(ast_t *ast, scope_t *scope) {
 	match(ast, AST_FN_DECL, "Expected AST_FN_DECL");
+	g_current_return_type = ast->type->type.fn_type.return_type;
 	block_stmt(ast->ast.fn_decl.block_stmt, ast->scope);
 }
 
@@ -174,6 +178,9 @@ static void stmt(ast_t *ast, scope_t *scope) {
 	}
 	else if (ast->kind == AST_EXPR_STMT) {
 		expr_stmt(ast, scope);
+	}
+	else if (ast->kind == AST_RETURN_STMT) {
+		return_stmt(ast, scope);
 	}
 	else {
 		eprintf(ast->filepath, ast->source, ast->start, ast->end,
@@ -231,6 +238,25 @@ static void var_stmt(ast_t *ast, scope_t *scope) {
 	free(name);
 
 	ast->type = final_type;
+}
+
+static void return_stmt(ast_t *ast, scope_t *scope) {
+	match(ast, AST_RETURN_STMT, "Expected AST_RETURN_STMT");
+
+	type_t *return_type = g_void;
+	if (ast->ast.return_stmt.expr) {
+		return_type = expr(ast->ast.return_stmt.expr, scope);
+	}
+
+	if (g_current_return_type == return_type) {
+		return;
+	}
+
+	if (!is_castable(g_current_return_type, return_type)) {
+		eprintf(ast->filepath, ast->source, ast->start, ast->end,
+			"Incompitable return expression and function return type");
+		exit(1);
+	}
 }
 
 static void expr_stmt(ast_t *ast, scope_t *scope) {
