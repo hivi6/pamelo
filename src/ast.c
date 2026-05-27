@@ -126,15 +126,19 @@ static void print_ast_helper(ast_t *ast, char *indent, int depth,
 		break;
 	}
 	case AST_LITERAL_EXPR: {
+		char *type_info = type_str(ast->type);
 		char *str = token_str(ast->ast.literal_expr.token);
-		printf("AST_LITERAL_EXPR(%s)\n", str);
+		printf("AST_LITERAL_EXPR(%s) [%s]\n", str, type_info);
 		free(str);
+		free(type_info);
 		break;
 	}
 	case AST_ADD_EXPR: {
+		char *type_info = type_str(ast->type);
 		char *op = token_str(ast->ast.add_expr.op);
-		printf("AST_ADD_EXPR(%s)\n", op);
+		printf("AST_ADD_EXPR(%s) [%s]\n", op, type_info);
 		free(op);
+		free(type_info);
 		print_ast_helper(ast->ast.add_expr.left, indent, depth+1, 
 			NULL);
 		indent[depth+1] = 0;

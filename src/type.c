@@ -21,6 +21,8 @@ void append_type(type_t ***list, int *len, type_t *type) {
 }
 
 char *type_str(type_t *type) {
+	if (type == NULL) return NULL;
+
 	sbuilder_t s;
 	sbuilder_init(&s);
 

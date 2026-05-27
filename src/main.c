@@ -37,6 +37,8 @@ int main(int argc, const char **argv) {
 	const char *filepath = argv[index];
 	const char *source = read_file(filepath);
 	token_t *tokens = generate_tokens(filepath, source);
+	ast_t *ast = parse(tokens);
+	semantic_analyse(ast);
 
 	if (g_print_token_flag) {
 		printf("file: %s\n", filepath);
@@ -48,14 +50,12 @@ int main(int argc, const char **argv) {
 		printf("\n");
 	}
 
-	ast_t *ast = parse(tokens);
 	if (g_print_ast_flag) {
 		printf("file: %s\n", filepath);
 		print_ast(ast);
 		printf("\n");
 	}
 
-	semantic_analyse(ast);
 	if (g_print_scope_flag) {
 		scope_t **scope_list = NULL;
 		int scope_list_len = 0;
