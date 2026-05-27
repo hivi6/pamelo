@@ -54,6 +54,31 @@ type_t *get_type_in_chain(scope_t *scope, const char *name) {
 	return NULL;
 }
 
+int add_symbol(scope_t *scope, symbol_t *symbol) {
+	if (get_symbol(scope, symbol->name)) {
+		return 0;
+	}
+	append_symbol(&scope->symbols, &scope->symbols_len, symbol);
+	return 1;
+}
+
+symbol_t *get_symbol(scope_t *scope, const char *name) {
+	for (int i = 0; i < scope->symbols_len; i++) {
+		if (strcmp(scope->symbols[i]->name, name) == 0) {
+			return scope->symbols[i];
+		}
+	}
+	return NULL;
+}
+
+symbol_t *get_symbol_in_chain(scope_t *scope, const char *name) {
+	for (scope_t *cur = scope; cur; cur = cur->parent_scope) {
+		symbol_t *s = get_symbol(cur, name);
+		if (s) return s;
+	}
+	return NULL;
+}
+
 void get_scope_list(scope_t ***scope_list, int *scope_list_len) {
 	*scope_list = g_scope_list;
 	*scope_list_len = g_scope_list_len;
