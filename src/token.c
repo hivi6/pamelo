@@ -58,6 +58,8 @@ char *token_type(token_t token) {
 		sbuilder_appendf(&s, "RPAREN");
 	else if (token.kind == TOKEN_SEMICOLON) 
 		sbuilder_appendf(&s, "SEMICOLON");
+	else if (token.kind == TOKEN_EQUAL) 
+		sbuilder_appendf(&s, "EQUAL");
 	else if (token.kind == TOKEN_PLUS)
 		sbuilder_appendf(&s, "PLUS");
 	else if (token.kind == TOKEN_MINUS)
@@ -68,8 +70,15 @@ char *token_type(token_t token) {
 		sbuilder_appendf(&s, "ID");
 	else if (token.kind == TOKEN_FN_KEYWORD) 
 		sbuilder_appendf(&s, "FN_KEYWORD");
-	else
-		sbuilder_appendf(&s, "UNKNOWN");
+	else if (token.kind == TOKEN_AS_KEYWORD) 
+		sbuilder_appendf(&s, "AS_KEYWORD");
+	else if (token.kind == TOKEN_VAR_KEYWORD) 
+		sbuilder_appendf(&s, "VAR_KEYWORD");
+	else {
+		eprintf(token.filepath, token.source, token.start, token.end,
+			"What is this token type?");
+		exit(1);
+	}
 
 	sbuilder_build(&s, &res);
 	sbuilder_free(&s);
