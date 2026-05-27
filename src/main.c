@@ -97,6 +97,11 @@ static void usage(FILE *f) {
 		"    --help, -h       This screen\n"
 		"    --print-token    Print the token to the screen\n"
 		"    --print-ast      Print the ast to the screen\n"
+		"    --print-scope    Print the scope info to the screen\n"
+		"\n"
+		"HINTS:\n"
+		"    1. If you want to read from stdin, then make filepath == '-'\n"
+		"       echo hello | orange -; this should read hello from the stdin\n"
 		"\n"
 	);
 }
