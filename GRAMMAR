@@ -13,7 +13,8 @@ GRAMMAR
 <block-stmt> := LBRACE <stmt>* RBRACE
 <expr-stmt>  := <expr> SEMICOLON
 
-<expr>         := <literal-expr>
+<expr>         := <add-expr>
+<add-expr>     := <literal-expr> ((PLUS | MINUS) <literal-expr>)*
 <literal-expr> := INT_LITERAL
 
 ========================================
@@ -25,6 +26,8 @@ LPAREN    := "("
 RBRACE    := "}"
 RPAREN    := ")"
 SEMICOLON := ";"
+PLUS      := "+"
+MINUS     := "-"
 
 INT_LITERAL := "0" 
              | "0" ("x" | "X") [a-fA-F0-9]+

@@ -28,6 +28,7 @@ static ast_t *malloc_ast_type_specifier(token_t *id);
 static ast_t *malloc_ast_block_stmt(token_t *lbrace);
 static ast_t *malloc_ast_expr_stmt(ast_t *expr, token_t *semicolon);
 static ast_t *malloc_ast_literal_expr(token_t *token);
+static ast_t *malloc_ast_add_expr(ast_t *left, token_t *op, ast_t *right);
 
 static ast_t *prog();
 static ast_t *decl();
@@ -38,6 +39,7 @@ static ast_t *block_stmt();
 static ast_t *expr_stmt();
 static ast_t *expr();
 static ast_t *literal_expr();
+static ast_t *add_expr();
 
 // ========================================
 // ast.h - definition
@@ -127,6 +129,17 @@ static void print_ast_helper(ast_t *ast, char *indent, int depth,
 		char *str = token_str(ast->ast.literal_expr.token);
 		printf("AST_LITERAL_EXPR(%s)\n", str);
 		free(str);
+		break;
+	}
+	case AST_ADD_EXPR: {
+		char *op = token_str(ast->ast.add_expr.op);
+		printf("AST_ADD_EXPR(%s)\n", op);
+		free(op);
+		print_ast_helper(ast->ast.add_expr.left, indent, depth+1, 
+			NULL);
+		indent[depth+1] = 0;
+		print_ast_helper(ast->ast.add_expr.right, indent, depth+1, 
+			NULL);
 		break;
 	}
 	default: {
@@ -239,6 +252,15 @@ static ast_t *malloc_ast_literal_expr(token_t *token) {
 	return res;
 }
 
+static ast_t *malloc_ast_add_expr(ast_t *left, token_t *op, ast_t *right) {
+	ast_t *res = malloc_ast(AST_ADD_EXPR, left->filepath, left->source,
+		left->start, right->end);
+	res->ast.add_expr.left = left;
+	res->ast.add_expr.op = op;
+	res->ast.add_expr.right = right;
+	return res;
+}
+
 static ast_t *prog() {
 	ast_t *ast = malloc_ast_prog();
 	while (!check(0, TOKEN_EOF)) {
@@ -302,11 +324,22 @@ static ast_t *expr_stmt() {
 }
 
 static ast_t *expr() {
-	return literal_expr();
+	return add_expr();
 }
 
 static ast_t *literal_expr() {
 	token_t *token = match(TOKEN_INT_LITERAL, "Expected int literal");
 	return malloc_ast_literal_expr(token);
+}
+
+static ast_t *add_expr() {
+	ast_t *left = literal_expr();
+	while (check(0, TOKEN_PLUS) || check(0, TOKEN_MINUS)) {
+		token_t *op = token_at(0);
+		skip(1);
+		ast_t *right = literal_expr();
+		left = malloc_ast_add_expr(left, op, right);
+	}
+	return left;
 }
 

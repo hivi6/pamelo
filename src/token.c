@@ -58,6 +58,10 @@ char *token_type(token_t token) {
 		sbuilder_appendf(&s, "RPAREN");
 	else if (token.kind == TOKEN_SEMICOLON) 
 		sbuilder_appendf(&s, "SEMICOLON");
+	else if (token.kind == TOKEN_PLUS)
+		sbuilder_appendf(&s, "PLUS");
+	else if (token.kind == TOKEN_MINUS)
+		sbuilder_appendf(&s, "MINUS");
 	else if (token.kind == TOKEN_INT_LITERAL) 
 		sbuilder_appendf(&s, "INT_LITERAL");
 	else if (token.kind == TOKEN_ID)
@@ -120,6 +124,8 @@ static void generate_token() {
 	else if (char_at(0) == '}') kind = TOKEN_RBRACE;
 	else if (char_at(0) == ')') kind = TOKEN_RPAREN;
 	else if (char_at(0) == ';') kind = TOKEN_SEMICOLON;
+	else if (char_at(0) == '+') kind = TOKEN_PLUS;
+	else if (char_at(0) == '-') kind = TOKEN_MINUS;
 	else if (isdigit(char_at(0))) {
 		kind = int_literal_skip();
 		skip = 0;
@@ -130,6 +136,7 @@ static void generate_token() {
 	}
 
 	if (kind == TOKEN_EOF) {
+		char_skip(1);
 		eprintf(g_filepath, g_source, g_prev, g_cur, "Invalid token!");
 		exit(1);
 	}

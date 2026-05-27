@@ -8,10 +8,16 @@
 // ========================================
 
 static int g_first_time = 1;
+static type_t *g_void = NULL;
+static type_t *g_u8 = NULL;
+static type_t *g_u16 = NULL;
+static type_t *g_u32 = NULL;
+static type_t *g_u64 = NULL;
 
 static void init(ast_t *ast);
 static void match(ast_t *ast, int kind, const char *message);
 static void create_fn(ast_t *ast, scope_t *scope);
+static char is_numeric(type_t *type);
 
 static void prog(ast_t *ast, scope_t *scope);
 
@@ -25,6 +31,7 @@ static void expr_stmt(ast_t *ast, scope_t *scope);
 
 static type_t *expr(ast_t *ast, scope_t *scope);
 static type_t *literal_expr(ast_t *ast, scope_t *scope);
+static type_t *add_expr(ast_t *ast, scope_t *scope);
 
 // ========================================
 // semantic.h - definition
@@ -52,6 +59,11 @@ static void init(ast_t *ast) {
 		add_type(global_scope, u16);
 		add_type(global_scope, u32);
 		add_type(global_scope, u64);
+		g_void = v;
+		g_u8 = u8;
+		g_u16 = u16;
+		g_u32 = u32;
+		g_u64 = u64;
 	}
 	g_first_time = 0;
 }
@@ -85,6 +97,10 @@ static void create_fn(ast_t *ast, scope_t *scope) {
 	fn_type->type.fn_type.return_type = return_type;
 
 	free(name);
+}
+
+static char is_numeric(type_t *type) {
+	return type == g_u8 || type == g_u16 || type == g_u32 || type == g_u64;
 }
 
 static void prog(ast_t *ast, scope_t *scope) {
@@ -179,6 +195,9 @@ static type_t *expr(ast_t *ast, scope_t *scope) {
 	if (ast->kind == AST_LITERAL_EXPR) {
 		type = literal_expr(ast, scope);
 	}
+	else if (ast->kind == AST_ADD_EXPR) {
+		type = add_expr(ast, scope);
+	}
 
 	if (type == NULL) {
 		eprintf(ast->filepath, ast->source, ast->start, ast->end,
@@ -205,5 +224,27 @@ static type_t *literal_expr(ast_t *ast, scope_t *scope) {
 	}
 
 	return type;
+}
+
+static type_t *add_expr(ast_t *ast, scope_t *scope) {
+	match(ast, AST_ADD_EXPR, "Expected AST_ADD_EXPR");
+	
+	type_t *left = expr(ast->ast.add_expr.left, scope);
+	type_t *right = expr(ast->ast.add_expr.right, scope);
+	ast_t *err_ast = NULL;
+	if (!is_numeric(left)) {
+		err_ast = ast->ast.add_expr.left;
+	}
+	if (!is_numeric(right)) {
+		err_ast = ast->ast.add_expr.right;
+	}
+	if (err_ast) {
+		eprintf(err_ast->filepath, err_ast->source, err_ast->start,
+			err_ast->end, "Expected a numeric type");
+		exit(1);
+	}
+
+	if (left->size > right->size) return left;
+	return right;
 }
 

@@ -1,12 +1,16 @@
 2026.05.22:
-- [v] Create a basic tokenizer
-- [v] Create a basic parser
-- [v] Print the ast
+- [x] Create a basic tokenizer
+- [x] Create a basic parser
+- [x] Print the ast
 
 2026.05.26:
 - [x] Create fn type during semantic analysis in the ast prog scope
 - [x] Generate the type using the type-specifier ast
 - [x] Fix bug related to memory freeing
 - [x] Semantic analyse the expression
-- [ ] Print basic scope information like pointer and parent pointer
+- [x] Print basic scope information like pointer and parent pointer
+
+2026.05.27:
+- [x] Add addition and substraction expression to grammar
+- [ ] Add printing of semantic type information in ast tree for each expression
 

@@ -15,6 +15,7 @@ enum {
 	AST_EXPR_STMT,
 	
 	AST_LITERAL_EXPR,
+	AST_ADD_EXPR,
 };
 
 typedef struct ast_t ast_t;
@@ -64,6 +65,12 @@ struct ast_t {
 		struct {
 			token_t *token;
 		} literal_expr;
+
+		struct {
+			ast_t *left;
+			token_t *op;
+			ast_t *right;
+		} add_expr;
 	} ast;
 };
 
