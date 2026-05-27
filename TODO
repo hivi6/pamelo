@@ -12,5 +12,6 @@
 
 2026.05.27:
 - [x] Add addition and substraction expression to grammar
-- [ ] Add printing of semantic type information in ast tree for each expression
+- [x] Add printing of semantic type information in ast tree for each expression
+- [x] Add a cast expression
 

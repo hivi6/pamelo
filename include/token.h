@@ -19,6 +19,7 @@ enum {
 	TOKEN_ID,
 
 	TOKEN_FN_KEYWORD,
+	TOKEN_AS_KEYWORD,
 };
 
 typedef struct token_t token_t;

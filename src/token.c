@@ -244,6 +244,7 @@ static int keyword_skip() {
 
 	int kind = TOKEN_ID;
 	if (strcmp(res, "fn") == 0) kind = TOKEN_FN_KEYWORD;
+	if (strcmp(res, "as") == 0) kind = TOKEN_AS_KEYWORD;
 
 	free(res);
 

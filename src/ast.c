@@ -28,6 +28,8 @@ static ast_t *malloc_ast_type_specifier(token_t *id);
 static ast_t *malloc_ast_block_stmt(token_t *lbrace);
 static ast_t *malloc_ast_expr_stmt(ast_t *expr, token_t *semicolon);
 static ast_t *malloc_ast_literal_expr(token_t *token);
+static ast_t *malloc_ast_cast_expr(ast_t *left, token_t *as_keyword, 
+	ast_t *type_specifier);
 static ast_t *malloc_ast_add_expr(ast_t *left, token_t *op, ast_t *right);
 
 static ast_t *prog();
@@ -39,6 +41,7 @@ static ast_t *block_stmt();
 static ast_t *expr_stmt();
 static ast_t *expr();
 static ast_t *literal_expr();
+static ast_t *cast_expr();
 static ast_t *add_expr();
 
 // ========================================
@@ -103,9 +106,11 @@ static void print_ast_helper(ast_t *ast, char *indent, int depth,
 		break;
 	}
 	case AST_TYPE_SPECIFIER: {
+		char *type_info = type_str(ast->type);
 		char *str = token_str(ast->ast.type_specifier.name);
-		printf("AST_TYPE_SPECIFIER(%s)\n", str);
+		printf("AST_TYPE_SPECIFIER(%s) [%s]\n", str, type_info);
 		free(str);
+		free(type_info);
 		break;
 	}
 	case AST_BLOCK_STMT: {
@@ -131,6 +136,17 @@ static void print_ast_helper(ast_t *ast, char *indent, int depth,
 		printf("AST_LITERAL_EXPR(%s) [%s]\n", str, type_info);
 		free(str);
 		free(type_info);
+		break;
+	}
+	case AST_CAST_EXPR: {
+		char *type_info = type_str(ast->type);
+		printf("AST_CAST_EXPR [%s]\n", type_info);
+		free(type_info);
+		print_ast_helper(ast->ast.cast_expr.left, indent, depth+1, 
+			"CASTING EXPR");
+		indent[depth+1] = 0;
+		print_ast_helper(ast->ast.cast_expr.type_specifier, indent,
+			depth+1, "CASTING TYPE");
 		break;
 	}
 	case AST_ADD_EXPR: {
@@ -256,6 +272,16 @@ static ast_t *malloc_ast_literal_expr(token_t *token) {
 	return res;
 }
 
+static ast_t *malloc_ast_cast_expr(ast_t *left, token_t *as_keyword, 
+	ast_t *type_specifier) {
+	ast_t *res = malloc_ast(AST_CAST_EXPR, left->filepath, left->source,
+		left->start, type_specifier->end);
+	res->ast.cast_expr.left = left;
+	res->ast.cast_expr.as_keyword = as_keyword;
+	res->ast.cast_expr.type_specifier = type_specifier;
+	return res;
+}
+
 static ast_t *malloc_ast_add_expr(ast_t *left, token_t *op, ast_t *right) {
 	ast_t *res = malloc_ast(AST_ADD_EXPR, left->filepath, left->source,
 		left->start, right->end);
@@ -336,12 +362,23 @@ static ast_t *literal_expr() {
 	return malloc_ast_literal_expr(token);
 }
 
-static ast_t *add_expr() {
+static ast_t *cast_expr() {
 	ast_t *left = literal_expr();
+	if (check(0, TOKEN_AS_KEYWORD)) {
+		token_t *as_keyword = token_at(0);
+		skip(1);
+		ast_t *t = type_specifier();
+		left = malloc_ast_cast_expr(left, as_keyword, t);
+	}
+	return left;
+}
+
+static ast_t *add_expr() {
+	ast_t *left = cast_expr();
 	while (check(0, TOKEN_PLUS) || check(0, TOKEN_MINUS)) {
 		token_t *op = token_at(0);
 		skip(1);
-		ast_t *right = literal_expr();
+		ast_t *right = cast_expr();
 		left = malloc_ast_add_expr(left, op, right);
 	}
 	return left;

@@ -31,6 +31,7 @@ static void expr_stmt(ast_t *ast, scope_t *scope);
 
 static type_t *expr(ast_t *ast, scope_t *scope);
 static type_t *literal_expr(ast_t *ast, scope_t *scope);
+static type_t *cast_expr(ast_t *ast, scope_t *scope);
 static type_t *add_expr(ast_t *ast, scope_t *scope);
 
 // ========================================
@@ -152,7 +153,7 @@ static type_t *type_specifier(ast_t *ast, scope_t *scope) {
 
 	free(name);
 
-	return t;
+	return ast->type = t;
 }
 
 static void stmt(ast_t *ast, scope_t *scope) {
@@ -198,6 +199,9 @@ static type_t *expr(ast_t *ast, scope_t *scope) {
 	else if (ast->kind == AST_ADD_EXPR) {
 		type = add_expr(ast, scope);
 	}
+	else if (ast->kind == AST_CAST_EXPR) {
+		type = cast_expr(ast, scope);
+	}
 
 	if (type == NULL) {
 		eprintf(ast->filepath, ast->source, ast->start, ast->end,
@@ -224,6 +228,29 @@ static type_t *literal_expr(ast_t *ast, scope_t *scope) {
 	}
 
 	return type;
+}
+
+static type_t *cast_expr(ast_t *ast, scope_t *scope) {
+	match(ast, AST_CAST_EXPR, "Expected AST_CAST_EXPR");
+
+	type_t *left = expr(ast->ast.cast_expr.left, scope);
+	type_t *t = type_specifier(ast->ast.cast_expr.type_specifier, scope);
+	
+	ast_t *err = NULL;
+	if (!is_numeric(t)) {
+		err = ast->ast.cast_expr.type_specifier;
+	}
+	if (!is_numeric(left)) {
+		err = ast->ast.cast_expr.left;
+	}
+
+	if (err) {
+		eprintf(err->filepath, err->source, err->start, err->end,
+			"Expected numeric type");
+		exit(1);
+	}
+
+	return t;
 }
 
 static type_t *add_expr(ast_t *ast, scope_t *scope) {

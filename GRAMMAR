@@ -14,7 +14,8 @@ GRAMMAR
 <expr-stmt>  := <expr> SEMICOLON
 
 <expr>         := <add-expr>
-<add-expr>     := <literal-expr> ((PLUS | MINUS) <literal-expr>)*
+<add-expr>     := <cast-expr> ((PLUS | MINUS) <cast-expr>)*
+<cast-expr>    := <literal-expr> (AS_KEYWORD <type-specifier>)?
 <literal-expr> := INT_LITERAL
 
 ========================================
@@ -38,4 +39,5 @@ INT_LITERAL := "0"
 ID := [a-zA-Z_][a-zA-Z0-9_]*
 
 FN_KEYWORD := "fn"
+AS_KEYWORD := "as"
 
