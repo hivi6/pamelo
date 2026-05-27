@@ -21,4 +21,5 @@
 - [x] Fix bug related to var statement of void type.
 - [x] Reject malformed int literal suffixes like 0x and 0b
 - [x] Add support for return statement
+- [x] Return statement should exists at the end of the function if expected
 

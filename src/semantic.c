@@ -14,6 +14,7 @@ static type_t *g_u16 = NULL;
 static type_t *g_u32 = NULL;
 static type_t *g_u64 = NULL;
 static type_t *g_current_return_type = NULL;
+static int g_check_return_stmt = 0;
 
 static void init(ast_t *ast);
 static void match(ast_t *ast, int kind, const char *message);
@@ -141,6 +142,8 @@ static void prog(ast_t *ast, scope_t *scope) {
 static void fn_decl(ast_t *ast, scope_t *scope) {
 	match(ast, AST_FN_DECL, "Expected AST_FN_DECL");
 	g_current_return_type = ast->type->type.fn_type.return_type;
+	g_check_return_stmt = (g_current_return_type != g_void);
+	printf("%p %p\n", g_current_return_type, g_void);
 	block_stmt(ast->ast.fn_decl.block_stmt, ast->scope);
 }
 
@@ -192,8 +195,31 @@ static void stmt(ast_t *ast, scope_t *scope) {
 static void block_stmt(ast_t *ast, scope_t *scope) {
 	match(ast, AST_BLOCK_STMT, "Expected AST_BLOCK_STMT");
 
+	if (g_check_return_stmt) {
+		int len = ast->ast.block_stmt.stmts_len;
+		int invalid = 0;
+		ast_t *err = ast;
+
+		if (len > 0) {
+			ast_t *last_stmt = ast->ast.block_stmt.stmts[len-1];
+			if (last_stmt->kind != AST_RETURN_STMT) invalid = 1;
+			err = last_stmt;
+		}
+		else invalid = 1;
+
+
+		if (invalid) {
+			eprintf(err->filepath, err->source, err->start, 
+				err->end, 
+				"Expected return statement at the end");
+			exit(1);
+		}
+	}
+
+	g_check_return_stmt = 0;
 	scope_t *new_scope = create_scope(scope);
 	ast->scope = new_scope;
+
 
 	for (int i = 0; i < ast->ast.block_stmt.stmts_len; i++) {
 		stmt(ast->ast.block_stmt.stmts[i], new_scope);
@@ -254,7 +280,7 @@ static void return_stmt(ast_t *ast, scope_t *scope) {
 
 	if (!is_castable(g_current_return_type, return_type)) {
 		eprintf(ast->filepath, ast->source, ast->start, ast->end,
-			"Incompitable return expression and function return type");
+			"Incompatable return expression and function return type");
 		exit(1);
 	}
 }

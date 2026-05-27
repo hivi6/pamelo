@@ -9,7 +9,7 @@ GRAMMAR
 
 <type-specifier> := ID
 
-<stmt>        := <block-stmt> | <var-expr> | <return-stmt> | <expr-stmt>
+<stmt>        := <block-stmt> | <var-stmt> | <return-stmt> | <expr-stmt>
 <block-stmt>  := LBRACE <stmt>* RBRACE
 <var-stmt>    := VAR_KEYWORD ID <type-specifier>? (EQUAL <expr>)? SEMICOLON
 <return-stmt> := RETURN_KEYWORD <expr>? SEMICOLON
@@ -17,7 +17,7 @@ GRAMMAR
 
 <expr>         := <add-expr>
 <add-expr>     := <cast-expr> ((PLUS | MINUS) <cast-expr>)*
-<cast-expr>    := <primary-expr> (AS_KEYWORD <primary-specifier>)?
+<cast-expr>    := <primary-expr> (AS_KEYWORD <type-specifier>)?
 <primary-expr> := <var-expr> | <literal-expr>
 <var-expr>     := ID
 <literal-expr> := INT_LITERAL
