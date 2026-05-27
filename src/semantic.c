@@ -143,7 +143,6 @@ static void fn_decl(ast_t *ast, scope_t *scope) {
 	match(ast, AST_FN_DECL, "Expected AST_FN_DECL");
 	g_current_return_type = ast->type->type.fn_type.return_type;
 	g_check_return_stmt = (g_current_return_type != g_void);
-	printf("%p %p\n", g_current_return_type, g_void);
 	block_stmt(ast->ast.fn_decl.block_stmt, ast->scope);
 }
 
