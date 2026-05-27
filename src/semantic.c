@@ -199,6 +199,12 @@ static void var_stmt(ast_t *ast, scope_t *scope) {
 	type_t *t1 = NULL, *t2 = NULL;
 	if (ast->ast.var_stmt.type_specifier) {
 		t1 = type_specifier(ast->ast.var_stmt.type_specifier, scope);
+		if (t1 && t1->kind == TYPE_VOID) {
+			ast_t *t = ast->ast.var_stmt.type_specifier;
+			eprintf(t->filepath, t->source, t->start, t->end, 
+				"Cannot be void type in var statement");
+			exit(1);
+		}
 	}
 	if (ast->ast.var_stmt.expr) {
 		t2 = expr(ast->ast.var_stmt.expr, scope);

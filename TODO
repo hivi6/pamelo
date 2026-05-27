@@ -17,4 +17,7 @@
 - [x] Add a symbol list per scope
 - [x] Add support for variable declaration in functions
 - [x] Add support for variable use in expression
+- [x] Fix bug related to UNKNOWN printing of token for EQUAL, AS_KEYWORD, etc.
+- [x] Fix bug related to var statement of void type.
+- [x] Reject malformed int literal suffixes like 0x and 0b
 
