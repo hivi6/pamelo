@@ -201,15 +201,24 @@ static char is_hexadecimal(char ch) {
 }
 
 static int int_literal_skip() {
+	int incomplete = 0;
 	if (char_at(0) == '0' && tolower(char_at(1)) == 'x') {
 		char_skip(2);
-		while (is_hexadecimal(char_at(0))) 
+		int err = 1;
+		while (is_hexadecimal(char_at(0))) {
+			err = 0;
 			char_skip(1);
+		}
+		incomplete = err;
 	}
 	else if (char_at(0) == '0' && tolower(char_at(1)) == 'b') {
 		char_skip(2);
-		while (char_at(0) == '0' || char_at(0) == '1')
+		int err = 1;
+		while (char_at(0) == '0' || char_at(0) == '1') {
+			err = 0;
 			char_skip(1);
+		}
+		incomplete = err;
 	}
 	else if (char_at(0) == '0' && is_octal(char_at(1))) {
 		char_skip(2);
@@ -230,7 +239,7 @@ static int int_literal_skip() {
 		char_skip(1);
 	}
 
-	if (invalid) {
+	if (invalid || incomplete) {
 		eprintf(g_filepath, g_source, g_prev, g_cur,
 			"Invalid int literal");
 		exit(1);
