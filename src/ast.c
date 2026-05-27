@@ -30,6 +30,7 @@ static ast_t *malloc_ast_var_stmt(token_t *var_keyword, token_t *name,
 	ast_t *type_specifier, ast_t *expr, token_t *semicolon);
 static ast_t *malloc_ast_expr_stmt(ast_t *expr, token_t *semicolon);
 static ast_t *malloc_ast_literal_expr(token_t *token);
+static ast_t *malloc_ast_var_expr(token_t *token);
 static ast_t *malloc_ast_cast_expr(ast_t *left, token_t *as_keyword, 
 	ast_t *type_specifier);
 static ast_t *malloc_ast_add_expr(ast_t *left, token_t *op, ast_t *right);
@@ -44,6 +45,8 @@ static ast_t *var_stmt();
 static ast_t *expr_stmt();
 static ast_t *expr();
 static ast_t *literal_expr();
+static ast_t *var_expr();
+static ast_t *primary_expr();
 static ast_t *cast_expr();
 static ast_t *add_expr();
 
@@ -155,6 +158,14 @@ static void print_ast_helper(ast_t *ast, char *indent, int depth,
 		char *type_info = type_str(ast->type);
 		char *str = token_str(ast->ast.literal_expr.token);
 		printf("AST_LITERAL_EXPR(%s) [%s]\n", str, type_info);
+		free(str);
+		free(type_info);
+		break;
+	}
+	case AST_VAR_EXPR: {
+		char *type_info = type_str(ast->type);
+		char *str = token_str(ast->ast.var_expr.token);
+		printf("AST_VAR_EXPR(%s) [%s]\n", str, type_info);
 		free(str);
 		free(type_info);
 		break;
@@ -305,6 +316,13 @@ static ast_t *malloc_ast_literal_expr(token_t *token) {
 	return res;
 }
 
+static ast_t *malloc_ast_var_expr(token_t *token) {
+	ast_t *res = malloc_ast(AST_VAR_EXPR, token->filepath, token->source,
+		token->start, token->end);
+	res->ast.var_expr.token = token;
+	return res;
+}
+
 static ast_t *malloc_ast_cast_expr(ast_t *left, token_t *as_keyword, 
 	ast_t *type_specifier) {
 	ast_t *res = malloc_ast(AST_CAST_EXPR, left->filepath, left->source,
@@ -417,8 +435,23 @@ static ast_t *literal_expr() {
 	return malloc_ast_literal_expr(token);
 }
 
+static ast_t *var_expr() {
+	token_t *token = match(TOKEN_ID, "Expected var literal");
+	return malloc_ast_var_expr(token);
+}
+
+static ast_t *primary_expr() {
+	if (check(0, TOKEN_INT_LITERAL)) return literal_expr();
+	if (check(0, TOKEN_ID)) return var_expr();
+	
+	token_t *tok = token_at(0);
+	eprintf(tok->filepath, tok->source, tok->start, tok->end,
+		"What is this primary expr?");
+	exit(1);
+}
+
 static ast_t *cast_expr() {
-	ast_t *left = literal_expr();
+	ast_t *left = primary_expr();
 	if (check(0, TOKEN_AS_KEYWORD)) {
 		token_t *as_keyword = token_at(0);
 		skip(1);

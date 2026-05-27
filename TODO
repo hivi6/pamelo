@@ -16,5 +16,5 @@
 - [x] Add a cast expression
 - [x] Add a symbol list per scope
 - [x] Add support for variable declaration in functions
-- [ ] Add support for variable use in expression
+- [x] Add support for variable use in expression
 

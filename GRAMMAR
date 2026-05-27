@@ -11,12 +11,14 @@ GRAMMAR
 
 <stmt>       := <block-stmt> | <var-expr> | <expr-stmt>
 <block-stmt> := LBRACE <stmt>* RBRACE
-<var-expr>   := VAR_KEYWORD ID <type-specifier>? (EQUAL <expr>)? SEMICOLON
+<var-stmt>   := VAR_KEYWORD ID <type-specifier>? (EQUAL <expr>)? SEMICOLON
 <expr-stmt>  := <expr> SEMICOLON
 
 <expr>         := <add-expr>
 <add-expr>     := <cast-expr> ((PLUS | MINUS) <cast-expr>)*
-<cast-expr>    := <literal-expr> (AS_KEYWORD <type-specifier>)?
+<cast-expr>    := <primary-expr> (AS_KEYWORD <primary-specifier>)?
+<primary-expr> := <var-expr> | <literal-expr>
+<var-expr>     := ID
 <literal-expr> := INT_LITERAL
 
 ========================================

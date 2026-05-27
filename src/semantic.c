@@ -33,6 +33,7 @@ static void expr_stmt(ast_t *ast, scope_t *scope);
 
 static type_t *expr(ast_t *ast, scope_t *scope);
 static type_t *literal_expr(ast_t *ast, scope_t *scope);
+static type_t *var_expr(ast_t *ast, scope_t *scope);
 static type_t *cast_expr(ast_t *ast, scope_t *scope);
 static type_t *add_expr(ast_t *ast, scope_t *scope);
 
@@ -239,6 +240,9 @@ static type_t *expr(ast_t *ast, scope_t *scope) {
 	if (ast->kind == AST_LITERAL_EXPR) {
 		type = literal_expr(ast, scope);
 	}
+	else if (ast->kind == AST_VAR_EXPR) {
+		type = var_expr(ast, scope);
+	}
 	else if (ast->kind == AST_ADD_EXPR) {
 		type = add_expr(ast, scope);
 	}
@@ -271,6 +275,21 @@ static type_t *literal_expr(ast_t *ast, scope_t *scope) {
 	}
 
 	return type;
+}
+
+static type_t *var_expr(ast_t *ast, scope_t *scope) {
+	match(ast, AST_VAR_EXPR, "Expected AST_VAR_EXPR");
+	
+	token_t *tok = ast->ast.var_expr.token;
+	char *name = token_lexical(*tok);
+	symbol_t *s = get_symbol_in_chain(scope, name);
+	if (s == NULL) {
+		eprintf(tok->filepath, tok->source, tok->start, tok->end,
+			"No such variable defined");
+		exit(1);
+	}
+	
+	return s->type;
 }
 
 static type_t *cast_expr(ast_t *ast, scope_t *scope) {

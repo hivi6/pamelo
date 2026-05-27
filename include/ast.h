@@ -14,8 +14,9 @@ enum {
 	AST_BLOCK_STMT,
 	AST_VAR_STMT,
 	AST_EXPR_STMT,
-	
+
 	AST_LITERAL_EXPR,
+	AST_VAR_EXPR,
 	AST_CAST_EXPR,
 	AST_ADD_EXPR,
 };
@@ -75,6 +76,10 @@ struct ast_t {
 		struct {
 			token_t *token;
 		} literal_expr;
+
+		struct {
+			token_t *token;
+		} var_expr;
 
 		struct {
 			ast_t *left;
