@@ -259,6 +259,13 @@ static void var_stmt(ast_t *ast, scope_t *scope) {
 		exit(1);
 	}
 
+	if (t2 == g_void) {
+		ast_t *expr = ast->ast.var_stmt.expr;
+		eprintf(expr->filepath, expr->source, expr->start, expr->end,
+			"Cannot have void expression");
+		exit(1);
+	}
+	
 	type_t *final_type = (t1 ? t1 : t2);
 	token_t *tok = ast->ast.var_stmt.name;
 	char *name = token_lexical(*tok);
