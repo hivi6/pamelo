@@ -25,5 +25,6 @@
 
 2026.05.28:
 - [x] Add support for function call expression
+- [ ] Add basic ir support
 - [ ] Add support for grouping expression
 

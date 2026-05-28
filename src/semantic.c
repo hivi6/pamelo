@@ -56,11 +56,11 @@ void semantic_analyse(ast_t *ast) {
 
 static void init(ast_t *ast) {
 	if (g_first_time) {
-		type_t *v = create_type(TYPE_VOID, "void", 0);
-		type_t *u8 = create_type(TYPE_PRIMITIVE, "u8", 8);
-		type_t *u16 = create_type(TYPE_PRIMITIVE, "u16", 16);
-		type_t *u32 = create_type(TYPE_PRIMITIVE, "u32", 32);
-		type_t *u64 = create_type(TYPE_PRIMITIVE, "u64", 64);
+		type_t *v = create_type(TYPE_VOID, "void", 1);
+		type_t *u8 = create_type(TYPE_PRIMITIVE, "u8", 1);
+		type_t *u16 = create_type(TYPE_PRIMITIVE, "u16", 2);
+		type_t *u32 = create_type(TYPE_PRIMITIVE, "u32", 4);
+		type_t *u64 = create_type(TYPE_PRIMITIVE, "u64", 8);
 		scope_t *global_scope = get_global_scope();
 		add_type(global_scope, v);
 		add_type(global_scope, u8);
