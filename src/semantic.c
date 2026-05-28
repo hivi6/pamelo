@@ -294,7 +294,7 @@ static void return_stmt(ast_t *ast, scope_t *scope) {
 
 	if (!is_castable(g_current_return_type, return_type)) {
 		eprintf(ast->filepath, ast->source, ast->start, ast->end,
-			"Incompatable return expression and function return type");
+			"Incompatible return expression and function return type");
 		exit(1);
 	}
 }
