@@ -17,10 +17,14 @@ GRAMMAR
 
 <expr>         := <add-expr>
 <add-expr>     := <cast-expr> ((PLUS | MINUS) <cast-expr>)*
-<cast-expr>    := <primary-expr> (AS_KEYWORD <type-specifier>)?
+<cast-expr>    := <postfix-expr> (AS_KEYWORD <type-specifier>)?
+<postfix-expr> := <primary-expr> <postfix-op>*
 <primary-expr> := <var-expr> | <literal-expr>
 <var-expr>     := ID
 <literal-expr> := INT_LITERAL
+
+<postfix-op> := <call-op>
+<call-op>    := LPAREN RPAREN
 
 ========================================
 GRAMMAR

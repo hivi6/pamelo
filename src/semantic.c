@@ -37,6 +37,7 @@ static void expr_stmt(ast_t *ast, scope_t *scope);
 static type_t *expr(ast_t *ast, scope_t *scope);
 static type_t *literal_expr(ast_t *ast, scope_t *scope);
 static type_t *var_expr(ast_t *ast, scope_t *scope);
+static type_t *call_expr(ast_t *ast, scope_t *scope);
 static type_t *cast_expr(ast_t *ast, scope_t *scope);
 static type_t *add_expr(ast_t *ast, scope_t *scope);
 
@@ -98,11 +99,19 @@ static void create_fn(ast_t *ast, scope_t *scope) {
 	type_t *fn_type = create_type(TYPE_FN, name, 0);
 	if (!add_type(scope, fn_type)) {
 		eprintf(tok->filepath, tok->source, tok->start, tok->end,
-			"Function already defined");
+			"Function type already defined");
 		exit(1);
 	}
 	fn_type->type.fn_type.return_type = return_type;
 	ast->type = fn_type;
+
+	// add a function symbol
+	symbol_t *s = create_symbol(name, fn_type);
+	if (!add_symbol(scope, s)) {
+		eprintf(tok->filepath, tok->source, tok->start, tok->end,
+			"Function symbol already defined");
+		exit(1);
+	}
 
 	free(name);
 }
@@ -273,6 +282,12 @@ static void return_stmt(ast_t *ast, scope_t *scope) {
 		return_type = expr(ast->ast.return_stmt.expr, scope);
 	}
 
+	if (return_type == g_void && ast->ast.return_stmt.expr) {
+		eprintf(ast->filepath, ast->source, ast->start, ast->end,
+			"Void cannot be in return statements");
+		exit(1);
+	}
+
 	if (g_current_return_type == return_type) {
 		return;
 	}
@@ -299,6 +314,9 @@ static type_t *expr(ast_t *ast, scope_t *scope) {
 	}
 	else if (ast->kind == AST_VAR_EXPR) {
 		type = var_expr(ast, scope);
+	}
+	else if (ast->kind == AST_CALL_EXPR) {
+		type = call_expr(ast, scope);
 	}
 	else if (ast->kind == AST_ADD_EXPR) {
 		type = add_expr(ast, scope);
@@ -347,6 +365,20 @@ static type_t *var_expr(ast_t *ast, scope_t *scope) {
 	}
 	
 	return s->type;
+}
+
+static type_t *call_expr(ast_t *ast, scope_t *scope) {
+	match(ast, AST_CALL_EXPR, "Expected AST_CALL_EXPR");
+
+	ast_t *left = ast->ast.call_expr.left;
+	type_t *type = expr(left, scope);
+	if (type->kind != TYPE_FN) {
+		eprintf(left->filepath, left->source, left->start, left->end,
+			"Expected function type");
+		exit(1);
+	}
+
+	return type->type.fn_type.return_type;
 }
 
 static type_t *cast_expr(ast_t *ast, scope_t *scope) {

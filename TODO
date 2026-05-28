@@ -22,6 +22,8 @@
 - [x] Reject malformed int literal suffixes like 0x and 0b
 - [x] Add support for return statement
 - [x] Return statement should exists at the end of the function if expected
+
+2026.05.28:
+- [x] Add support for function call expression
 - [ ] Add support for grouping expression
-- [ ] Add support for function call expression
 

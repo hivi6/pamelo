@@ -18,6 +18,7 @@ enum {
 
 	AST_LITERAL_EXPR,
 	AST_VAR_EXPR,
+	AST_CALL_EXPR,
 	AST_CAST_EXPR,
 	AST_ADD_EXPR,
 };
@@ -87,6 +88,12 @@ struct ast_t {
 		struct {
 			token_t *token;
 		} var_expr;
+
+		struct {
+			ast_t *left;
+			token_t *lparen;
+			token_t *rparen;
+		} call_expr;
 
 		struct {
 			ast_t *left;

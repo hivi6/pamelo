@@ -33,6 +33,8 @@ static ast_t *malloc_ast_return_stmt(token_t *return_keyword, ast_t *expr,
 static ast_t *malloc_ast_expr_stmt(ast_t *expr, token_t *semicolon);
 static ast_t *malloc_ast_literal_expr(token_t *token);
 static ast_t *malloc_ast_var_expr(token_t *token);
+static ast_t *malloc_ast_call_expr(ast_t *left, token_t *lparen, 
+	token_t *rparen);
 static ast_t *malloc_ast_cast_expr(ast_t *left, token_t *as_keyword, 
 	ast_t *type_specifier);
 static ast_t *malloc_ast_add_expr(ast_t *left, token_t *op, ast_t *right);
@@ -50,6 +52,8 @@ static ast_t *expr();
 static ast_t *literal_expr();
 static ast_t *var_expr();
 static ast_t *primary_expr();
+static ast_t *postfix_expr();
+static ast_t *call_expr(ast_t *left);
 static ast_t *cast_expr();
 static ast_t *add_expr();
 
@@ -180,6 +184,17 @@ static void print_ast_helper(ast_t *ast, char *indent, int depth,
 		printf("AST_VAR_EXPR(%s) [%s]\n", str, type_info);
 		free(str);
 		free(type_info);
+		break;
+	}
+	case AST_CALL_EXPR: {
+		char *type_info = type_str(ast->type);
+		printf("AST_CALL_EXPR [%s]\n", type_info);
+		free(type_info);
+
+		indent[depth+1] = 0;
+		print_ast_helper(ast->ast.call_expr.left, indent, depth+1, 
+			NULL);
+
 		break;
 	}
 	case AST_CAST_EXPR: {
@@ -346,6 +361,16 @@ static ast_t *malloc_ast_var_expr(token_t *token) {
 	return res;
 }
 
+static ast_t *malloc_ast_call_expr(ast_t *left, token_t *lparen, 
+	token_t *rparen) {
+	ast_t *res = malloc_ast(AST_CALL_EXPR, left->filepath, left->source,
+		left->start, rparen->end);
+	res->ast.call_expr.left = left;
+	res->ast.call_expr.lparen = lparen;
+	res->ast.call_expr.rparen = rparen;
+	return res;
+}
+
 static ast_t *malloc_ast_cast_expr(ast_t *left, token_t *as_keyword, 
 	ast_t *type_specifier) {
 	ast_t *res = malloc_ast(AST_CAST_EXPR, left->filepath, left->source,
@@ -487,8 +512,23 @@ static ast_t *primary_expr() {
 	exit(1);
 }
 
-static ast_t *cast_expr() {
+static ast_t *postfix_expr() {
 	ast_t *left = primary_expr();
+	while (check(0, TOKEN_LPAREN)) {
+		if (check(0, TOKEN_LPAREN)) left = call_expr(left);
+	}
+
+	return left;
+}
+
+static ast_t *call_expr(ast_t *left) {
+	token_t *lparen = match(TOKEN_LPAREN, "Expected '('");
+	token_t *rparen = match(TOKEN_RPAREN, "Expected ')'");
+	return malloc_ast_call_expr(left, lparen, rparen);
+}
+
+static ast_t *cast_expr() {
+	ast_t *left = postfix_expr();
 	if (check(0, TOKEN_AS_KEYWORD)) {
 		token_t *as_keyword = token_at(0);
 		skip(1);
