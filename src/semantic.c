@@ -265,6 +265,12 @@ static void var_stmt(ast_t *ast, scope_t *scope) {
 			"Cannot have void expression");
 		exit(1);
 	}
+
+	if (t1 && t2 && !is_castable(t1, t2)) {
+		eprintf(ast->filepath, ast->source, ast->start, ast->end,
+			"Uncompatible type casting");
+		exit(1);
+	}
 	
 	type_t *final_type = (t1 ? t1 : t2);
 	token_t *tok = ast->ast.var_stmt.name;
