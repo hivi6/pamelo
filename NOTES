@@ -1,0 +1,127 @@
+IR Generation
+=============
+
+I'm finding IR generation kindof difficult so just noting down things, and
+cleaning up later.
+
+Following code snippet i want to convert to IR:
+
+```
+fn f() u32 {
+	return 1 + 16;
+}
+
+fn g() u32 {
+	var a = 13;
+	return a + 12 - f();
+}
+```
+
+Converts to the following IR:
+
+```
+f:
+@define
+	%1 := GET_RETURN_ADDR
+	%2 := CONST 1
+	%3 := CONST 16
+	%4 := ADD 4 %2 %3
+	STORE 4 %1 := %4
+	RETURN
+@end
+
+g:
+@define
+	%1 := GET_RETURN_ADDR
+	%2 := ALLOCATE 4
+	%3 := CONST 13
+	STORE 4 %2 := %3
+	
+	%4 := LOAD 4 %2
+	%5 := CONST 12
+	%6 := ADD 4 %4 %5
+	%7 := ALLOCATE 4
+	BEGIN_CALL
+	SET_RETURN_ADDR %7
+	CALL f
+	END_CALL
+	%8 := LOAD 4 %7
+	%9 := SUB 4 %6 %8
+	STORE 4 %1 := %9
+	RETURN
+@end
+```
+
+Following are the meaning of each instructions:
+
+```
+ADD:
+	- Add the value of 2 temporary and store it to a destination temporary
+	- Arguments: 4
+		- Destination temporary
+		- Left temporary
+		- Right temporary
+		- Size of the final temporary
+
+ALLOCATE:
+	- Allocate stack of a given size and store it's address to a temporary
+	- Arguments: 2
+		- Destination temporary
+		- Size of allocation
+
+BEGIN_CALL:
+	- Starting a new function call
+	- Arguments: 0
+
+CALL:
+	- Calling a function
+	- Arguments: 1
+		- Function name
+
+CONST:
+	- Load the constant value to a temporary
+	- Arguments: 2
+		- Destination temporary
+		- integer value
+
+END_CALL:
+	- Ending the function call
+	- Arguments: 0
+	
+GET_RETURN_ADDR:
+	- Get the return value address for the current function
+	- Arguments: 1
+		- Destination temporary
+
+LOAD:
+	- Load the value of a temporaray memory address to a temporary
+	- Arguments: 3
+		- Destination temporary
+		- source temporaray (address)
+		- Size of loaded value
+
+RETURN:
+	- Return from the current function
+	- Arguments: 0
+
+SET_RETURN_ADDR:
+	- Set the return value address for the function to be called
+	- Arguments: 1
+		- temporary
+
+STORE:
+	- Store the value of a temporary to a destination temporary address
+	- Arguments: 3
+		- Destination temporary (address)
+		- Value to be stored temporary
+		- Size of the stored value
+
+SUB:
+	- Subtract the value of 2 temporary and store it to a destination temporary
+	- Arguments: 4
+		- Destination temporary
+		- Left temporary
+		- Right temporary
+		- Size of the final temporary
+
+```

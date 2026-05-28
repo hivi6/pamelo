@@ -25,6 +25,7 @@
 
 2026.05.28:
 - [x] Add support for function call expression
+- [x] Brain store some ideas for an ir
 - [ ] Add basic ir support
 - [ ] Add support for grouping expression
 
