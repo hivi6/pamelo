@@ -34,7 +34,7 @@ struct ir_fn_t {
 	int id;
 	const char *name;
 
-	ir_inst_t **list;
+	ir_inst_t *list;
 	int len;
 };
 
