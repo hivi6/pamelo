@@ -15,12 +15,17 @@ static type_t *g_u32 = NULL;
 static type_t *g_u64 = NULL;
 static type_t *g_current_return_type = NULL;
 static int g_check_return_stmt = 0;
+static int g_fn_id = 0;
+static int g_var_id = 0;
 
 static void init(ast_t *ast);
 static void match(ast_t *ast, int kind, const char *message);
 static void create_fn(ast_t *ast, scope_t *scope);
 static char is_numeric(type_t *type);
 static char is_castable(type_t *out, type_t *in);
+static int create_fn_id();
+static int create_var_id();
+static void reset_var_id();
 
 static void prog(ast_t *ast, scope_t *scope);
 
@@ -106,7 +111,7 @@ static void create_fn(ast_t *ast, scope_t *scope) {
 	ast->type = fn_type;
 
 	// add a function symbol
-	symbol_t *s = create_symbol(name, fn_type);
+	symbol_t *s = create_symbol(create_fn_id(), name, fn_type);
 	if (!add_symbol(scope, s)) {
 		eprintf(tok->filepath, tok->source, tok->start, tok->end,
 			"Function symbol already defined");
@@ -122,6 +127,18 @@ static char is_numeric(type_t *type) {
 
 static char is_castable(type_t *out, type_t *in) {
 	return is_numeric(out) && is_numeric(in);
+}
+
+static int create_fn_id() {
+	return g_fn_id++;
+}
+
+static int create_var_id() {
+	return g_var_id++;
+}
+
+static void reset_var_id() {
+	g_var_id = 0;
 }
 
 static void prog(ast_t *ast, scope_t *scope) {
@@ -150,9 +167,11 @@ static void prog(ast_t *ast, scope_t *scope) {
 
 static void fn_decl(ast_t *ast, scope_t *scope) {
 	match(ast, AST_FN_DECL, "Expected AST_FN_DECL");
+	reset_var_id();
 	g_current_return_type = ast->type->type.fn_type.return_type;
 	g_check_return_stmt = (g_current_return_type != g_void);
 	block_stmt(ast->ast.fn_decl.block_stmt, ast->scope);
+	ast->total_id = create_var_id();
 }
 
 static type_t *type_specifier(ast_t *ast, scope_t *scope) {
@@ -259,10 +278,10 @@ static void var_stmt(ast_t *ast, scope_t *scope) {
 		exit(1);
 	}
 
-	if (t2 == g_void) {
+	if (t2 == g_void || (t2 && t2->kind == TYPE_FN)) {
 		ast_t *expr = ast->ast.var_stmt.expr;
 		eprintf(expr->filepath, expr->source, expr->start, expr->end,
-			"Cannot have void expression");
+			"Cannot have void or function expression");
 		exit(1);
 	}
 
@@ -275,7 +294,7 @@ static void var_stmt(ast_t *ast, scope_t *scope) {
 	type_t *final_type = (t1 ? t1 : t2);
 	token_t *tok = ast->ast.var_stmt.name;
 	char *name = token_lexical(*tok);
-	symbol_t *var_symbol = create_symbol(name, final_type);
+	symbol_t *var_symbol = create_symbol(create_var_id(), name, final_type);
 	if (!add_symbol(scope, var_symbol)) {
 		eprintf(tok->filepath, tok->source, tok->start, tok->end,
 			"Symbol already defined");

@@ -5,8 +5,9 @@
 // symbol.h - definition
 // ========================================
 
-symbol_t *create_symbol(const char *name, type_t *type) {
+symbol_t *create_symbol(int id, const char *name, type_t *type) {
 	symbol_t *res = calloc(sizeof(symbol_t), 1);
+	res->id = id;
 	res->name = sbuildf("%s", name);
 	res->type = type;
 	return res;
