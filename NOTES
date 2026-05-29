@@ -20,7 +20,7 @@ fn g() u32 {
 Converts to the following IR:
 
 ```
-f:
+$1: # Function f
 @define
 	%1 := GET_RETURN_ADDR
 	%2 := CONST 1
@@ -30,7 +30,7 @@ f:
 	RETURN
 @end
 
-g:
+$2: # Function g
 @define
 	%1 := GET_RETURN_ADDR
 	%2 := ALLOCATE 4
@@ -43,7 +43,7 @@ g:
 	%7 := ALLOCATE 4
 	BEGIN_CALL
 	SET_RETURN_ADDR %7
-	CALL f
+	CALL $1 # Call function f
 	END_CALL
 	%8 := LOAD 4 %7
 	%9 := SUB 4 %6 %8
@@ -76,7 +76,7 @@ BEGIN_CALL:
 CALL:
 	- Calling a function
 	- Arguments: 1
-		- Function name
+		- Function id
 
 CONST:
 	- Load the constant value to a temporary
