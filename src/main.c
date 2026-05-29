@@ -44,7 +44,7 @@ int main(int argc, const char **argv) {
 	ir_fn_t **ir_list = NULL;
 	int ir_list_len = 0;
 	generate_ir(ast, &ir_list, &ir_list_len);
-	printf("list pointer: %p | len: %d\n", ir_list, ir_list_len);
+	print_ir(ir_list, ir_list_len);
 
 	if (g_print_token_flag) {
 		printf("file: %s\n", filepath);

@@ -11,6 +11,7 @@ static int g_temp_id = 0;
 static ir_fn_t *g_current_ir_fn = NULL;
 static int g_current_return_temp = 0;
 
+static void print_inst(ir_inst_t inst);
 static void init(ir_fn_t ***list, int *len);
 static void match(ast_t *ast, int kind, const char *message);
 static symbol_t *get_symbol_from_token(scope_t *scope, token_t *token);
@@ -27,10 +28,25 @@ static void fn_decl(ast_t *ast);
 
 static void stmt(ast_t *ast);
 static void block_stmt(ast_t *ast);
+static void var_stmt(ast_t *ast);
+static void return_stmt(ast_t *ast);
+
+static int expr(ast_t *ast);
 
 // ========================================
 // ir.h - definition
 // ========================================
+
+void print_ir(ir_fn_t **list, int len) {
+	for (int i = 0; i < len; i++) {
+		printf("%d: # %s\n", list[i]->id, list[i]->name);
+		printf("@function_start\n");
+		for (int j = 0; j < list[i]->len; j++) {
+			print_inst(list[i]->list[j]);
+		}
+		printf("@function_end\n\n");
+	}
+}
 
 void generate_ir(ast_t *ast, ir_fn_t ***list, int *len) {
 	init(list, len);
@@ -41,6 +57,27 @@ void generate_ir(ast_t *ast, ir_fn_t ***list, int *len) {
 // ========================================
 // ir.h - definition
 // ========================================
+
+static void print_inst(ir_inst_t inst) {
+	printf("    ");
+
+	switch (inst.kind) {
+	case IR_INST_GET_RETURN_ADDR:
+		printf("%%%llu := GET_RETURN_ADDR", inst.arg1);
+		break;
+	case IR_INST_RETURN:
+		printf("RETURN");
+		break;
+	case IR_INST_ALLOCATE:
+		printf("%%%llu := ALLOCATE %llu", inst.arg1, inst.arg2);
+		break;
+	default:
+		printf("WHAT IS THIS INST\n");
+		exit(1);
+	}
+	
+	printf("\n");
+}
 
 static void init(ir_fn_t ***list, int *len) {
 	g_list = list;
@@ -125,7 +162,7 @@ static void fn_decl(ast_t *ast) {
 		g_current_return_temp = create_temp_id();
 		emit(IR_INST_GET_RETURN_ADDR, g_current_return_temp, 0, 0, 0);
 	}
-	stmt(ast);
+	stmt(ast->ast.fn_decl.block_stmt);
 	emit(IR_INST_RETURN, 0, 0, 0, 0);
 
 	append(ir_fn);
@@ -133,6 +170,13 @@ static void fn_decl(ast_t *ast) {
 
 static void stmt(ast_t *ast) {
 	if (ast->kind == AST_BLOCK_STMT) block_stmt(ast);
+	else if (ast->kind == AST_VAR_STMT) var_stmt(ast);
+	else if (ast->kind == AST_RETURN_STMT) return_stmt(ast);
+	else {
+		eprintf(ast->filepath, ast->source, ast->start, ast->end,
+			"What is this statement kind?");
+		exit(1);
+	}
 }
 
 static void block_stmt(ast_t *ast) {
@@ -143,3 +187,26 @@ static void block_stmt(ast_t *ast) {
 	}
 }
 
+static void var_stmt(ast_t *ast) {
+	match(ast, AST_VAR_STMT, "Expected AST_VAR_STMT");
+
+	symbol_t *s = get_symbol_from_token(ast->scope, ast->ast.var_stmt.name);
+	emit(IR_INST_ALLOCATE, s->id, s->type->size, 0, 0);
+
+	if (ast->ast.var_stmt.expr) {
+		word_t temp = expr(ast->ast.var_stmt.expr);
+	}
+
+	// TODO: Complete this
+}
+
+static void return_stmt(ast_t *ast) {
+	match(ast, AST_RETURN_STMT, "Expected AST_RETURN_STMT");
+
+	// TODO: Complete this
+}
+
+static int expr(ast_t *ast) {
+	// TODO: Complete this
+	return 0;
+}
