@@ -4,6 +4,7 @@
 #include "token.h"
 #include "ast.h"
 #include "semantic.h"
+#include "ir.h"
 
 // ========================================
 // helper declaration
@@ -39,6 +40,10 @@ int main(int argc, const char **argv) {
 	token_t *tokens = generate_tokens(filepath, source);
 	ast_t *ast = parse(tokens);
 	semantic_analyse(ast);
+
+	ir_fn_t **ir_list = NULL;
+	int ir_list_len = 0;
+	generate_ir(ast, &ir_list, &ir_list_len);
 
 	if (g_print_token_flag) {
 		printf("file: %s\n", filepath);
