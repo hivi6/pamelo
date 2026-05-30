@@ -340,6 +340,8 @@ static int var_expr(ast_t *ast) {
 	token_t *token = ast->ast.var_expr.token;
 	symbol_t *s = get_symbol_from_token(ast->scope, token);
 	
+	if (s->type->kind == TYPE_FN) return s->id;
+
 	int id = create_temp_id();
 	emit(IR_INST_LOAD, id, s->id, ast->type->size, 0);
 	return id;

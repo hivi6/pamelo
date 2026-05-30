@@ -30,5 +30,5 @@
 2026.05.30:
 - [x] Add basic ir support
 - [x] Add support for all the ir
-- [ ] Add support for a basic vm
+- [x] Add support for a basic vm
 
