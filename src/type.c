@@ -34,7 +34,19 @@ char *type_str(type_t *type) {
 	}
 	else if (type->kind == TYPE_FN) {
 		char *return_type = type_str(type->type.fn_type.return_type);
-		sbuilder_appendf(&s, "fn %s () -> %s", type->name, return_type);
+		sbuilder_appendf(&s, "fn %s (", type->name);
+
+		for (int i = 0; i < type->type.fn_type.param_types_len; i++) {
+			char *param = 
+				type_str(type->type.fn_type.param_types[i]);
+			sbuilder_appendf(&s, "%s", param);
+			free(param);
+
+			if (i < type->type.fn_type.param_types_len-1)
+				sbuilder_appendf(&s, ", ");
+		}
+
+		sbuilder_appendf(&s, ") -> %s", return_type);
 		free(return_type);
 	}
 

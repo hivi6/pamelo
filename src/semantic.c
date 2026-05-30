@@ -25,7 +25,7 @@ static char is_numeric(type_t *type);
 static char is_castable(type_t *out, type_t *in);
 static int create_fn_id();
 static int create_var_id();
-static void reset_var_id();
+static void reset_var_id(int reset_value);
 
 static void prog(ast_t *ast, scope_t *scope);
 
@@ -91,6 +91,8 @@ static void match(ast_t *ast, int kind, const char *message) {
 static void create_fn(ast_t *ast, scope_t *scope) {
 	match(ast, AST_FN_DECL, "Expected AST_FN_DECL; create_fn(ast_t*)");
 
+	reset_var_id(0);
+
 	scope_t *fn_scope = create_scope(scope);
 	ast->scope = fn_scope;
 
@@ -100,14 +102,37 @@ static void create_fn(ast_t *ast, scope_t *scope) {
 	type_t *return_type = type_specifier(ast->ast.fn_decl.type_specifier,
 		scope);
 
+	type_t **param_types = NULL;
+	int param_types_len = 0;
+	for (int i = 0; i < ast->ast.fn_decl.params_len; i++) {
+		token_t *param = ast->ast.fn_decl.params[i];
+		char *param_name = token_lexical(*ast->ast.fn_decl.params[i]);
+		type_t *param_type = type_specifier(
+			ast->ast.fn_decl.param_types[i], 
+			scope);
+
+		symbol_t *s = create_symbol(create_var_id(), param_name, 
+			param_type);
+		if (!add_symbol(fn_scope, s)) {
+			eprintf(param->filepath, param->source, param->start,
+				param->end, "Parameter symbol already defined");
+			exit(1);
+		}
+
+		append_type(&param_types, &param_types_len, param_type);
+		free(param_name);
+	}
+
 	// Add the function type in the parent scope
 	type_t *fn_type = create_type(TYPE_FN, name, 0);
+	fn_type->type.fn_type.param_types = param_types;
+	fn_type->type.fn_type.param_types_len = param_types_len;
+	fn_type->type.fn_type.return_type = return_type;
 	if (!add_type(scope, fn_type)) {
 		eprintf(tok->filepath, tok->source, tok->start, tok->end,
 			"Function type already defined");
 		exit(1);
 	}
-	fn_type->type.fn_type.return_type = return_type;
 	ast->type = fn_type;
 
 	// add a function symbol
@@ -119,6 +144,8 @@ static void create_fn(ast_t *ast, scope_t *scope) {
 	}
 
 	free(name);
+
+	ast->total_id = create_var_id();
 }
 
 static char is_numeric(type_t *type) {
@@ -137,8 +164,8 @@ static int create_var_id() {
 	return g_var_id++;
 }
 
-static void reset_var_id() {
-	g_var_id = 0;
+static void reset_var_id(int reset_value) {
+	g_var_id = reset_value;
 }
 
 static void prog(ast_t *ast, scope_t *scope) {
@@ -167,7 +194,7 @@ static void prog(ast_t *ast, scope_t *scope) {
 
 static void fn_decl(ast_t *ast, scope_t *scope) {
 	match(ast, AST_FN_DECL, "Expected AST_FN_DECL");
-	reset_var_id();
+	reset_var_id(ast->total_id);
 	g_current_return_type = ast->type->type.fn_type.return_type;
 	g_check_return_stmt = (g_current_return_type != g_void);
 	block_stmt(ast->ast.fn_decl.block_stmt, ast->scope);
@@ -408,6 +435,24 @@ static type_t *call_expr(ast_t *ast, scope_t *scope) {
 		eprintf(left->filepath, left->source, left->start, left->end,
 			"Expected function type");
 		exit(1);
+	}
+
+	if (ast->ast.call_expr.args_len != type->type.fn_type.param_types_len) {
+		eprintf(ast->filepath, ast->source, ast->start, ast->end,
+			"Unmatch function arguments; expected '%d'",
+			type->type.fn_type.param_types_len);
+		exit(1);
+	}
+
+	for (int i = 0; i < ast->ast.call_expr.args_len; i++) {
+		type_t *param_type = type->type.fn_type.param_types[i];
+		type_t *arg_type = expr(ast->ast.call_expr.args[i], scope);
+		if (!is_castable(param_type, arg_type)) {
+			ast_t *ast = ast->ast.call_expr.args[i];
+			eprintf(ast->filepath, ast->source, ast->start,
+				ast->end, "Mismatch type");
+			exit(1);
+		}
 	}
 
 	return type->type.fn_type.return_type;

@@ -15,6 +15,9 @@ struct type_t {
 
 	union {
 		struct {
+			type_t **param_types;
+			int param_types_len;
+
 			type_t *return_type;
 		} fn_type;
 	} type;
