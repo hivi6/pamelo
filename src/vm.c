@@ -26,6 +26,7 @@ static int g_is_running = 1;
 static vm_fn_state_t *g_fn_states;
 static int g_fn_states_len;
 static int g_current_fn_state;
+static word_t g_last_value = 0; // for debug
 
 static void init(ir_fn_t **list, int len);
 static void run();
@@ -101,7 +102,7 @@ static void run() {
 	while (g_is_running) {
 		run_inst();
 	}
-	pop_fn_state();
+	printf("VALUE: %llu\n", g_last_value);
 }
 
 static ir_inst_t current_inst() {
@@ -137,7 +138,7 @@ static void prev_fn_state() {
 }
 
 static void pop_fn_state() {
-	vm_fn_state_t *state = current_state();
+	vm_fn_state_t *state = current_state() + 1;
 	free(state->temps);
 	free(state->stack);
 	g_fn_states_len -= 1;
@@ -166,6 +167,9 @@ static void set(int temp_id, word_t value) {
 	}
 
 	state->temps[temp_id] = value;
+
+	// DEBUGGING
+	g_last_value = value;
 }
 
 static void next_ip() {
