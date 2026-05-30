@@ -39,6 +39,7 @@ static int expr(ast_t *ast);
 static int literal_expr(ast_t *ast);
 static int var_expr(ast_t *ast);
 static int cast_expr(ast_t *ast);
+static int add_expr(ast_t *ast);
 
 // ========================================
 // ir.h - definition
@@ -91,6 +92,10 @@ static void print_inst(ir_inst_t inst) {
 		break;
 	case IR_INST_ADD:
 		printf("%%%llu := ADD %%%llu %%%llu %llu", inst.arg1, inst.arg2, 
+			inst.arg3, inst.arg4);
+		break;
+	case IR_INST_SUB:
+		printf("%%%llu := SUB %%%llu %%%llu %llu", inst.arg1, inst.arg2, 
 			inst.arg3, inst.arg4);
 		break;
 	default:
@@ -277,6 +282,7 @@ static int expr(ast_t *ast) {
 	if (ast->kind == AST_LITERAL_EXPR) return literal_expr(ast);
 	if (ast->kind == AST_VAR_EXPR) return var_expr(ast);
 	if (ast->kind == AST_CAST_EXPR) return cast_expr(ast);
+	if (ast->kind == AST_ADD_EXPR) return add_expr(ast);
 
 	eprintf(ast->filepath, ast->source, ast->start, ast->end,
 		"Invalid expr kind");
@@ -323,4 +329,16 @@ static int cast_expr(ast_t *ast) {
 	return dest_id;
 }
 
+static int add_expr(ast_t *ast) {
+	match(ast, AST_ADD_EXPR, "Expected AST_ADD_EXPR");
+
+	int left = expr(ast->ast.add_expr.left);
+	int right = expr(ast->ast.add_expr.right);
+	int kind = IR_INST_ADD;
+	if (ast->ast.add_expr.op->kind == TOKEN_MINUS) kind = IR_INST_SUB;
+
+	int id = create_temp_id();
+	emit(kind, id, left, right, ast->type->size);
+	return id;
+}
 
