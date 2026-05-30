@@ -202,7 +202,11 @@ static word_t get_int_literal(const char *lexical) {
 	}
 
 	while (index < len) {
-		res = res * base + (lexical[index] - '0');
+		int value = lexical[index] - '0';
+		if (tolower(lexical[index]) >= 'a') 
+			value = 10 + tolower(lexical[index]) - 'a';
+
+		res = res * base + value;
 		index++;
 	}
 
