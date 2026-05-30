@@ -8,6 +8,7 @@
 static ir_fn_t ***g_list;
 static int *g_len;
 static int g_temp_id = 0;
+static type_t *g_current_fn_type = NULL;
 static ir_fn_t *g_current_ir_fn = NULL;
 static int g_current_return_temp = 0;
 
@@ -20,6 +21,7 @@ static void set_temp_id(int id);
 static ir_fn_t *create_ir_fn(int id, const char *name);
 static void append(ir_fn_t *ir_fn);
 static void emit(int kind, word_t arg1, word_t arg2, word_t arg3, word_t arg4);
+static void emitReturn();
 
 static void prog(ast_t *ast);
 
@@ -39,7 +41,7 @@ static int expr(ast_t *ast);
 
 void print_ir(ir_fn_t **list, int len) {
 	for (int i = 0; i < len; i++) {
-		printf("%d: # %s\n", list[i]->id, list[i]->name);
+		printf("$%d: # %s\n", list[i]->id, list[i]->name);
 		printf("@function_start\n");
 		for (int j = 0; j < list[i]->len; j++) {
 			print_inst(list[i]->list[j]);
@@ -70,6 +72,10 @@ static void print_inst(ir_inst_t inst) {
 		break;
 	case IR_INST_ALLOCATE:
 		printf("%%%llu := ALLOCATE %llu", inst.arg1, inst.arg2);
+		break;
+	case IR_INST_STORE:
+		printf("STORE %%%llu %llu := %%%llu", inst.arg1, inst.arg3, 
+			inst.arg2);
 		break;
 	default:
 		printf("WHAT IS THIS INST\n");
@@ -133,6 +139,13 @@ static void emit(int kind, word_t arg1, word_t arg2, word_t arg3, word_t arg4) {
 	};
 }
 
+static void emitReturn() {
+	if (g_current_ir_fn->len <= 0 || 
+		g_current_ir_fn->list[g_current_ir_fn->len - 1].kind != IR_INST_RETURN) {
+		emit(IR_INST_RETURN, 0, 0, 0, 0);
+	}
+}
+
 static void prog(ast_t *ast) {
 	match(ast, AST_PROG, "Expected AST_PROG");
 
@@ -157,13 +170,14 @@ static void fn_decl(ast_t *ast) {
 	assert(s->type->kind == TYPE_FN);
 	ir_fn_t *ir_fn = create_ir_fn(s->id, s->name);
 
+	g_current_fn_type = s->type;
 	g_current_ir_fn = ir_fn;
 	if (s->type->type.fn_type.return_type->kind != TYPE_VOID) {
 		g_current_return_temp = create_temp_id();
 		emit(IR_INST_GET_RETURN_ADDR, g_current_return_temp, 0, 0, 0);
 	}
 	stmt(ast->ast.fn_decl.block_stmt);
-	emit(IR_INST_RETURN, 0, 0, 0, 0);
+	emitReturn();
 
 	append(ir_fn);
 }
@@ -195,18 +209,23 @@ static void var_stmt(ast_t *ast) {
 
 	if (ast->ast.var_stmt.expr) {
 		word_t temp = expr(ast->ast.var_stmt.expr);
+		emit(IR_INST_STORE, s->id, temp, s->type->size, 0);
 	}
-
-	// TODO: Complete this
 }
 
 static void return_stmt(ast_t *ast) {
 	match(ast, AST_RETURN_STMT, "Expected AST_RETURN_STMT");
 
-	// TODO: Complete this
+	if (ast->ast.return_stmt.expr) {
+		word_t temp = expr(ast->ast.return_stmt.expr);
+		emit(IR_INST_STORE, g_current_return_temp, temp, 
+			g_current_fn_type->type.fn_type.return_type->size, 0);
+	}
+
+	emitReturn();
 }
 
 static int expr(ast_t *ast) {
 	// TODO: Complete this
-	return 0;
+	return 100;
 }
