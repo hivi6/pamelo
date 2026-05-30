@@ -18,6 +18,7 @@ static token_t *token_at(int offset);
 static char check(int offset, int token_kind);
 static token_t *match(int token_kind, const char *message);
 static void skip(int inc);
+static void append_token(token_t ***list, int *len, token_t *token);
 
 static ast_t *malloc_ast(int kind, const char *filepath, const char *source,
 	pos_t start, pos_t end);
@@ -113,6 +114,14 @@ static void print_ast_helper(ast_t *ast, char *indent, int depth,
 		free(str);
 		print_ast_helper(ast->ast.fn_decl.type_specifier, indent, 
 			depth+1, "RETURN TYPE");
+
+		for (int i = 0; i < ast->ast.fn_decl.params_len; i++) {
+			char *param = token_lexical(*ast->ast.fn_decl.params[i]);
+			print_ast_helper(ast->ast.fn_decl.param_types[i], 
+				indent, depth+1, param);
+			free(param);
+		}
+
 		indent[depth+1] = 0;
 		print_ast_helper(ast->ast.fn_decl.block_stmt, indent, depth+1, 
 			"FUNCTION BODY");
@@ -191,9 +200,18 @@ static void print_ast_helper(ast_t *ast, char *indent, int depth,
 		printf("AST_CALL_EXPR [%s]\n", type_info);
 		free(type_info);
 
-		indent[depth+1] = 0;
+		if (ast->ast.call_expr.args_len <= 0) indent[depth+1] = 0;
 		print_ast_helper(ast->ast.call_expr.left, indent, depth+1, 
 			NULL);
+
+		for (int i = 0; i < ast->ast.call_expr.args_len; i++) {
+			if (i == ast->ast.call_expr.args_len-1)
+				indent[depth+1] = 0;
+			char *arg_name = sbuildf("ARG %d", i+1);
+			print_ast_helper(ast->ast.call_expr.args[i], indent,
+				depth+1, arg_name);
+			free(arg_name);
+		}
 
 		break;
 	}
@@ -272,6 +290,12 @@ static void skip(int inc) {
 		inc--;
 		g_cur = g_cur->next;
 	}
+}
+
+static void append_token(token_t ***list, int *len, token_t *token) {
+	*len += 1;
+	*list = realloc(*list, *len * sizeof(token_t *));
+	(*list)[*len-1] = token;
 }
 
 static ast_t *malloc_ast(int kind, const char *filepath, const char *source,
@@ -411,13 +435,37 @@ static ast_t *decl() {
 }
 
 static ast_t *fn_decl() {
+	token_t **params = NULL;
+	int params_len = 0;
+
+	ast_t **param_types = NULL;
+	int param_types_len = 0;
+
 	token_t *fn_keyword = match(TOKEN_FN_KEYWORD, "Expected fn keyword");
 	token_t *name = match(TOKEN_ID, "Expected name for function");
 	token_t *lparen = match(TOKEN_LPAREN, "Expected (");
+
+	while (!check(0, TOKEN_RPAREN)) {
+		token_t *id = match(TOKEN_ID, "Expected param name");
+		ast_t *type = type_specifier();
+
+		append_token(&params, &params_len, id);
+		append_ast(&param_types, &param_types_len, type);
+
+		if (!check(0, TOKEN_COMMA)) break;
+		match(TOKEN_COMMA, "Expected ','");
+	}
+
 	token_t *rparen = match(TOKEN_RPAREN, "Expected )");
 	ast_t *t = type_specifier();
 	ast_t *s = block_stmt();
-	return malloc_ast_fn_decl(fn_keyword, name, lparen, rparen, t, s);
+
+	ast_t *res = malloc_ast_fn_decl(fn_keyword, name, lparen, rparen, t, s);
+	res->ast.fn_decl.params = params;
+	res->ast.fn_decl.params_len = params_len;
+	res->ast.fn_decl.param_types = param_types;
+	res->ast.fn_decl.param_types_len = param_types_len;
+	return res;
 }
 
 static ast_t *type_specifier() {
@@ -522,9 +570,26 @@ static ast_t *postfix_expr() {
 }
 
 static ast_t *call_expr(ast_t *left) {
+	ast_t **args = NULL;
+	int args_len = 0;
+
 	token_t *lparen = match(TOKEN_LPAREN, "Expected '('");
+	
+	while (!check(0, TOKEN_RPAREN)) {
+		ast_t *arg = expr();
+
+		append_ast(&args, &args_len, arg);
+		
+		if (!check(0, TOKEN_COMMA)) break;
+		match(TOKEN_COMMA, "Expected ','");
+	}
+
 	token_t *rparen = match(TOKEN_RPAREN, "Expected ')'");
-	return malloc_ast_call_expr(left, lparen, rparen);
+
+	ast_t *res = malloc_ast_call_expr(left, lparen, rparen);
+	res->ast.call_expr.args = args;
+	res->ast.call_expr.args_len = args_len;
+	return res;
 }
 
 static ast_t *cast_expr() {

@@ -45,6 +45,13 @@ struct ast_t {
 			token_t *fn_keyword;
 			token_t *name;
 			token_t *lparen;
+
+			token_t **params;
+			int params_len;
+
+			ast_t **param_types;
+			int param_types_len;
+
 			token_t *rparen;
 			ast_t *type_specifier;
 			ast_t *block_stmt;
@@ -93,6 +100,10 @@ struct ast_t {
 		struct {
 			ast_t *left;
 			token_t *lparen;
+
+			ast_t **args;
+			int args_len;
+
 			token_t *rparen;
 		} call_expr;
 
