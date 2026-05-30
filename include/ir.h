@@ -6,6 +6,11 @@
 typedef unsigned long long word_t;
 
 enum {
+	// desc: add two temp value and store in another temp, size casted
+	// arg1 = destination temp
+	// arg2 = left temp
+	// arg3 = right temp
+	// arg4 = size of result
 	IR_INST_ADD,
 
 	// desc: allocate space from stack and store the addr to dest
@@ -28,6 +33,10 @@ enum {
 	// arg1 = destination temp
 	IR_INST_GET_RETURN_ADDR,
 
+	// desc: load the content of a address to a temp
+	// arg1 = destination temp
+	// arg2 = temp with address
+	// arg3 = content size in the address
 	IR_INST_LOAD,
 
 	// desc: return from the function
@@ -42,6 +51,11 @@ enum {
 	// arg3 = size of the destination address
 	IR_INST_STORE,
 
+	// desc: subtract two temp value and store in another temp, size casted
+	// arg1 = destination temp
+	// arg2 = left temp
+	// arg3 = right temp
+	// arg4 = size of result
 	IR_INST_SUB,
 };
 
