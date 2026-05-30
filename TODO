@@ -32,3 +32,6 @@
 - [x] Add support for all the ir
 - [x] Add support for a basic vm
 
+2026.05.31:
+- [ ] Add support for parameters in function
+
