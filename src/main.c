@@ -5,6 +5,7 @@
 #include "ast.h"
 #include "semantic.h"
 #include "ir.h"
+#include "vm.h"
 
 // ========================================
 // helper declaration
@@ -88,6 +89,8 @@ int main(int argc, const char **argv) {
 	if (g_print_ir_flag) {
 		print_ir(ir_list, ir_list_len);
 	}
+
+	run_vm(ir_list, ir_list_len);
 
 	return 0;
 }
