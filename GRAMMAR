@@ -5,9 +5,10 @@ GRAMMAR
 <prog> := <decl>+
 
 <decl>    := <fn-decl>
-<fn-decl> := FN_KEYWORD ID LPAREN RPAREN <type-specifier> <block-stmt>
+<fn-decl> := FN_KEYWORD ID LPAREN <fn-params>? RPAREN <type-specifier> <block-stmt>
 
 <type-specifier> := ID
+<fn-params>      := ID <type-specifier> (COMMA ID <type-specifier>)*
 
 <stmt>        := <block-stmt> | <var-stmt> | <return-stmt> | <expr-stmt>
 <block-stmt>  := LBRACE <stmt>* RBRACE
@@ -24,7 +25,8 @@ GRAMMAR
 <literal-expr> := INT_LITERAL
 
 <postfix-op> := <call-op>
-<call-op>    := LPAREN RPAREN
+<call-op>    := LPAREN <fn-args>? RPAREN
+<fn-args>    := <expr> (COMMA <expr>)*
 
 ========================================
 TOKEN
@@ -38,6 +40,7 @@ SEMICOLON := ";"
 PLUS      := "+"
 MINUS     := "-"
 EQUAL     := "="
+COMMA     := ","
 
 INT_LITERAL := "0" 
              | "0" ("x" | "X") [a-fA-F0-9]+

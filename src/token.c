@@ -64,6 +64,8 @@ char *token_type(token_t token) {
 		sbuilder_appendf(&s, "PLUS");
 	else if (token.kind == TOKEN_MINUS)
 		sbuilder_appendf(&s, "MINUS");
+	else if (token.kind == TOKEN_COMMA)
+		sbuilder_appendf(&s, "COMMA");
 	else if (token.kind == TOKEN_INT_LITERAL) 
 		sbuilder_appendf(&s, "INT_LITERAL");
 	else if (token.kind == TOKEN_ID)
@@ -138,6 +140,7 @@ static void generate_token() {
 	else if (char_at(0) == '+') kind = TOKEN_PLUS;
 	else if (char_at(0) == '-') kind = TOKEN_MINUS;
 	else if (char_at(0) == '=') kind = TOKEN_EQUAL;
+	else if (char_at(0) == ',') kind = TOKEN_COMMA;
 	else if (isdigit(char_at(0))) {
 		kind = int_literal_skip();
 		skip = 0;
