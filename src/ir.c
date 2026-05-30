@@ -38,6 +38,7 @@ static void expr_stmt(ast_t *ast);
 static int expr(ast_t *ast);
 static int literal_expr(ast_t *ast);
 static int var_expr(ast_t *ast);
+static int call_expr(ast_t *ast);
 static int cast_expr(ast_t *ast);
 static int add_expr(ast_t *ast);
 
@@ -73,6 +74,9 @@ static void print_inst(ir_inst_t inst) {
 	case IR_INST_GET_RETURN_ADDR:
 		printf("%%%llu := GET_RETURN_ADDR", inst.arg1);
 		break;
+	case IR_INST_SET_RETURN_ADDR:
+		printf("SET_RETURN_ADDR %%%llu", inst.arg1);
+		break;
 	case IR_INST_RETURN:
 		printf("RETURN");
 		break;
@@ -97,6 +101,18 @@ static void print_inst(ir_inst_t inst) {
 	case IR_INST_SUB:
 		printf("%%%llu := SUB %%%llu %%%llu %llu", inst.arg1, inst.arg2, 
 			inst.arg3, inst.arg4);
+		break;
+	case IR_INST_CALL:
+		printf("CALL $%llu", inst.arg1);
+		break;
+	case IR_INST_BEGIN_CALL:
+		printf("BEGIN_CALL");
+		break;
+	case IR_INST_END_CALL:
+		printf("END_CALL");
+		break;
+	case IR_INST_DEALLOCATE:
+		printf("DEALLOCATE %llu", inst.arg1);
 		break;
 	default:
 		printf("WHAT IS THIS INST\n");
@@ -244,8 +260,18 @@ static void stmt(ast_t *ast) {
 static void block_stmt(ast_t *ast) {
 	match(ast, AST_BLOCK_STMT, "Expected AST_BLOCK_STMT");
 
+	int allocated_size = 0;
+
 	for (int i = 0; i < ast->ast.block_stmt.stmts_len; i++) {
-		stmt(ast->ast.block_stmt.stmts[i]);
+		ast_t *s = ast->ast.block_stmt.stmts[i];
+		stmt(s);
+		if (s->kind == AST_VAR_STMT) {
+			allocated_size += s->type->size;
+		}
+	}
+
+	if (allocated_size) {
+		emit(IR_INST_DEALLOCATE, allocated_size, 0, 0, 0);
 	}
 }
 
@@ -283,6 +309,7 @@ static int expr(ast_t *ast) {
 	if (ast->kind == AST_VAR_EXPR) return var_expr(ast);
 	if (ast->kind == AST_CAST_EXPR) return cast_expr(ast);
 	if (ast->kind == AST_ADD_EXPR) return add_expr(ast);
+	if (ast->kind == AST_CALL_EXPR) return call_expr(ast);
 
 	eprintf(ast->filepath, ast->source, ast->start, ast->end,
 		"Invalid expr kind");
@@ -316,6 +343,30 @@ static int var_expr(ast_t *ast) {
 	int id = create_temp_id();
 	emit(IR_INST_LOAD, id, s->id, ast->type->size, 0);
 	return id;
+}
+
+static int call_expr(ast_t *ast) {
+	match(ast, AST_CALL_EXPR, "Expected AST_CALL_EXPR");
+
+	int fn_id = expr(ast->ast.call_expr.left);
+	int return_id = -1;
+	int res_id = -1;
+
+	emit(IR_INST_BEGIN_CALL, 0, 0, 0, 0);
+	if (ast->type->kind != TYPE_VOID) {
+		return_id = create_temp_id();
+		emit(IR_INST_ALLOCATE, return_id, ast->type->size, 0, 0);
+		emit(IR_INST_SET_RETURN_ADDR, return_id, 0, 0, 0);
+	}
+	emit(IR_INST_CALL, fn_id, 0, 0, 0);
+	if (ast->type->kind != TYPE_VOID) {
+		res_id = create_temp_id();
+		emit(IR_INST_LOAD, res_id, return_id, ast->type->size, 0);
+		emit(IR_INST_DEALLOCATE, ast->type->size, 0, 0, 0);
+	}
+	emit(IR_INST_END_CALL, 0, 0, 0, 0);
+
+	return res_id;
 }
 
 static int cast_expr(ast_t *ast) {

@@ -18,6 +18,10 @@ enum {
 	// arg2 = size in bytes
 	IR_INST_ALLOCATE,
 
+	// desc: deallocate space from stack of given size
+	// arg2 = size in bytes
+	IR_INST_DEALLOCATE,
+
 	IR_INST_BEGIN_CALL,
 
 	IR_INST_CALL,
