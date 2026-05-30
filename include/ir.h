@@ -17,6 +17,9 @@ enum {
 
 	IR_INST_CALL,
 
+	// desc: store the value of a constant to a temp
+	// arg1 = destination temp
+	// arg2 = constant value
 	IR_INST_CONST,
 
 	IR_INST_END_CALL,
@@ -33,6 +36,10 @@ enum {
 
 	IR_INST_SET_RETURN_ADDR,
 
+	// desc: load the content of a temp to a destination address
+	// arg1 = destination address
+	// arg2 = temp value
+	// arg3 = size of the destination address
 	IR_INST_STORE,
 
 	IR_INST_SUB,

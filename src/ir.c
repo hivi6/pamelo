@@ -37,6 +37,7 @@ static void expr_stmt(ast_t *ast);
 
 static int expr(ast_t *ast);
 static int literal_expr(ast_t *ast);
+static int var_expr(ast_t *ast);
 
 // ========================================
 // ir.h - definition
@@ -82,6 +83,10 @@ static void print_inst(ir_inst_t inst) {
 		break;
 	case IR_INST_CONST:
 		printf("%%%llu := CONST %llu", inst.arg1, inst.arg2);
+		break;
+	case IR_INST_LOAD:
+		printf("%%%llu := LOAD %%%llu %llu", inst.arg1, inst.arg2, 
+			inst.arg3);
 		break;
 	default:
 		printf("WHAT IS THIS INST\n");
@@ -265,6 +270,7 @@ static void expr_stmt(ast_t *ast) {
 
 static int expr(ast_t *ast) {
 	if (ast->kind == AST_LITERAL_EXPR) return literal_expr(ast);
+	if (ast->kind == AST_VAR_EXPR) return var_expr(ast);
 
 	eprintf(ast->filepath, ast->source, ast->start, ast->end,
 		"Invalid expr kind");
@@ -286,6 +292,17 @@ static int literal_expr(ast_t *ast) {
 
 	int id = create_temp_id();
 	emit(IR_INST_CONST, id, literal, 0, 0);
+	return id;
+}
+
+static int var_expr(ast_t *ast) {
+	match(ast, AST_VAR_EXPR, "Expected AST_VAR_EXPR");
+
+	token_t *token = ast->ast.var_expr.token;
+	symbol_t *s = get_symbol_from_token(ast->scope, token);
+	
+	int id = create_temp_id();
+	emit(IR_INST_LOAD, id, s->id, s->type->size, 0);
 	return id;
 }
 
