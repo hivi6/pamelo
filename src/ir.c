@@ -22,6 +22,7 @@ static ir_fn_t *create_ir_fn(int id, const char *name);
 static void append(ir_fn_t *ir_fn);
 static void emit(int kind, word_t arg1, word_t arg2, word_t arg3, word_t arg4);
 static void emitReturn();
+static word_t get_int_literal(const char *lexical);
 
 static void prog(ast_t *ast);
 
@@ -35,6 +36,7 @@ static void return_stmt(ast_t *ast);
 static void expr_stmt(ast_t *ast);
 
 static int expr(ast_t *ast);
+static int literal_expr(ast_t *ast);
 
 // ========================================
 // ir.h - definition
@@ -77,6 +79,9 @@ static void print_inst(ir_inst_t inst) {
 	case IR_INST_STORE:
 		printf("STORE %%%llu %llu := %%%llu", inst.arg1, inst.arg3, 
 			inst.arg2);
+		break;
+	case IR_INST_CONST:
+		printf("%%%llu := CONST %llu", inst.arg1, inst.arg2);
 		break;
 	default:
 		printf("WHAT IS THIS INST\n");
@@ -145,6 +150,32 @@ static void emitReturn() {
 		g_current_ir_fn->list[g_current_ir_fn->len - 1].kind != IR_INST_RETURN) {
 		emit(IR_INST_RETURN, 0, 0, 0, 0);
 	}
+}
+
+static word_t get_int_literal(const char *lexical) {
+	int len = strlen(lexical);
+
+	int base = 10;
+	word_t res = 0;
+	int index = 0;
+	if (lexical[0] == '0') base = 8;
+	if (len >= 2) {
+		if (lexical[0] == '0' && tolower(lexical[1]) == 'b') {
+			base = 2;
+			index = 2;
+		}
+		if (lexical[0] == '0' && tolower(lexical[1]) == 'x') {
+			base = 16;
+			index = 2;
+		}
+	}
+
+	while (index < len) {
+		res = res * base + (lexical[index] - '0');
+		index++;
+	}
+
+	return res;
 }
 
 static void prog(ast_t *ast) {
@@ -233,6 +264,28 @@ static void expr_stmt(ast_t *ast) {
 }
 
 static int expr(ast_t *ast) {
-	// TODO: Complete this
-	return 100;
+	if (ast->kind == AST_LITERAL_EXPR) return literal_expr(ast);
+
+	eprintf(ast->filepath, ast->source, ast->start, ast->end,
+		"Invalid expr kind");
+	exit(1);
 }
+
+static int literal_expr(ast_t *ast) {
+	match(ast, AST_LITERAL_EXPR, "Expected AST_LITERAL_EXPR");
+
+	token_t *token = ast->ast.literal_expr.token;
+	if (token->kind != TOKEN_INT_LITERAL) {
+		eprintf(token->filepath, token->source, token->start, 
+			token->end, "Expected an integer literal");
+	}
+
+	char *lexical = token_lexical(*token);
+	word_t literal = get_int_literal(lexical);
+	free(lexical);
+
+	int id = create_temp_id();
+	emit(IR_INST_CONST, id, literal, 0, 0);
+	return id;
+}
+
