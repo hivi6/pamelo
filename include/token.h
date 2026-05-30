@@ -41,6 +41,7 @@ struct token_t {
 token_t *generate_tokens(const char *filepath, const char *source);
 char *token_type(token_t token);
 char *token_lexical(token_t token);
+void print_tokens(token_t *tokens);
 
 #endif /* TOKEN_H */
 

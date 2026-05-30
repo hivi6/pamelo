@@ -84,6 +84,30 @@ void get_scope_list(scope_t ***scope_list, int *scope_list_len) {
 	*scope_list_len = g_scope_list_len;
 }
 
+void print_scope() {
+	scope_t **scope_list = NULL;
+	int scope_list_len = 0;
+	get_scope_list(&scope_list, &scope_list_len);
+	for (int i = 0; i < scope_list_len; i++) {
+		printf("id: %p\n", scope_list[i]);
+		printf("parent-id: %p\n", scope_list[i]->parent_scope);
+		printf("types:\n");
+		for (int j = 0; j < scope_list[i]->types_len; j++) {
+			char *name = type_str(scope_list[i]->types[j]);
+			printf("    %d. %s\n", j+1, name);
+			free(name);
+		}
+		printf("symbols:\n");
+		for (int j = 0; j < scope_list[i]->symbols_len; j++) {
+			char *name = symbol_str(scope_list[i]->symbols[j]);
+			printf("    %d. %s (%d)\n", j+1, name, 
+				scope_list[i]->symbols[j]->id);
+			free(name);
+		}
+		printf("\n");
+	}
+}
+
 // ========================================
 // helper definition
 // ========================================

@@ -40,22 +40,13 @@ int main(int argc, const char **argv) {
 	const char *filepath = argv[index];
 	const char *source = read_file(filepath);
 	token_t *tokens = generate_tokens(filepath, source);
-	ast_t *ast = parse(tokens);
-	semantic_analyse(ast);
-
-	ir_fn_t **ir_list = NULL;
-	int ir_list_len = 0;
-	generate_ir(ast, &ir_list, &ir_list_len);
 
 	if (g_print_token_flag) {
-		printf("file: %s\n", filepath);
-		for (token_t *head = tokens; head; head = head->next) {
-			char *lexical = token_lexical(*head);
-			char *type = token_type(*head);
-			printf("%s(%s)\n", type, lexical);
-		}
-		printf("\n");
+		print_tokens(tokens);
 	}
+
+	ast_t *ast = parse(tokens);
+	semantic_analyse(ast);
 
 	if (g_print_ast_flag) {
 		printf("file: %s\n", filepath);
@@ -64,27 +55,12 @@ int main(int argc, const char **argv) {
 	}
 
 	if (g_print_scope_flag) {
-		scope_t **scope_list = NULL;
-		int scope_list_len = 0;
-		get_scope_list(&scope_list, &scope_list_len);
-		for (int i = 0; i < scope_list_len; i++) {
-			printf("id: %p\n", scope_list[i]);
-			printf("parent-id: %p\n", scope_list[i]->parent_scope);
-			printf("types:\n");
-			for (int j = 0; j < scope_list[i]->types_len; j++) {
-				char *name = type_str(scope_list[i]->types[j]);
-				printf("    %d. %s\n", j+1, name);
-				free(name);
-			}
-			printf("symbols:\n");
-			for (int j = 0; j < scope_list[i]->symbols_len; j++) {
-				char *name = symbol_str(scope_list[i]->symbols[j]);
-				printf("    %d. %s (%d)\n", j+1, name, scope_list[i]->symbols[j]->id);
-				free(name);
-			}
-			printf("\n");
-		}
+		print_scope();
 	}
+
+	ir_fn_t **ir_list = NULL;
+	int ir_list_len = 0;
+	generate_ir(ast, &ir_list, &ir_list_len);
 
 	if (g_print_ir_flag) {
 		print_ir(ir_list, ir_list_len);

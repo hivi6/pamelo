@@ -106,6 +106,17 @@ char *token_lexical(token_t token) {
 	return res;
 }
 
+void print_tokens(token_t *tokens) {
+	const char *filepath = tokens->filepath;
+	printf("file: %s\n", filepath);
+	for (token_t *head = tokens; head; head = head->next) {
+		char *lexical = token_lexical(*head);
+		char *type = token_type(*head);
+		printf("%s(%s)\n", type, lexical);
+	}
+	printf("\n");
+}
+
 // ========================================
 // helper declaration
 // ========================================
