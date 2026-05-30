@@ -32,6 +32,7 @@ static void stmt(ast_t *ast);
 static void block_stmt(ast_t *ast);
 static void var_stmt(ast_t *ast);
 static void return_stmt(ast_t *ast);
+static void expr_stmt(ast_t *ast);
 
 static int expr(ast_t *ast);
 
@@ -186,6 +187,7 @@ static void stmt(ast_t *ast) {
 	if (ast->kind == AST_BLOCK_STMT) block_stmt(ast);
 	else if (ast->kind == AST_VAR_STMT) var_stmt(ast);
 	else if (ast->kind == AST_RETURN_STMT) return_stmt(ast);
+	else if (ast->kind == AST_EXPR_STMT) expr_stmt(ast);
 	else {
 		eprintf(ast->filepath, ast->source, ast->start, ast->end,
 			"What is this statement kind?");
@@ -223,6 +225,11 @@ static void return_stmt(ast_t *ast) {
 	}
 
 	emitReturn();
+}
+
+static void expr_stmt(ast_t *ast) {
+	match(ast, AST_EXPR_STMT, "Expected AST_EXPR_STMT");
+	expr(ast->ast.expr_stmt.expr);
 }
 
 static int expr(ast_t *ast) {
