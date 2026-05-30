@@ -19,11 +19,14 @@ enum {
 	IR_INST_ALLOCATE,
 
 	// desc: deallocate space from stack of given size
-	// arg2 = size in bytes
+	// arg1 = size in bytes
 	IR_INST_DEALLOCATE,
 
+	// desc: Start the call process
 	IR_INST_BEGIN_CALL,
 
+	// desc: Call a function
+	// arg1 = function id
 	IR_INST_CALL,
 
 	// desc: store the value of a constant to a temp
@@ -31,6 +34,7 @@ enum {
 	// arg2 = constant value
 	IR_INST_CONST,
 
+	// desc: End the call process
 	IR_INST_END_CALL,
 
 	// desc: get the return address value and store the addr to dest
@@ -47,6 +51,8 @@ enum {
 	// No arguments
 	IR_INST_RETURN,
 
+	// desc: Set the return address
+	// arg1 = temp with address value
 	IR_INST_SET_RETURN_ADDR,
 
 	// desc: load the content of a temp to a destination address
