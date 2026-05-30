@@ -28,6 +28,7 @@
 - [x] Brain store some ideas for an ir
 
 2026.05.30:
-- [ ] Add basic ir support
-- [ ] Add support for grouping expression
+- [x] Add basic ir support
+- [x] Add support for all the ir
+- [ ] Add support for a basic vm
 

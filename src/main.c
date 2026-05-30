@@ -14,6 +14,7 @@ static int g_help_flag = 0;
 static int g_print_token_flag = 0;
 static int g_print_ast_flag = 0;
 static int g_print_scope_flag = 0;
+static int g_print_ir_flag = 0;
 
 static void usage(FILE *f);
 static char *read_file(const char *filepath);
@@ -44,7 +45,6 @@ int main(int argc, const char **argv) {
 	ir_fn_t **ir_list = NULL;
 	int ir_list_len = 0;
 	generate_ir(ast, &ir_list, &ir_list_len);
-	print_ir(ir_list, ir_list_len);
 
 	if (g_print_token_flag) {
 		printf("file: %s\n", filepath);
@@ -85,6 +85,10 @@ int main(int argc, const char **argv) {
 		}
 	}
 
+	if (g_print_ir_flag) {
+		print_ir(ir_list, ir_list_len);
+	}
+
 	return 0;
 }
 
@@ -104,6 +108,7 @@ static void usage(FILE *f) {
 		"    --print-token    Print the token to the screen\n"
 		"    --print-ast      Print the ast to the screen\n"
 		"    --print-scope    Print the scope info to the screen\n"
+		"    --print-ir       Print the ir to the screen\n"
 		"\n"
 		"HINTS:\n"
 		"    1. If you want to read from stdin, then make filepath == '-'\n"
@@ -149,6 +154,8 @@ static int get_opts(int argc, const char **argv) {
 			g_print_ast_flag = 1;
 		else if (strcmp(argv[i], "--print-scope") == 0)
 			g_print_scope_flag = 1;
+		else if (strcmp(argv[i], "--print-ir") == 0)
+			g_print_ir_flag = 1;
 		else
 			break;
 	}
