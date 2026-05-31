@@ -379,6 +379,7 @@ static void inst_load(ir_inst_t inst) {
 static void inst_return(ir_inst_t inst) {
 	if (current_state()->fn_id == g_main_fn) {
 		g_is_running = 0;
+		return;
 	}
 	prev_fn_state();
 	next_ip();
