@@ -155,7 +155,7 @@ static void create_fn(ast_t *ast, scope_t *scope) {
 }
 
 static char is_numeric(type_t *type) {
-	return type == g_u8 || type == g_u16 || type == g_u32 || type == g_u64;
+	return type->kind == TYPE_PRIMITIVE;
 }
 
 static char is_castable(type_t *out, type_t *in) {
@@ -468,10 +468,10 @@ static type_t *call_expr(ast_t *ast, scope_t *scope) {
 	for (int i = 0; i < ast->ast.call_expr.args_len; i++) {
 		type_t *param_type = type->type.fn_type.param_types[i];
 		type_t *arg_type = expr(ast->ast.call_expr.args[i], scope);
-		if (param_type == g_void || !is_castable(param_type, arg_type)) {
-			ast_t *ast = ast->ast.call_expr.args[i];
-			eprintf(ast->filepath, ast->source, ast->start,
-				ast->end, "Mismatch type");
+		if (!is_castable(param_type, arg_type)) {
+			ast_t *arg = ast->ast.call_expr.args[i];
+			eprintf(arg->filepath, ast->source, ast->start,
+				arg->end, "Mismatch type");
 			exit(1);
 		}
 	}
