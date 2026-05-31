@@ -373,13 +373,17 @@ static int call_expr(ast_t *ast) {
 	emit(IR_INST_BEGIN_CALL, 0, 0, 0, 0);
 
 	for (int i = 0; i < ast->ast.call_expr.args_len; i++) {
-		type_t *arg_type = ast->ast.call_expr.left->type;
+		type_t *fn_type = ast->ast.call_expr.left->type;
 		ast_t *arg = ast->ast.call_expr.args[i];
 		int temp = expr(arg);
 		int arg_temp = create_temp_id();
 
-		int size = arg->type->size;
-		if (arg_type->size >= size) size = arg_type->size;
+		if (fn_type->kind != TYPE_FN) {
+			fprintf(stderr, "Not possible!!!\n");
+			exit(1);
+		}
+
+		int size = fn_type->type.fn_type.param_types[i]->size;
 
 		emit(IR_INST_ALLOCATE, arg_temp, size, 0, 0);
 		emit(IR_INST_STORE, arg_temp, temp, size, 0);
