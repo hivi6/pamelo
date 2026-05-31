@@ -111,6 +111,12 @@ static void create_fn(ast_t *ast, scope_t *scope) {
 			ast->ast.fn_decl.param_types[i], 
 			scope);
 
+		if (param_type == g_void) {
+			eprintf(param->filepath, param->source, param->start,
+				param->end, "Cannot have parameter with void type");
+			exit(1);
+		}
+
 		symbol_t *s = create_symbol(create_var_id(), param_name, 
 			param_type);
 		if (!add_symbol(fn_scope, s)) {
@@ -462,7 +468,7 @@ static type_t *call_expr(ast_t *ast, scope_t *scope) {
 	for (int i = 0; i < ast->ast.call_expr.args_len; i++) {
 		type_t *param_type = type->type.fn_type.param_types[i];
 		type_t *arg_type = expr(ast->ast.call_expr.args[i], scope);
-		if (!is_castable(param_type, arg_type)) {
+		if (param_type == g_void || !is_castable(param_type, arg_type)) {
 			ast_t *ast = ast->ast.call_expr.args[i];
 			eprintf(ast->filepath, ast->source, ast->start,
 				ast->end, "Mismatch type");
