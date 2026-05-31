@@ -2,6 +2,7 @@
 
 flags=("" "--print-token" "--print-ast" "--print-ir")
 
+exit_code=0
 for flag in "${flags[@]}"; do
 	ext=`echo $flag | cut -d '-' -f 4 | xargs`
 	if [ "$ext" == "" ]; then
@@ -26,7 +27,10 @@ for flag in "${flags[@]}"; do
 		echo PASSED
 	else
 		echo FAILED
+		exit_code=1
 	fi
 	echo
 done
+
+exit $exit_code
 

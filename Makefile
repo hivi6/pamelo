@@ -15,7 +15,10 @@ $(FINAL_PATH): $(BUILD_PATH) $(H_FILES) $(C_FILES)
 $(BUILD_PATH):
 	mkdir -p $(BUILD_PATH)
 
-.phony: clean
+.PHONY: clean test
 clean:
 	rm -rf $(BUILD_PATH)
+
+test: $(FINAL_PATH)
+	bash test.sh
 
