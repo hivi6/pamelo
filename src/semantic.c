@@ -190,6 +190,21 @@ static void prog(ast_t *ast, scope_t *scope) {
 			fn_decl(decl, new_scope);
 		}
 	}
+
+	// check main function
+	type_t *main_fn = get_type(new_scope, "main");
+	if (main_fn == NULL || main_fn->kind != TYPE_FN) {
+		printf("No main function found!\n");
+		exit(1);
+	}
+	if (main_fn->type.fn_type.return_type != g_void) {
+		printf("Expected return type of main as void!\n");
+		exit(1);
+	}
+	if (main_fn->type.fn_type.param_types_len > 0) {
+		printf("Expected main to have no parameters!\n");
+		exit(1);
+	}
 }
 
 static void fn_decl(ast_t *ast, scope_t *scope) {
