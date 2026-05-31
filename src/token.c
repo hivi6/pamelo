@@ -6,38 +6,42 @@
 // helper declaration
 // ========================================
 
-static const char *g_filepath;
-static const char *g_source;
-static int g_source_length;
-static token_t *g_head;
-static token_t *g_tail;
-static pos_t g_prev;
-static pos_t g_cur;
+typedef struct lexer_t lexer_t;
+struct lexer_t {
+	const char *filepath;
+	const char *source;
+	int source_length;
+	token_t *head;
+	token_t *tail;
+	pos_t prev;
+	pos_t cur;
+};
 
-static void init(const char *filepath, const char *source);
-static char eof();
-static void generate_token();
-static void append_token(int kind);
-static char char_at(int offset);
-static char is_whitespace(char ch);
-static void char_skip(int skip);
-static char is_octal(char ch);
-static char is_hexadecimal(char ch);
-static int int_literal_skip();
-static int keyword_skip();
+static void init(lexer_t *lexer, const char *filepath, const char *source);
+static char eof(lexer_t *lexer);
+static void generate_token(lexer_t *lexer);
+static void append_token(lexer_t *lexer, int kind);
+static char char_at(lexer_t *lexer, int offset);
+static char is_whitespace(lexer_t *lexer, char ch);
+static void char_skip(lexer_t *lexer, int skip);
+static char is_octal(lexer_t *lexer, char ch);
+static char is_hexadecimal(lexer_t *lexer, char ch);
+static int int_literal_skip(lexer_t *lexer);
+static int keyword_skip(lexer_t *lexer);
 
 // ========================================
 // token.h - definition
 // ========================================
 
 token_t *generate_tokens(const char *filepath, const char *source) {
-	init(filepath, source);
-	while (!eof()) {
-		generate_token();
+	lexer_t lexer = {};
+	init(&lexer, filepath, source);
+	while (!eof(&lexer)) {
+		generate_token(&lexer);
 	}
-	g_prev = g_cur;
-	append_token(TOKEN_EOF);
-	return g_head;
+	lexer.prev = lexer.cur;
+	append_token(&lexer, TOKEN_EOF);
+	return lexer.head;
 }
 
 char *token_type(token_t token) {
@@ -121,156 +125,159 @@ void print_tokens(token_t *tokens) {
 // helper declaration
 // ========================================
 
-static void init(const char *filepath, const char *source) {
-	g_filepath = filepath;
-	g_source = source;
-	g_source_length = strlen(source);
-	g_head = g_tail = NULL;
-	g_prev = g_cur = POS_INIT();
+static void init(lexer_t *lexer, const char *filepath, const char *source) {
+	lexer->filepath = filepath;
+	lexer->source = source;
+	lexer->source_length = strlen(source);
+	lexer->head = lexer->tail = NULL;
+	lexer->prev = lexer->cur = POS_INIT();
 }
 
-static char eof() {
-	return g_cur.index >= g_source_length;
+static char eof(lexer_t *lexer) {
+	return lexer->cur.index >= lexer->source_length;
 }
 
-static void generate_token() {
-	g_prev = g_cur;
+static void generate_token(lexer_t *lexer) {
+	lexer->prev = lexer->cur;
 
-	if (is_whitespace(char_at(0))) {
-		char_skip(1);
+	if (is_whitespace(lexer, char_at(lexer, 0))) {
+		char_skip(lexer, 1);
 		return;
 	}
 
 	int skip = 1;
 	int kind = TOKEN_EOF;
-	if (char_at(0) == '{') kind = TOKEN_LBRACE;
-	else if (char_at(0) == '(') kind = TOKEN_LPAREN;
-	else if (char_at(0) == '}') kind = TOKEN_RBRACE;
-	else if (char_at(0) == ')') kind = TOKEN_RPAREN;
-	else if (char_at(0) == ';') kind = TOKEN_SEMICOLON;
-	else if (char_at(0) == '+') kind = TOKEN_PLUS;
-	else if (char_at(0) == '-') kind = TOKEN_MINUS;
-	else if (char_at(0) == '=') kind = TOKEN_EQUAL;
-	else if (char_at(0) == ',') kind = TOKEN_COMMA;
-	else if (isdigit(char_at(0))) {
-		kind = int_literal_skip();
+	if (char_at(lexer, 0) == '{') kind = TOKEN_LBRACE;
+	else if (char_at(lexer, 0) == '(') kind = TOKEN_LPAREN;
+	else if (char_at(lexer, 0) == '}') kind = TOKEN_RBRACE;
+	else if (char_at(lexer, 0) == ')') kind = TOKEN_RPAREN;
+	else if (char_at(lexer, 0) == ';') kind = TOKEN_SEMICOLON;
+	else if (char_at(lexer, 0) == '+') kind = TOKEN_PLUS;
+	else if (char_at(lexer, 0) == '-') kind = TOKEN_MINUS;
+	else if (char_at(lexer, 0) == '=') kind = TOKEN_EQUAL;
+	else if (char_at(lexer, 0) == ',') kind = TOKEN_COMMA;
+	else if (isdigit(char_at(lexer, 0))) {
+		kind = int_literal_skip(lexer);
 		skip = 0;
 	}
-	else if (isalpha(char_at(0)) || char_at(0) == '_') {
-		kind = keyword_skip();
+	else if (isalpha(char_at(lexer, 0)) || char_at(lexer, 0) == '_') {
+		kind = keyword_skip(lexer);
 		skip = 0;
 	}
 
 	if (kind == TOKEN_EOF) {
-		char_skip(1);
-		eprintf(g_filepath, g_source, g_prev, g_cur, "Invalid token!");
+		char_skip(lexer, 1);
+		eprintf(lexer->filepath, lexer->source, lexer->prev, 
+			lexer->cur, "Invalid token!");
 		exit(1);
 	}
 
-	char_skip(skip);
-	append_token(kind);
+	char_skip(lexer, skip);
+	append_token(lexer, kind);
 }
 
-static void append_token(int kind) {
+static void append_token(lexer_t *lexer, int kind) {
 	token_t *res = calloc(sizeof(token_t), 1);
 	res->kind = kind;
-	res->filepath = g_filepath;
-	res->source = g_source;
-	res->start = g_prev;
-	res->end = g_cur;
+	res->filepath = lexer->filepath;
+	res->source = lexer->source;
+	res->start = lexer->prev;
+	res->end = lexer->cur;
 
-	if (g_head == NULL) g_head = res;
-	else g_tail->next = res;
-	g_tail = res;
+	if (lexer->head == NULL) lexer->head = res;
+	else lexer->tail->next = res;
+	lexer->tail = res;
 }
 
-static char char_at(int offset) {
-	if (offset + g_cur.index >= g_source_length) return 0;
-	return g_source[g_cur.index + offset];
+static char char_at(lexer_t *lexer, int offset) {
+	if (offset + lexer->cur.index >= lexer->source_length) return 0;
+	return lexer->source[lexer->cur.index + offset];
 }
 
-static char is_whitespace(char ch) {
+static char is_whitespace(lexer_t *lexer, char ch) {
 	return ch == ' ' || ch == '\n' || ch == '\t' || ch == '\r';
 }
 
-static void char_skip(int skip) {
+static void char_skip(lexer_t *lexer, int skip) {
 	for (int i = 0; i < skip; i++) {
-		char ch = char_at(0);
+		char ch = char_at(lexer, 0);
 		if (!ch) break;
 		
-		g_cur.index++;
-		g_cur.column++;
+		lexer->cur.index++;
+		lexer->cur.column++;
 		if (ch == '\n') {
-			g_cur.line++;
-			g_cur.column = 1;
+			lexer->cur.line++;
+			lexer->cur.column = 1;
 		}
 	}
 }
 
-static char is_octal(char ch) {
+static char is_octal(lexer_t *lexer, char ch) {
 	return '0' <= ch && ch <= '7';
 }
 
-static char is_hexadecimal(char ch) {
+static char is_hexadecimal(lexer_t *lexer, char ch) {
 	return isdigit(ch) || ('a' <= ch && ch <= 'f') 
 		|| ('A' <= ch && ch <= 'F');
 }
 
-static int int_literal_skip() {
+static int int_literal_skip(lexer_t *lexer) {
 	int incomplete = 0;
-	if (char_at(0) == '0' && tolower(char_at(1)) == 'x') {
-		char_skip(2);
+	if (char_at(lexer, 0) == '0' && tolower(char_at(lexer, 1)) == 'x') {
+		char_skip(lexer, 2);
 		int err = 1;
-		while (is_hexadecimal(char_at(0))) {
+		while (is_hexadecimal(lexer, char_at(lexer, 0))) {
 			err = 0;
-			char_skip(1);
+			char_skip(lexer, 1);
 		}
 		incomplete = err;
 	}
-	else if (char_at(0) == '0' && tolower(char_at(1)) == 'b') {
-		char_skip(2);
+	else if (char_at(lexer, 0) == '0' && 
+		tolower(char_at(lexer, 1)) == 'b') {
+		char_skip(lexer, 2);
 		int err = 1;
-		while (char_at(0) == '0' || char_at(0) == '1') {
+		while (char_at(lexer, 0) == '0' || char_at(lexer, 0) == '1') {
 			err = 0;
-			char_skip(1);
+			char_skip(lexer, 1);
 		}
 		incomplete = err;
 	}
-	else if (char_at(0) == '0' && is_octal(char_at(1))) {
-		char_skip(2);
-		while (is_octal(char_at(0)))
-			char_skip(1);
+	else if (char_at(lexer, 0) == '0' && 
+		is_octal(lexer, char_at(lexer, 1))) {
+		char_skip(lexer, 2);
+		while (is_octal(lexer, char_at(lexer, 0)))
+			char_skip(lexer, 1);
 	}
-	else if (char_at(0) == '0') {
-		char_skip(1);
+	else if (char_at(lexer, 0) == '0') {
+		char_skip(lexer, 1);
 	}
 	else {
-		while (isdigit(char_at(0)))
-			char_skip(1);
+		while (isdigit(char_at(lexer, 0)))
+			char_skip(lexer, 1);
 	}
 
 	int invalid = 0;
-	while (isalnum(char_at(0)) || char_at(0) == '_') {
+	while (isalnum(char_at(lexer, 0)) || char_at(lexer, 0) == '_') {
 		invalid = 1;
-		char_skip(1);
+		char_skip(lexer, 1);
 	}
 
 	if (invalid || incomplete) {
-		eprintf(g_filepath, g_source, g_prev, g_cur,
-			"Invalid int literal");
+		eprintf(lexer->filepath, lexer->source, lexer->prev, 
+			lexer->cur, "Invalid int literal");
 		exit(1);
 	}
 
 	return TOKEN_INT_LITERAL;
 }
 
-static int keyword_skip() {
+static int keyword_skip(lexer_t *lexer) {
 	sbuilder_t s;
 	sbuilder_init(&s);
 
-	while (isalnum(char_at(0)) || char_at(0) == '_') {
-		sbuilder_appendf(&s, "%c", char_at(0));
-		char_skip(1);
+	while (isalnum(char_at(lexer, 0)) || char_at(lexer, 0) == '_') {
+		sbuilder_appendf(&s, "%c", char_at(lexer, 0));
+		char_skip(lexer, 1);
 	}
 
 	char *res = NULL;

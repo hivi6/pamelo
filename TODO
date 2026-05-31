@@ -37,4 +37,5 @@
 - [x] Fix bugs related to vm
 - [ ] Clean up the code
 	- [x] Write some tests(for validation after cleanup)
+	- [x] Move all the global values in src/token.c to lexer_t
 
