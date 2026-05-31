@@ -22,19 +22,20 @@ static char eof(lexer_t *lexer);
 static void generate_token(lexer_t *lexer);
 static void append_token(lexer_t *lexer, int kind);
 static char char_at(lexer_t *lexer, int offset);
-static char is_whitespace(lexer_t *lexer, char ch);
 static void char_skip(lexer_t *lexer, int skip);
-static char is_octal(lexer_t *lexer, char ch);
-static char is_hexadecimal(lexer_t *lexer, char ch);
 static int int_literal_skip(lexer_t *lexer);
 static int keyword_skip(lexer_t *lexer);
+
+static char is_whitespace(char ch);
+static char is_octal(char ch);
+static char is_hexadecimal(char ch);
 
 // ========================================
 // token.h - definition
 // ========================================
 
 token_t *generate_tokens(const char *filepath, const char *source) {
-	lexer_t lexer = {};
+	lexer_t lexer = {0};
 	init(&lexer, filepath, source);
 	while (!eof(&lexer)) {
 		generate_token(&lexer);
@@ -140,7 +141,7 @@ static char eof(lexer_t *lexer) {
 static void generate_token(lexer_t *lexer) {
 	lexer->prev = lexer->cur;
 
-	if (is_whitespace(lexer, char_at(lexer, 0))) {
+	if (is_whitespace(char_at(lexer, 0))) {
 		char_skip(lexer, 1);
 		return;
 	}
@@ -194,10 +195,6 @@ static char char_at(lexer_t *lexer, int offset) {
 	return lexer->source[lexer->cur.index + offset];
 }
 
-static char is_whitespace(lexer_t *lexer, char ch) {
-	return ch == ' ' || ch == '\n' || ch == '\t' || ch == '\r';
-}
-
 static void char_skip(lexer_t *lexer, int skip) {
 	for (int i = 0; i < skip; i++) {
 		char ch = char_at(lexer, 0);
@@ -212,21 +209,12 @@ static void char_skip(lexer_t *lexer, int skip) {
 	}
 }
 
-static char is_octal(lexer_t *lexer, char ch) {
-	return '0' <= ch && ch <= '7';
-}
-
-static char is_hexadecimal(lexer_t *lexer, char ch) {
-	return isdigit(ch) || ('a' <= ch && ch <= 'f') 
-		|| ('A' <= ch && ch <= 'F');
-}
-
 static int int_literal_skip(lexer_t *lexer) {
 	int incomplete = 0;
 	if (char_at(lexer, 0) == '0' && tolower(char_at(lexer, 1)) == 'x') {
 		char_skip(lexer, 2);
 		int err = 1;
-		while (is_hexadecimal(lexer, char_at(lexer, 0))) {
+		while (is_hexadecimal(char_at(lexer, 0))) {
 			err = 0;
 			char_skip(lexer, 1);
 		}
@@ -243,9 +231,9 @@ static int int_literal_skip(lexer_t *lexer) {
 		incomplete = err;
 	}
 	else if (char_at(lexer, 0) == '0' && 
-		is_octal(lexer, char_at(lexer, 1))) {
+		is_octal(char_at(lexer, 1))) {
 		char_skip(lexer, 2);
-		while (is_octal(lexer, char_at(lexer, 0)))
+		while (is_octal(char_at(lexer, 0)))
 			char_skip(lexer, 1);
 	}
 	else if (char_at(lexer, 0) == '0') {
@@ -295,3 +283,15 @@ static int keyword_skip(lexer_t *lexer) {
 	return kind;
 }
 
+static char is_whitespace(char ch) {
+	return ch == ' ' || ch == '\n' || ch == '\t' || ch == '\r';
+}
+
+static char is_octal(char ch) {
+	return '0' <= ch && ch <= '7';
+}
+
+static char is_hexadecimal(char ch) {
+	return isdigit(ch) || ('a' <= ch && ch <= 'f') 
+		|| ('A' <= ch && ch <= 'F');
+}
