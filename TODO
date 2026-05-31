@@ -33,5 +33,6 @@
 - [x] Add support for a basic vm
 
 2026.05.31:
-- [ ] Add support for parameters in function
+- [x] Add support for parameters in function
+- [x] Fix bugs related to vm
 
