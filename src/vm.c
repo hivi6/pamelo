@@ -5,6 +5,8 @@
 // helper declaration
 // ========================================
 
+#define VM_STACK_CAPACITY (64 * 1024)
+
 typedef struct vm_fn_state_t vm_fn_state_t;
 struct vm_fn_state_t {
 	int fn_id;
@@ -129,7 +131,7 @@ static void push_fn_state() {
 		.ip=0,
 		.temps=NULL,
 		.temps_len=0,
-		.stack=NULL,
+		.stack=calloc(sizeof(char), VM_STACK_CAPACITY),
 		.stack_size=0,
 		.return_addr=NULL,
 	};
@@ -192,15 +194,19 @@ static word_t cast(word_t v, int bytes) {
 
 static word_t allocate(int size) {
 	vm_fn_state_t *state = current_state();
+
+	if (state->stack_size + size >= VM_STACK_CAPACITY) {
+		fprintf(stderr, "Stack Overflow!\n");
+		exit(1);
+	}
+
 	state->stack_size += size;
-	state->stack = realloc(state->stack, state->stack_size * sizeof(char));
 	return (word_t) &(state->stack[state->stack_size - size]);
 }
 
 static void deallocate(int size) {
 	vm_fn_state_t *state = current_state();
 	state->stack_size -= size;
-	state->stack = realloc(state->stack, state->stack_size * sizeof(char));
 }
 
 static void store(char *addr, word_t value, int bytes) {
