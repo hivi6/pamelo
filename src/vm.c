@@ -16,6 +16,9 @@ struct vm_fn_state_t {
 	char *stack;
 	int stack_size;
 
+	char **param_addrs;
+	int param_addrs_len;
+
 	char *return_addr;
 };
 
@@ -46,6 +49,8 @@ static void store(char *addr, word_t value, int bytes);
 static word_t load(char *addr, int bytes);
 static void set_return_addr(char *addr);
 static word_t get_return_addr();
+static void set_param_addr(int param_index, char *addr);
+static word_t get_param_addr(int param_index);
 static void run_inst();
 
 static void inst_add(ir_inst_t inst);
@@ -56,9 +61,11 @@ static void inst_call(ir_inst_t inst);
 static void inst_const(ir_inst_t inst);
 static void inst_end_call(ir_inst_t inst);
 static void inst_get_return_addr(ir_inst_t inst);
+static void inst_get_param_addr(ir_inst_t inst);
 static void inst_load(ir_inst_t inst);
 static void inst_return(ir_inst_t inst);
 static void inst_set_return_addr(ir_inst_t inst);
+static void inst_set_param_addr(ir_inst_t inst);
 static void inst_store(ir_inst_t inst);
 static void inst_sub(ir_inst_t inst);
 
@@ -220,6 +227,23 @@ static word_t get_return_addr() {
 	return (word_t) state->return_addr;
 }
 
+static void set_param_addr(int param_index, char *addr) {
+	vm_fn_state_t *state = current_state() + 1;
+
+	if (param_index >= state->param_addrs_len) {
+		state->param_addrs_len = param_index * 2 + 100;
+		state->param_addrs = realloc(state->param_addrs, 
+			state->param_addrs_len * sizeof(char*));
+	}
+
+	state->param_addrs[param_index] = addr;
+}
+
+static word_t get_param_addr(int param_index) {
+	vm_fn_state_t *state = current_state();
+	return (word_t) state->param_addrs[param_index];
+}
+
 static void run_inst() {
 	ir_inst_t inst = current_inst();
 	switch (inst.kind) {
@@ -255,6 +279,10 @@ static void run_inst() {
 		inst_get_return_addr(inst);
 		break;
 	}
+	case IR_INST_GET_PARAM_ADDR: {
+		inst_get_param_addr(inst);
+		break;
+	}
 	case IR_INST_LOAD: {
 		inst_load(inst);
 		break;
@@ -265,6 +293,10 @@ static void run_inst() {
 	}
 	case IR_INST_SET_RETURN_ADDR: {
 		inst_set_return_addr(inst);
+		break;
+	}
+	case IR_INST_SET_PARAM_ADDR: {
+		inst_set_param_addr(inst);
 		break;
 	}
 	case IR_INST_STORE: {
@@ -325,6 +357,12 @@ static void inst_get_return_addr(ir_inst_t inst) {
 	next_ip();
 }
 
+static void inst_get_param_addr(ir_inst_t inst) {
+	word_t addr = get_param_addr(inst.arg2);
+	set(inst.arg1, addr);
+	next_ip();
+}
+
 static void inst_load(ir_inst_t inst) { 
 	word_t addr = get(inst.arg2);
 	word_t res = load((char*) addr, inst.arg3);
@@ -343,6 +381,12 @@ static void inst_return(ir_inst_t inst) {
 static void inst_set_return_addr(ir_inst_t inst) {
 	word_t addr = get(inst.arg1);
 	set_return_addr((char*) addr);
+	next_ip();
+}
+
+static void inst_set_param_addr(ir_inst_t inst) {
+	word_t addr = get(inst.arg2);
+	set_param_addr(inst.arg1, (char*) addr);
 	next_ip();
 }
 
