@@ -1,0 +1,4 @@
+tests/13-undefined-variable.pam:[2:2]-[2:3]: No such variable defined
+    |     v 
+  2 >     x;
+    | 

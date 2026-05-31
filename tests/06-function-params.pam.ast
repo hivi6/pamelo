@@ -1,0 +1,20 @@
+file: tests/06-function-params.pam
++- AST_PROG
+   +- AST_FN_DECL(type: ID | lexical: add)
+   |  +- RETURN TYPE: AST_TYPE_SPECIFIER(type: ID | lexical: u32) [u32]
+   |  +- a: AST_TYPE_SPECIFIER(type: ID | lexical: u32) [u32]
+   |  +- b: AST_TYPE_SPECIFIER(type: ID | lexical: u32) [u32]
+   |  +- FUNCTION BODY: AST_BLOCK_STMT
+   |     +- AST_RETURN_STMT
+   |        +- AST_ADD_EXPR(type: PLUS | lexical: +) [u32]
+   |           +- AST_VAR_EXPR(type: ID | lexical: a) [u32]
+   |           +- AST_VAR_EXPR(type: ID | lexical: b) [u32]
+   +- AST_FN_DECL(type: ID | lexical: main)
+      +- RETURN TYPE: AST_TYPE_SPECIFIER(type: ID | lexical: void) [void]
+      +- FUNCTION BODY: AST_BLOCK_STMT
+         +- AST_EXPR_STMT
+            +- AST_CALL_EXPR [u32]
+               +- AST_VAR_EXPR(type: ID | lexical: add) [fn add (u32, u32) -> u32]
+               +- ARG 1: AST_LITERAL_EXPR(type: INT_LITERAL | lexical: 19) [u32]
+               +- ARG 2: AST_LITERAL_EXPR(type: INT_LITERAL | lexical: 50) [u32]
+

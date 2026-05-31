@@ -43,6 +43,7 @@ int main(int argc, const char **argv) {
 
 	if (g_print_token_flag) {
 		print_tokens(tokens);
+		return 0;
 	}
 
 	ast_t *ast = parse(tokens);
@@ -52,10 +53,12 @@ int main(int argc, const char **argv) {
 		printf("file: %s\n", filepath);
 		print_ast(ast);
 		printf("\n");
+		return 0;
 	}
 
 	if (g_print_scope_flag) {
 		print_scope();
+		return 0;
 	}
 
 	ir_fn_t **ir_list = NULL;
@@ -64,6 +67,7 @@ int main(int argc, const char **argv) {
 
 	if (g_print_ir_flag) {
 		print_ir(ir_list, ir_list_len);
+		return 0;
 	}
 
 	run_vm(ir_list, ir_list_len);

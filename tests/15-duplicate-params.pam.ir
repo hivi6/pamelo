@@ -1,0 +1,4 @@
+tests/15-duplicate-params.pam:[1:13]-[1:14]: Parameter symbol already defined
+    |             v             
+  1 > fn f(a u32, a u32) void {}
+    | 

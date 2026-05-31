@@ -1,0 +1,4 @@
+tests/20-void-param.pam:[4:2]-[4:9]: Mismatch type
+    |     vvvvvvv  
+  4 >     f(f(10));
+    | 

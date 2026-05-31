@@ -1,0 +1,4 @@
+tests/17-missing-return.pam:[2:2]-[2:13]: Expected return statement at the end
+    |     vvvvvvvvvvv
+  2 >     var x = 12;
+    | 

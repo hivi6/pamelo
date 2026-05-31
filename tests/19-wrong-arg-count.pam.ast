@@ -1,0 +1,4 @@
+tests/19-wrong-arg-count.pam:[4:2]-[4:5]: Unmatch function arguments; expected '1'
+    |     vvv 
+  4 >     f();
+    | 

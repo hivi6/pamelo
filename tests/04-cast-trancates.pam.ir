@@ -1,0 +1,10 @@
+$0: # main
+@function_start
+    %0 := ALLOCATE 1
+    %2 := CONST 300
+    STORE %0 1 := %2
+    %3 := LOAD %0 1
+    DEALLOCATE 1
+    RETURN
+@function_end
+

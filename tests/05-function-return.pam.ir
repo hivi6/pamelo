@@ -1,0 +1,20 @@
+$0: # value
+@function_start
+    %1 := GET_RETURN_ADDR
+    %2 := CONST 42
+    STORE %1 4 := %2
+    RETURN
+@function_end
+
+$1: # main
+@function_start
+    BEGIN_CALL
+    %1 := ALLOCATE 4
+    SET_RETURN_ADDR %1
+    CALL $0
+    %2 := LOAD %1 4
+    DEALLOCATE 4
+    END_CALL
+    RETURN
+@function_end
+

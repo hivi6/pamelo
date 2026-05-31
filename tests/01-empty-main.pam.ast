@@ -1,0 +1,6 @@
+file: tests/01-empty-main.pam
++- AST_PROG
+   +- AST_FN_DECL(type: ID | lexical: main)
+      +- RETURN TYPE: AST_TYPE_SPECIFIER(type: ID | lexical: void) [void]
+      +- FUNCTION BODY: AST_BLOCK_STMT
+
