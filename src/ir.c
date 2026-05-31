@@ -77,6 +77,12 @@ static void print_inst(ir_inst_t inst) {
 	case IR_INST_SET_RETURN_ADDR:
 		printf("SET_RETURN_ADDR %%%llu", inst.arg1);
 		break;
+	case IR_INST_GET_PARAM_ADDR:
+		printf("%%%llu := GET_PARAM_ADDR %llu", inst.arg1, inst.arg2);
+		break;
+	case IR_INST_SET_PARAM_ADDR:
+		printf("SET_PARAM_ADDR %llu %%%llu", inst.arg1, inst.arg2);
+		break;
 	case IR_INST_RETURN:
 		printf("RETURN");
 		break;
@@ -236,9 +242,14 @@ static void fn_decl(ast_t *ast) {
 	symbol_t *s = get_symbol_from_token(ast->scope, ast->ast.fn_decl.name);
 	assert(s->type->kind == TYPE_FN);
 	ir_fn_t *ir_fn = create_ir_fn(s->id, s->name);
-
 	g_current_fn_type = s->type;
 	g_current_ir_fn = ir_fn;
+
+	for (int i = 0; i < ast->ast.fn_decl.params_len; i++) {
+		token_t *param = ast->ast.fn_decl.params[i];
+		symbol_t *s = get_symbol_from_token(ast->scope, param);
+		emit(IR_INST_GET_PARAM_ADDR, i, s->id, 0, 0);
+	}
 	if (s->type->type.fn_type.return_type->kind != TYPE_VOID) {
 		g_current_return_temp = create_temp_id();
 		emit(IR_INST_GET_RETURN_ADDR, g_current_return_temp, 0, 0, 0);
@@ -357,19 +368,39 @@ static int call_expr(ast_t *ast) {
 	int fn_id = expr(ast->ast.call_expr.left);
 	int return_id = -1;
 	int res_id = -1;
+	int allocated_size = 0;
 
 	emit(IR_INST_BEGIN_CALL, 0, 0, 0, 0);
+
+	for (int i = 0; i < ast->ast.call_expr.args_len; i++) {
+		type_t *arg_type = ast->ast.call_expr.left->type;
+		ast_t *arg = ast->ast.call_expr.args[i];
+		int temp = expr(arg);
+		int arg_temp = create_temp_id();
+
+		int size = arg->type->size;
+		if (arg_type->size >= size) size = arg_type->size;
+
+		emit(IR_INST_ALLOCATE, arg_temp, size, 0, 0);
+		emit(IR_INST_STORE, arg_temp, temp, size, 0);
+		emit(IR_INST_SET_PARAM_ADDR, i, arg_temp, 0, 0);
+
+		allocated_size += size;
+	}
+
 	if (ast->type->kind != TYPE_VOID) {
 		return_id = create_temp_id();
 		emit(IR_INST_ALLOCATE, return_id, ast->type->size, 0, 0);
 		emit(IR_INST_SET_RETURN_ADDR, return_id, 0, 0, 0);
+
+		allocated_size += ast->type->size;
 	}
 	emit(IR_INST_CALL, fn_id, 0, 0, 0);
 	if (ast->type->kind != TYPE_VOID) {
 		res_id = create_temp_id();
 		emit(IR_INST_LOAD, res_id, return_id, ast->type->size, 0);
-		emit(IR_INST_DEALLOCATE, ast->type->size, 0, 0, 0);
 	}
+	emit(IR_INST_DEALLOCATE, allocated_size, 0, 0, 0);
 	emit(IR_INST_END_CALL, 0, 0, 0, 0);
 
 	return res_id;

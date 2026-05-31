@@ -41,6 +41,11 @@ enum {
 	// arg1 = destination temp
 	IR_INST_GET_RETURN_ADDR,
 
+	// desc: get the param address
+	// arg1 = destination temp
+	// arg2 = param index
+	IR_INST_GET_PARAM_ADDR,
+
 	// desc: load the content of a address to a temp
 	// arg1 = destination temp
 	// arg2 = temp with address
@@ -54,6 +59,11 @@ enum {
 	// desc: Set the return address
 	// arg1 = temp with address value
 	IR_INST_SET_RETURN_ADDR,
+
+	// desc: get the param address
+	// arg1 = param index
+	// arg2 = temporary (with address value)
+	IR_INST_SET_PARAM_ADDR,
 
 	// desc: load the content of a temp to a destination address
 	// arg1 = destination address
