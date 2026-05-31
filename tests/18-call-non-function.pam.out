@@ -1,0 +1,4 @@
+tests/18-call-non-function.pam:[3:2]-[3:3]: Expected function type
+    |     v   
+  3 >     x();
+    | 

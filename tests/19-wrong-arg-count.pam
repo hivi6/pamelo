@@ -1,0 +1,6 @@
+fn f(a u32) void {}
+
+fn main() void {
+	f();
+}
+

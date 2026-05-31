@@ -1,0 +1,4 @@
+fn main(a u32) void {
+	a + 1;
+}
+

@@ -1,0 +1,8 @@
+fn value() u32 {
+	return 42;
+}
+
+fn main() void {
+	value();
+}
+

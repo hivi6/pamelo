@@ -1,0 +1,7 @@
+fn main() void {
+	var a = 0x69;
+	var b = 0b1001;
+	var c = 07;
+	a + b + c;
+}
+

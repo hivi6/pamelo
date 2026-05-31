@@ -1,0 +1,4 @@
+tests/16-void-var.pam:[2:8]-[2:12]: Cannot be void type in var statement
+    |           vvvv 
+  2 >     var x void;
+    | 

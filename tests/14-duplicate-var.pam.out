@@ -1,0 +1,4 @@
+tests/14-duplicate-var.pam:[3:6]-[3:7]: Symbol already defined
+    |         v     
+  3 >     var a u32;
+    | 

@@ -35,4 +35,6 @@
 2026.05.31:
 - [x] Add support for parameters in function
 - [x] Fix bugs related to vm
+- [ ] Clean up the code
+	- [x] Write some tests(for validation after cleanup)
 
