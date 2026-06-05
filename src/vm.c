@@ -330,11 +330,11 @@ static void run_inst() {
 		break;
 	}
 	case IR_INST_DIV: {
-		inst_mul(inst);
+		inst_div(inst);
 		break;
 	}
 	case IR_INST_MOD: {
-		inst_mul(inst);
+		inst_mod(inst);
 		break;
 	}
 	default:
