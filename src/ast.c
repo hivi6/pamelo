@@ -26,7 +26,8 @@ static ast_t *malloc_ast(int kind, const char *filepath, const char *source,
 	pos_t start, pos_t end);
 static ast_t *malloc_ast_prog();
 static ast_t *malloc_ast_fn_decl(token_t *fn_keyword, token_t *name,
-	token_t *lparen, token_t *rparen, ast_t *t, ast_t *block_stmt);
+	token_t *lparen, token_t *rparen, ast_t *t, token_t *extern_keyword,
+	token_t *semicolon, ast_t *block_stmt);
 static ast_t *malloc_ast_type_specifier(token_t *id);
 static ast_t *malloc_ast_block_stmt(token_t *lbrace);
 static ast_t *malloc_ast_var_stmt(token_t *var_keyword, token_t *name,
@@ -107,8 +108,15 @@ static void print_ast_helper(ast_t *ast, char *indent, int depth,
 	}
 	case AST_FN_DECL: {
 		char *str = token_str(ast->ast.fn_decl.name);
-		printf("AST_FN_DECL(%s)\n", str);
+		printf("AST_FN_DECL(%s) ", str);
 		free(str);
+
+		if (ast->ast.fn_decl.extern_keyword) {
+			printf("EXTERN");
+		}
+		printf("\n");
+		
+
 		print_ast_helper(ast->ast.fn_decl.type_specifier, indent, 
 			depth+1, "RETURN TYPE");
 
@@ -121,8 +129,11 @@ static void print_ast_helper(ast_t *ast, char *indent, int depth,
 		}
 
 		indent[depth+1] = 0;
-		print_ast_helper(ast->ast.fn_decl.block_stmt, indent, depth+1, 
-			"FUNCTION BODY");
+
+		if (ast->ast.fn_decl.block_stmt) {
+			print_ast_helper(ast->ast.fn_decl.block_stmt, indent, 
+				depth+1, "FUNCTION BODY");
+		}
 		break;
 	}
 	case AST_TYPE_SPECIFIER: {
@@ -307,14 +318,21 @@ static ast_t *malloc_ast_prog() {
 }
 
 static ast_t *malloc_ast_fn_decl(token_t *fn_keyword, token_t *name,
-	token_t *lparen, token_t *rparen, ast_t *t, ast_t *block_stmt) {
+	token_t *lparen, token_t *rparen, ast_t *t, 
+	token_t *extern_keyword, token_t *semicolon, ast_t *block_stmt) {
+
+	assert(semicolon != NULL || block_stmt != NULL);
+
+	pos_t end = (semicolon ? semicolon->end : block_stmt->end);
 	ast_t *res = malloc_ast(AST_FN_DECL, fn_keyword->filepath, 
-		fn_keyword->source, fn_keyword->start, block_stmt->end);
+		fn_keyword->source, fn_keyword->start, end);
 	res->ast.fn_decl.fn_keyword = fn_keyword;
 	res->ast.fn_decl.name = name;
 	res->ast.fn_decl.lparen = lparen;
 	res->ast.fn_decl.rparen = rparen;
 	res->ast.fn_decl.type_specifier = t;
+	res->ast.fn_decl.extern_keyword = extern_keyword;
+	res->ast.fn_decl.semicolon = semicolon;
 	res->ast.fn_decl.block_stmt = block_stmt;
 	return res;
 }
@@ -453,10 +471,21 @@ static ast_t *fn_decl(parser_t *parser) {
 
 	token_t *rparen = match(parser, TOKEN_RPAREN, "Expected )");
 	ast_t *t = type_specifier(parser);
-	ast_t *s = block_stmt(parser);
+	token_t *extern_keyword = NULL;
+	token_t *semicolon = NULL;
+	ast_t *s = NULL;;
+
+	if (check(parser, 0, TOKEN_EXTERN_KEYWORD)) {
+		extern_keyword = match(parser, TOKEN_EXTERN_KEYWORD, 
+			"Expected extern keyword");
+		semicolon = match(parser, TOKEN_SEMICOLON, "Expected ';'");
+	}
+	else {
+		s = block_stmt(parser);
+	}
 
 	ast_t *res = malloc_ast_fn_decl(fn_keyword, name, lparen, rparen, t, 
-		s);
+		extern_keyword, semicolon, s);
 	res->ast.fn_decl.params = params;
 	res->ast.fn_decl.param_types = param_types;
 	return res;

@@ -82,6 +82,8 @@ char *token_type(token_t token) {
 		sbuilder_appendf(&s, "VAR_KEYWORD");
 	else if (token.kind == TOKEN_RETURN_KEYWORD) 
 		sbuilder_appendf(&s, "RETURN_KEYWORD");
+	else if (token.kind == TOKEN_EXTERN_KEYWORD)
+		sbuilder_appendf(&s, "EXTERN_KEYWORD");
 	else {
 		eprintf(token.filepath, token.source, token.start, token.end,
 			"What is this token type?");
@@ -277,6 +279,7 @@ static int keyword_skip(lexer_t *lexer) {
 	if (strcmp(res, "as") == 0) kind = TOKEN_AS_KEYWORD;
 	if (strcmp(res, "var") == 0) kind = TOKEN_VAR_KEYWORD;
 	if (strcmp(res, "return") == 0) kind = TOKEN_RETURN_KEYWORD;
+	if (strcmp(res, "extern") == 0) kind = TOKEN_EXTERN_KEYWORD;
 
 	free(res);
 

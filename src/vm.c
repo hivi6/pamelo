@@ -116,6 +116,9 @@ static void run() {
 static ir_inst_t current_inst() {
 	vm_fn_state_t *state = current_state();
 	ir_fn_t *ir_fn = g_list.elems[state->fn_id];
+
+	assert(!ir_fn->is_extern && "Not implemented");
+
 	ir_inst_t *inst = ir_fn->insts.elems[state->ip];
 	return *inst;
 }

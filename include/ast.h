@@ -54,6 +54,10 @@ struct ast_t {
 
 			token_t *rparen;
 			ast_t *type_specifier;
+			
+			token_t *extern_keyword;
+			token_t *semicolon;
+
 			ast_t *block_stmt;
 		} fn_decl;
 

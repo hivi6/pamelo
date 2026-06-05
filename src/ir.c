@@ -17,7 +17,7 @@ static void match(ast_t *ast, int kind, const char *message);
 static symbol_t *get_symbol_from_token(scope_t *scope, token_t *token);
 static int create_temp_id();
 static void set_temp_id(int id);
-static ir_fn_t *create_ir_fn(int id, const char *name);
+static ir_fn_t *create_ir_fn(int id, const char *name, int is_extern);
 static void append(ir_fn_t *ir_fn);
 static void emit(int kind, word_t arg1, word_t arg2, word_t arg3, word_t arg4);
 static void emitReturn();
@@ -52,14 +52,22 @@ void print_ir(ir_t ir) {
 		ir_fn_t *ir_fn = list.elems[i];
 
 		printf("$%d: # %s\n", ir_fn->id, ir_fn->name);
-		printf("@function_start\n");
 
-		for (int j = 0; j < ir_fn->insts.len; j++) {
-			ir_inst_t *inst = ir_fn->insts.elems[j];
-			print_inst(*inst);
+		if (ir_fn->is_extern) {
+			printf("extern\n");
+		}
+		else {
+			printf("@function_start\n");
+
+			for (int j = 0; j < ir_fn->insts.len; j++) {
+				ir_inst_t *inst = ir_fn->insts.elems[j];
+				print_inst(*inst);
+			}
+
+			printf("@function_end\n");
 		}
 
-		printf("@function_end\n\n");
+		printf("\n");
 	}
 }
 
@@ -163,10 +171,11 @@ static void set_temp_id(int id) {
 	g_temp_id = id;
 }
 
-static ir_fn_t *create_ir_fn(int id, const char *name) {
+static ir_fn_t *create_ir_fn(int id, const char *name, int is_extern) {
 	ir_fn_t *res = calloc(sizeof(ir_fn_t), 1);
 	res->id = id;
 	res->name = sbuildf("%s", name);
+	res->is_extern = is_extern;
 	return res;
 }
 
@@ -249,21 +258,26 @@ static void fn_decl(ast_t *ast) {
 
 	symbol_t *s = get_symbol_from_token(ast->scope, ast->ast.fn_decl.name);
 	assert(s->type->kind == TYPE_FN);
-	ir_fn_t *ir_fn = create_ir_fn(s->id, s->name);
+
+	int is_extern = (ast->ast.fn_decl.block_stmt ? 0 : 1);
+	ir_fn_t *ir_fn = create_ir_fn(s->id, s->name, is_extern);
 	g_current_fn_type = s->type;
 	g_current_ir_fn = ir_fn;
 
-	for (int i = 0; i < ast->ast.fn_decl.params.len; i++) {
-		token_t *param = ast->ast.fn_decl.params.elems[i];
-		symbol_t *s = get_symbol_from_token(ast->scope, param);
-		emit(IR_INST_GET_PARAM_ADDR, i, s->id, 0, 0);
+	if (!is_extern) {
+		for (int i = 0; i < ast->ast.fn_decl.params.len; i++) {
+			token_t *param = ast->ast.fn_decl.params.elems[i];
+			symbol_t *s = get_symbol_from_token(ast->scope, param);
+			emit(IR_INST_GET_PARAM_ADDR, i, s->id, 0, 0);
+		}
+		if (s->type->type.fn_type.return_type->kind != TYPE_VOID) {
+			g_current_return_temp = create_temp_id();
+			emit(IR_INST_GET_RETURN_ADDR, 
+				g_current_return_temp, 0, 0, 0);
+		}
+		stmt(ast->ast.fn_decl.block_stmt);
+		emitReturn();
 	}
-	if (s->type->type.fn_type.return_type->kind != TYPE_VOID) {
-		g_current_return_temp = create_temp_id();
-		emit(IR_INST_GET_RETURN_ADDR, g_current_return_temp, 0, 0, 0);
-	}
-	stmt(ast->ast.fn_decl.block_stmt);
-	emitReturn();
 
 	append(ir_fn);
 }

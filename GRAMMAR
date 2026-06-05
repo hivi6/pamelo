@@ -5,7 +5,8 @@ GRAMMAR
 <prog> := <decl>+
 
 <decl>    := <fn-decl>
-<fn-decl> := FN_KEYWORD ID LPAREN <fn-params>? RPAREN <type-specifier> <block-stmt>
+<fn-decl> := FN_KEYWORD ID LPAREN <fn-params>? RPAREN <type-specifier> 
+             (EXTERN_KEYWORD SEMICOLON | <block-stmt>)
 
 <type-specifier> := ID
 <fn-params>      := ID <type-specifier> (COMMA ID <type-specifier>)*
@@ -54,4 +55,5 @@ FN_KEYWORD     := "fn"
 AS_KEYWORD     := "as"
 VAR_KEYWORD    := "var"
 RETURN_KEYWORD := "return"
+EXTERN_KEYWORD := "extern"
 

@@ -219,7 +219,11 @@ static void fn_decl(ast_t *ast, scope_t *scope) {
 	reset_var_id(ast->total_id);
 	g_current_return_type = ast->type->type.fn_type.return_type;
 	g_check_return_stmt = (g_current_return_type != g_void);
-	block_stmt(ast->ast.fn_decl.block_stmt, ast->scope);
+
+	if (ast->ast.fn_decl.block_stmt) {
+		block_stmt(ast->ast.fn_decl.block_stmt, ast->scope);
+	}
+
 	ast->total_id = create_var_id();
 }
 

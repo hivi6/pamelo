@@ -92,6 +92,7 @@ typedef struct ir_fn_t ir_fn_t;
 struct ir_fn_t {
 	int id;
 	const char *name;
+	int is_extern;
 
 	// vector of ir_inst_t*
 	vec_t insts;

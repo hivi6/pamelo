@@ -25,6 +25,7 @@ enum {
 	TOKEN_AS_KEYWORD,
 	TOKEN_VAR_KEYWORD,
 	TOKEN_RETURN_KEYWORD,
+	TOKEN_EXTERN_KEYWORD,
 };
 
 typedef struct token_t token_t;

@@ -38,5 +38,12 @@
 - [ ] Clean up the code
 	- [x] Write some tests(for validation after cleanup)
 	- [x] Move all the global values in src/token.c to lexer_t
+
+2026.06.05:
+- [x] Clean up the code
 	- [x] Moving to vec_t instead of dedicated arrays
+	- [x] Create ir_t type instead of using list of ir_fn_t for ir
+- [x] Create support for extern keyword
+	- [x] Add support for ir generation of extern keyword
+	- [ ] Add support for vm running
 
