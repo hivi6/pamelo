@@ -2,6 +2,7 @@
 #define TOKEN_H
 
 #include "pos.h"
+#include "util.h"
 
 enum {
 	TOKEN_EOF,
@@ -33,15 +34,12 @@ struct token_t {
 	const char *source;
 	pos_t start;
 	pos_t end;
-
-	// used for getting the next token in the list
-	token_t *next;
 };
 
-token_t *generate_tokens(const char *filepath, const char *source);
+vec_t generate_tokens(const char *filepath, const char *source);
 char *token_type(token_t token);
 char *token_lexical(token_t token);
-void print_tokens(token_t *tokens);
+void print_tokens(vec_t tokens);
 
 #endif /* TOKEN_H */
 

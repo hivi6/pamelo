@@ -11,10 +11,9 @@ struct lexer_t {
 	const char *filepath;
 	const char *source;
 	int source_length;
-	token_t *head;
-	token_t *tail;
 	pos_t prev;
 	pos_t cur;
+	vec_t tokens;
 };
 
 static void init(lexer_t *lexer, const char *filepath, const char *source);
@@ -34,7 +33,7 @@ static char is_hexadecimal(char ch);
 // token.h - definition
 // ========================================
 
-token_t *generate_tokens(const char *filepath, const char *source) {
+vec_t generate_tokens(const char *filepath, const char *source) {
 	lexer_t lexer = {0};
 	init(&lexer, filepath, source);
 	while (!eof(&lexer)) {
@@ -42,7 +41,7 @@ token_t *generate_tokens(const char *filepath, const char *source) {
 	}
 	lexer.prev = lexer.cur;
 	append_token(&lexer, TOKEN_EOF);
-	return lexer.head;
+	return lexer.tokens;
 }
 
 char *token_type(token_t token) {
@@ -111,10 +110,16 @@ char *token_lexical(token_t token) {
 	return res;
 }
 
-void print_tokens(token_t *tokens) {
-	const char *filepath = tokens->filepath;
+void print_tokens(vec_t tokens) {
+	if (tokens.len <= 0) {
+		printf("No tokens to print.\n");
+		exit(1);
+	}
+
+	const char *filepath = ((token_t*) tokens.elems[0])->filepath;
 	printf("file: %s\n", filepath);
-	for (token_t *head = tokens; head; head = head->next) {
+	for (int index = 0; index < tokens.len; index++) {
+		token_t *head = tokens.elems[index];
 		char *lexical = token_lexical(*head);
 		char *type = token_type(*head);
 		printf("%s(%s)\n", type, lexical);
@@ -130,8 +135,8 @@ static void init(lexer_t *lexer, const char *filepath, const char *source) {
 	lexer->filepath = filepath;
 	lexer->source = source;
 	lexer->source_length = strlen(source);
-	lexer->head = lexer->tail = NULL;
 	lexer->prev = lexer->cur = POS_INIT();
+	vec_init(&lexer->tokens);
 }
 
 static char eof(lexer_t *lexer) {
@@ -185,9 +190,7 @@ static void append_token(lexer_t *lexer, int kind) {
 	res->start = lexer->prev;
 	res->end = lexer->cur;
 
-	if (lexer->head == NULL) lexer->head = res;
-	else lexer->tail->next = res;
-	lexer->tail = res;
+	vec_append(&lexer->tokens, res);
 }
 
 static char char_at(lexer_t *lexer, int offset) {

@@ -39,7 +39,7 @@ int main(int argc, const char **argv) {
 
 	const char *filepath = argv[index];
 	const char *source = read_file(filepath);
-	token_t *tokens = generate_tokens(filepath, source);
+	vec_t tokens = generate_tokens(filepath, source);
 
 	if (g_print_token_flag) {
 		print_tokens(tokens);

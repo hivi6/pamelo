@@ -8,15 +8,15 @@
 
 typedef struct parser_t parser_t;
 struct parser_t {
-	token_t *head;
-	token_t *cur;
+	int cur;
+	vec_t tokens;
 };
 
 static void print_ast_helper(ast_t *ast, char *indent, int depth, 
 	const char *extra);
 static char *token_str(token_t *token);
 
-static void init(parser_t *parser, token_t *tokens);
+static void init(parser_t *parser, vec_t tokens);
 static token_t *token_at(parser_t *parser, int offset);
 static char check(parser_t *parser, int offset, int token_kind);
 static token_t *match(parser_t *parser, int token_kind, const char *message);
@@ -67,7 +67,7 @@ static ast_t *add_expr(parser_t *parser);
 // ast.h - definition
 // ========================================
 
-ast_t *parse(token_t *tokens) {
+ast_t *parse(vec_t tokens) {
 	parser_t parser = {0};
 	init(&parser, tokens);
 	return prog(&parser);
@@ -264,16 +264,13 @@ static char *token_str(token_t *token) {
 	return res;
 }
 
-static void init(parser_t *parser, token_t *tokens) {
-	parser->head = parser->cur = tokens;
+static void init(parser_t *parser, vec_t tokens) {
+	parser->tokens = tokens;
 }
 
 static token_t *token_at(parser_t *parser, int offset) {
-	token_t *cur = parser->cur;
-	while (offset && cur->kind != TOKEN_EOF) {
-		cur = cur->next;
-		offset--;
-	}
+	token_t *cur = NULL;
+	vec_get(&parser->tokens, parser->cur + offset, (void*) &cur);
 	return cur;
 }
 
@@ -294,9 +291,11 @@ static token_t *match(parser_t *parser, int token_kind, const char *message) {
 }
 
 static void skip(parser_t *parser, int inc) {
-	while (parser->cur->kind != TOKEN_EOF && inc) {
+	while (inc > 0) {
+		token_t *token = token_at(parser, 0);
+		if (token->kind == TOKEN_EOF) break;
 		inc--;
-		parser->cur = parser->cur->next;
+		parser->cur += 1;
 	}
 }
 
