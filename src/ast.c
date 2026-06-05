@@ -121,8 +121,8 @@ static void print_ast_helper(ast_t *ast, char *indent, int depth,
 		print_ast_helper(ast->ast.fn_decl.type_specifier, indent, 
 			depth+1, "RETURN TYPE");
 
-		for (int i = 0; i < ast->ast.fn_decl.params_len; i++) {
-			token_t *param_token = ast->ast.fn_decl.params[i];
+		for (int i = 0; i < ast->ast.fn_decl.params.len; i++) {
+			token_t *param_token = ast->ast.fn_decl.params.elems[i];
 			char *param = token_lexical(*param_token);
 			print_ast_helper(ast->ast.fn_decl.param_types[i], 
 				indent, depth+1, param);
@@ -442,8 +442,8 @@ static ast_t *decl(parser_t *parser) {
 }
 
 static ast_t *fn_decl(parser_t *parser) {
-	token_t **params = NULL;
-	int params_len = 0;
+	vec_t params;
+	vec_init(&params);
 
 	ast_t **param_types = NULL;
 	int param_types_len = 0;
@@ -457,7 +457,7 @@ static ast_t *fn_decl(parser_t *parser) {
 		token_t *id = match(parser, TOKEN_ID, "Expected param name");
 		ast_t *type = type_specifier(parser);
 
-		append_token(&params, &params_len, id);
+		vec_append(&params, id);
 		append_ast(&param_types, &param_types_len, type);
 
 		if (!check(parser, 0, TOKEN_COMMA)) break;
@@ -471,7 +471,6 @@ static ast_t *fn_decl(parser_t *parser) {
 	ast_t *res = malloc_ast_fn_decl(fn_keyword, name, lparen, rparen, t, 
 		s);
 	res->ast.fn_decl.params = params;
-	res->ast.fn_decl.params_len = params_len;
 	res->ast.fn_decl.param_types = param_types;
 	res->ast.fn_decl.param_types_len = param_types_len;
 	return res;

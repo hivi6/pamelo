@@ -245,8 +245,8 @@ static void fn_decl(ast_t *ast) {
 	g_current_fn_type = s->type;
 	g_current_ir_fn = ir_fn;
 
-	for (int i = 0; i < ast->ast.fn_decl.params_len; i++) {
-		token_t *param = ast->ast.fn_decl.params[i];
+	for (int i = 0; i < ast->ast.fn_decl.params.len; i++) {
+		token_t *param = ast->ast.fn_decl.params.elems[i];
 		symbol_t *s = get_symbol_from_token(ast->scope, param);
 		emit(IR_INST_GET_PARAM_ADDR, i, s->id, 0, 0);
 	}

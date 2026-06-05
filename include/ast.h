@@ -37,7 +37,7 @@ struct ast_t {
 
 	union {
 		struct {
-			// vector of ast* pointers
+			// vector of ast*
 			vec_t decls;
 		} prog;
 
@@ -46,8 +46,8 @@ struct ast_t {
 			token_t *name;
 			token_t *lparen;
 
-			token_t **params;
-			int params_len;
+			// vector of token_t*
+			vec_t params;
 
 			ast_t **param_types;
 			int param_types_len;
