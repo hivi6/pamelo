@@ -23,7 +23,7 @@ type_t *get_type_in_chain(scope_t *scope, const char *name);
 int add_symbol(scope_t *scope, symbol_t *symbol);
 symbol_t *get_symbol(scope_t *scope, const char *name);
 symbol_t *get_symbol_in_chain(scope_t *scope, const char *name);
-void get_scope_list(scope_t ***scope_list, int *scope_list_len);
+vec_t get_scope_list();
 void print_scope();
 
 #endif /* SCOPE_H */

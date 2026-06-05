@@ -6,10 +6,7 @@
 // ========================================
 
 static scope_t *g_global_declaration = NULL;
-static scope_t **g_scope_list = NULL;
-static int g_scope_list_len = 0;
-
-static void append_scope(scope_t ***list, int *len, scope_t *scope);
+static vec_t g_scope_list = {}; // vector of scope_t*
 
 // ========================================
 // scope.h - definition
@@ -25,7 +22,7 @@ scope_t *get_global_scope() {
 scope_t *create_scope(scope_t *parent_scope) {
 	scope_t *scope = calloc(sizeof(scope_t), 1);
 	scope->parent_scope = parent_scope;
-	append_scope(&g_scope_list, &g_scope_list_len, scope);
+	vec_append(&g_scope_list, scope);
 	return scope;
 }
 
@@ -81,42 +78,34 @@ symbol_t *get_symbol_in_chain(scope_t *scope, const char *name) {
 	return NULL;
 }
 
-void get_scope_list(scope_t ***scope_list, int *scope_list_len) {
-	*scope_list = g_scope_list;
-	*scope_list_len = g_scope_list_len;
+vec_t get_scope_list() {
+	return g_scope_list;
 }
 
 void print_scope() {
-	scope_t **scope_list = NULL;
-	int scope_list_len = 0;
-	get_scope_list(&scope_list, &scope_list_len);
-	for (int i = 0; i < scope_list_len; i++) {
-		printf("id: %p\n", scope_list[i]);
-		printf("parent-id: %p\n", scope_list[i]->parent_scope);
+	vec_t scope_list = {};
+	scope_list = get_scope_list();
+	for (int i = 0; i < scope_list.len; i++) {
+		scope_t *scope = scope_list.elems[i];
+
+		printf("id: %p\n", scope);
+		printf("parent-id: %p\n", scope->parent_scope);
+
 		printf("types:\n");
-		for (int j = 0; j < scope_list[i]->types.len; j++) {
-			char *name = type_str(scope_list[i]->types.elems[j]);
+		for (int j = 0; j < scope->types.len; j++) {
+			char *name = type_str(scope->types.elems[j]);
 			printf("    %d. %s\n", j+1, name);
 			free(name);
 		}
+
 		printf("symbols:\n");
-		for (int j = 0; j < scope_list[i]->symbols.len; j++) {
-			symbol_t *symbol = scope_list[i]->symbols.elems[j];
+		for (int j = 0; j < scope->symbols.len; j++) {
+			symbol_t *symbol = scope->symbols.elems[j];
 			char *name = symbol_str(symbol);
 			printf("    %d. %s (%d)\n", j+1, name, symbol->id);
 			free(name);
 		}
 		printf("\n");
 	}
-}
-
-// ========================================
-// helper definition
-// ========================================
-
-static void append_scope(scope_t ***list, int *len, scope_t *scope) {
-	*len += 1;
-	*list = realloc(*list, *len * sizeof(scope_t*));
-	(*list)[*len-1] = scope;
 }
 
