@@ -74,8 +74,8 @@ static void inst_sub(ir_inst_t inst);
 // vm.h - definition
 // ========================================
 
-void run_vm(vec_t list) {
-	init(list);
+void run_vm(ir_t ir) {
+	init(ir.fn_list);
 	run();
 }
 

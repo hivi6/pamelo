@@ -3,7 +3,7 @@
 
 #include "ir.h"
 
-void run_vm(vec_t ir_list); // vector of ir_fn_t*
+void run_vm(ir_t ir);
 
 #endif /* VM_H */
 

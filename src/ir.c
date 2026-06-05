@@ -45,7 +45,9 @@ static int add_expr(ast_t *ast);
 // ir.h - definition
 // ========================================
 
-void print_ir(vec_t list) {
+void print_ir(ir_t ir) {
+	vec_t list = ir.fn_list;
+
 	for (int i = 0; i < list.len; i++) {
 		ir_fn_t *ir_fn = list.elems[i];
 
@@ -61,10 +63,12 @@ void print_ir(vec_t list) {
 	}
 }
 
-vec_t generate_ir(ast_t *ast) {
+ir_t generate_ir(ast_t *ast) {
 	init();
 	prog(ast);
-	return g_list;
+	ir_t ir;
+	ir.fn_list = g_list;
+	return ir;
 }
 
 // ========================================

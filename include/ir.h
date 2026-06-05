@@ -97,8 +97,14 @@ struct ir_fn_t {
 	vec_t insts;
 };
 
-void print_ir(vec_t ir_list); // vector of ir_fn_t*
-vec_t generate_ir(ast_t *ast); // vector of ir_fn_t*
+typedef struct ir_t ir_t;
+struct ir_t {
+	// vector of ir_fn_t*
+	vec_t fn_list;
+};
+
+void print_ir(ir_t ir);
+ir_t generate_ir(ast_t *ast);
 
 #endif /* IR_H */
 
