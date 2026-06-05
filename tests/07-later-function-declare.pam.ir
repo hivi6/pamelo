@@ -5,8 +5,8 @@ $0: # fn main () -> void
     SET_RETURN_ADDR %1
     CALL $1
     %2 := LOAD %1 4
-    DEALLOCATE 4
     END_CALL
+    DEALLOCATE 4
     RETURN
 @function_end
 

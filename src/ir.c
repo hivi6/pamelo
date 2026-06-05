@@ -396,7 +396,8 @@ static int call_expr(ast_t *ast) {
 	int res_id = -1;
 	int allocated_size = 0;
 
-	emit(IR_INST_BEGIN_CALL, 0, 0, 0, 0);
+	vec_t param_temps;
+	vec_init(&param_temps);
 
 	for (int i = 0; i < ast->ast.call_expr.args.len; i++) {
 		type_t *fn_type = ast->ast.call_expr.left->type;
@@ -414,10 +415,22 @@ static int call_expr(ast_t *ast) {
 
 		emit(IR_INST_ALLOCATE, arg_temp, size, 0, 0);
 		emit(IR_INST_STORE, arg_temp, temp, size, 0);
-		emit(IR_INST_SET_PARAM_ADDR, i, arg_temp, 0, 0);
+
+		int *arg_temp_ptr = calloc(sizeof(int), 1);
+		*arg_temp_ptr = arg_temp;
+		vec_append(&param_temps, arg_temp_ptr);
 
 		allocated_size += size;
 	}
+
+	emit(IR_INST_BEGIN_CALL, 0, 0, 0, 0);
+
+	for (int i = 0; i < param_temps.len; i++) {
+		int *arg_temp_ptr = param_temps.elems[i];
+		emit(IR_INST_SET_PARAM_ADDR, i, *arg_temp_ptr, 0, 0);
+		free(arg_temp_ptr);
+	}
+
 
 	if (ast->type->kind != TYPE_VOID) {
 		return_id = create_temp_id();
@@ -431,8 +444,11 @@ static int call_expr(ast_t *ast) {
 		res_id = create_temp_id();
 		emit(IR_INST_LOAD, res_id, return_id, ast->type->size, 0);
 	}
-	emit(IR_INST_DEALLOCATE, allocated_size, 0, 0, 0);
 	emit(IR_INST_END_CALL, 0, 0, 0, 0);
+
+	emit(IR_INST_DEALLOCATE, allocated_size, 0, 0, 0);
+
+	vec_free(&param_temps);
 
 	return res_id;
 }

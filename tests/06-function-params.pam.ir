@@ -12,21 +12,21 @@ $0: # fn add (u32, u32) -> u32
 
 $1: # fn main () -> void
 @function_start
-    BEGIN_CALL
     %1 := CONST 19
     %2 := ALLOCATE 4
     STORE %2 4 := %1
-    SET_PARAM_ADDR 0 %2
     %3 := CONST 50
     %4 := ALLOCATE 4
     STORE %4 4 := %3
+    BEGIN_CALL
+    SET_PARAM_ADDR 0 %2
     SET_PARAM_ADDR 1 %4
     %5 := ALLOCATE 4
     SET_RETURN_ADDR %5
     CALL $0
     %6 := LOAD %5 4
-    DEALLOCATE 12
     END_CALL
+    DEALLOCATE 12
     RETURN
 @function_end
 
