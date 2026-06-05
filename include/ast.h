@@ -49,8 +49,8 @@ struct ast_t {
 			// vector of token_t*
 			vec_t params;
 
-			ast_t **param_types;
-			int param_types_len;
+			// vector of ast_t* (kind = AST_TYPE_SPECIFIER)
+			vec_t param_types;
 
 			token_t *rparen;
 			ast_t *type_specifier;

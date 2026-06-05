@@ -124,7 +124,7 @@ static void print_ast_helper(ast_t *ast, char *indent, int depth,
 		for (int i = 0; i < ast->ast.fn_decl.params.len; i++) {
 			token_t *param_token = ast->ast.fn_decl.params.elems[i];
 			char *param = token_lexical(*param_token);
-			print_ast_helper(ast->ast.fn_decl.param_types[i], 
+			print_ast_helper(ast->ast.fn_decl.param_types.elems[i], 
 				indent, depth+1, param);
 			free(param);
 		}
@@ -442,11 +442,13 @@ static ast_t *decl(parser_t *parser) {
 }
 
 static ast_t *fn_decl(parser_t *parser) {
+	// vector of token_t*
 	vec_t params;
 	vec_init(&params);
 
-	ast_t **param_types = NULL;
-	int param_types_len = 0;
+	// vector of ast_t*
+	vec_t param_types;
+	vec_init(&param_types);
 
 	token_t *fn_keyword = match(parser, TOKEN_FN_KEYWORD, 
 		"Expected fn keyword");
@@ -458,7 +460,7 @@ static ast_t *fn_decl(parser_t *parser) {
 		ast_t *type = type_specifier(parser);
 
 		vec_append(&params, id);
-		append_ast(&param_types, &param_types_len, type);
+		vec_append(&param_types, type);
 
 		if (!check(parser, 0, TOKEN_COMMA)) break;
 		match(parser, TOKEN_COMMA, "Expected ','");
@@ -472,7 +474,6 @@ static ast_t *fn_decl(parser_t *parser) {
 		s);
 	res->ast.fn_decl.params = params;
 	res->ast.fn_decl.param_types = param_types;
-	res->ast.fn_decl.param_types_len = param_types_len;
 	return res;
 }
 

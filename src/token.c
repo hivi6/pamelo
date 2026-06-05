@@ -111,10 +111,7 @@ char *token_lexical(token_t token) {
 }
 
 void print_tokens(vec_t tokens) {
-	if (tokens.len <= 0) {
-		printf("No tokens to print.\n");
-		exit(1);
-	}
+	assert(tokens.len > 0);
 
 	const char *filepath = ((token_t*) tokens.elems[0])->filepath;
 	printf("file: %s\n", filepath);

@@ -108,7 +108,7 @@ static void create_fn(ast_t *ast, scope_t *scope) {
 		token_t *param = ast->ast.fn_decl.params.elems[i];
 		char *param_name = token_lexical(*param);
 		type_t *param_type = type_specifier(
-			ast->ast.fn_decl.param_types[i], 
+			ast->ast.fn_decl.param_types.elems[i], 
 			scope);
 
 		if (param_type == g_void) {
