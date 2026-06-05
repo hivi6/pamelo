@@ -69,6 +69,9 @@ static void inst_set_return_addr(ir_inst_t inst);
 static void inst_set_param_addr(ir_inst_t inst);
 static void inst_store(ir_inst_t inst);
 static void inst_sub(ir_inst_t inst);
+static void inst_mul(ir_inst_t inst);
+static void inst_div(ir_inst_t inst);
+static void inst_mod(ir_inst_t inst);
 
 static void run_extern_fn(ir_fn_t *ir_fn);
 
@@ -322,6 +325,18 @@ static void run_inst() {
 		inst_sub(inst);
 		break;
 	}
+	case IR_INST_MUL: {
+		inst_mul(inst);
+		break;
+	}
+	case IR_INST_DIV: {
+		inst_mul(inst);
+		break;
+	}
+	case IR_INST_MOD: {
+		inst_mul(inst);
+		break;
+	}
 	default:
 		printf("What is this inst?");
 		exit(1);
@@ -417,6 +432,29 @@ static void inst_sub(ir_inst_t inst) {
 	word_t v1 = get(inst.arg2);
 	word_t v2 = get(inst.arg3);
 	word_t res = cast(v1 - v2, inst.arg4);
+	set(inst.arg1, res);
+	next_ip();
+}
+static void inst_mul(ir_inst_t inst) {
+	word_t v1 = get(inst.arg2);
+	word_t v2 = get(inst.arg3);
+	word_t res = cast(v1 * v2, inst.arg4);
+	set(inst.arg1, res);
+	next_ip();
+}
+
+static void inst_div(ir_inst_t inst) {
+	word_t v1 = get(inst.arg2);
+	word_t v2 = get(inst.arg3);
+	word_t res = cast(v1 / v2, inst.arg4);
+	set(inst.arg1, res);
+	next_ip();
+}
+
+static void inst_mod(ir_inst_t inst) {
+	word_t v1 = get(inst.arg2);
+	word_t v2 = get(inst.arg3);
+	word_t res = cast(v1 % v2, inst.arg4);
 	set(inst.arg1, res);
 	next_ip();
 }

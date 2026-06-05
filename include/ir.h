@@ -78,6 +78,27 @@ enum {
 	// arg3 = right temp
 	// arg4 = size of result
 	IR_INST_SUB,
+
+	// desc: multiply two temp value and store in another temp, size casted
+	// arg1 = destination temp
+	// arg2 = left temp
+	// arg3 = right temp
+	// arg4 = size of result
+	IR_INST_MUL,
+
+	// desc: divide two temp value and store in another temp, size casted
+	// arg1 = destination temp
+	// arg2 = left temp
+	// arg3 = right temp
+	// arg4 = size of result
+	IR_INST_DIV,
+
+	// desc: modulo two temp value and store in another temp, size casted
+	// arg1 = destination temp
+	// arg2 = left temp
+	// arg3 = right temp
+	// arg4 = size of result
+	IR_INST_MOD,
 };
 
 typedef struct ir_inst_t ir_inst_t;

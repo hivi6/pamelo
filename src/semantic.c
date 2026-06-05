@@ -44,6 +44,7 @@ static type_t *literal_expr(ast_t *ast, scope_t *scope);
 static type_t *var_expr(ast_t *ast, scope_t *scope);
 static type_t *call_expr(ast_t *ast, scope_t *scope);
 static type_t *cast_expr(ast_t *ast, scope_t *scope);
+static type_t *mul_expr(ast_t *ast, scope_t *scope);
 static type_t *add_expr(ast_t *ast, scope_t *scope);
 
 // ========================================
@@ -403,11 +404,14 @@ static type_t *expr(ast_t *ast, scope_t *scope) {
 	else if (ast->kind == AST_CALL_EXPR) {
 		type = call_expr(ast, scope);
 	}
-	else if (ast->kind == AST_ADD_EXPR) {
-		type = add_expr(ast, scope);
-	}
 	else if (ast->kind == AST_CAST_EXPR) {
 		type = cast_expr(ast, scope);
+	}
+	else if (ast->kind == AST_MUL_EXPR) {
+		type = mul_expr(ast, scope);
+	}
+	else if (ast->kind == AST_ADD_EXPR) {
+		type = add_expr(ast, scope);
 	}
 
 	if (type == NULL) {
@@ -505,6 +509,29 @@ static type_t *cast_expr(ast_t *ast, scope_t *scope) {
 	}
 
 	return t;
+}
+
+static type_t *mul_expr(ast_t *ast, scope_t *scope) {
+	match(ast, AST_MUL_EXPR, "Expected AST_MUL_EXPR");
+
+	type_t *left = expr(ast->ast.mul_expr.left, scope);
+	type_t *right = expr(ast->ast.mul_expr.right, scope);
+	ast_t *err_ast = NULL;
+	if (left->kind != TYPE_PRIMITIVE) {
+		err_ast = ast->ast.mul_expr.left;
+	}
+	if (right->kind != TYPE_PRIMITIVE) {
+		err_ast = ast->ast.mul_expr.right;
+	}
+
+	if (err_ast) {
+		eprintf(err_ast->filepath, err_ast->source, err_ast->start,
+			err_ast->end, "Expected a primitive type");
+		exit(1);
+	}
+
+	if (left->size > right->size) return left;
+	return right;
 }
 
 static type_t *add_expr(ast_t *ast, scope_t *scope) {

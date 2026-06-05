@@ -40,6 +40,7 @@ static int literal_expr(ast_t *ast);
 static int var_expr(ast_t *ast);
 static int call_expr(ast_t *ast);
 static int cast_expr(ast_t *ast);
+static int mul_expr(ast_t *ast);
 static int add_expr(ast_t *ast);
 
 // ========================================
@@ -117,6 +118,18 @@ static void print_inst(ir_inst_t inst) {
 	case IR_INST_LOAD:
 		printf("%%%llu := LOAD %%%llu %llu", inst.arg1, inst.arg2, 
 			inst.arg3);
+		break;
+	case IR_INST_MUL:
+		printf("%%%llu := MUL %%%llu %%%llu %llu", inst.arg1, inst.arg2, 
+			inst.arg3, inst.arg4);
+		break;
+	case IR_INST_DIV:
+		printf("%%%llu := DIV %%%llu %%%llu %llu", inst.arg1, inst.arg2, 
+			inst.arg3, inst.arg4);
+		break;
+	case IR_INST_MOD:
+		printf("%%%llu := MOD %%%llu %%%llu %llu", inst.arg1, inst.arg2, 
+			inst.arg3, inst.arg4);
 		break;
 	case IR_INST_ADD:
 		printf("%%%llu := ADD %%%llu %%%llu %llu", inst.arg1, inst.arg2, 
@@ -349,6 +362,7 @@ static int expr(ast_t *ast) {
 	if (ast->kind == AST_LITERAL_EXPR) return literal_expr(ast);
 	if (ast->kind == AST_VAR_EXPR) return var_expr(ast);
 	if (ast->kind == AST_CAST_EXPR) return cast_expr(ast);
+	if (ast->kind == AST_MUL_EXPR) return mul_expr(ast);
 	if (ast->kind == AST_ADD_EXPR) return add_expr(ast);
 	if (ast->kind == AST_CALL_EXPR) return call_expr(ast);
 
@@ -462,6 +476,20 @@ static int cast_expr(ast_t *ast) {
 	emit(IR_INST_CONST, zero_id, 0, 0, 0);
 	emit(IR_INST_ADD, dest_id, e, zero_id, ast->type->size);
 	return dest_id;
+}
+
+static int mul_expr(ast_t *ast) {
+	match(ast, AST_MUL_EXPR, "Expected AST_MUL_EXPR");
+
+	int left = expr(ast->ast.mul_expr.left);
+	int right = expr(ast->ast.mul_expr.right);
+	int kind = IR_INST_MUL;
+	if (ast->ast.mul_expr.op->kind == TOKEN_FSLASH) kind = IR_INST_DIV;
+	if (ast->ast.mul_expr.op->kind == TOKEN_MOD) kind = IR_INST_MOD;
+
+	int id = create_temp_id();
+	emit(kind, id, left, right, ast->type->size);
+	return id;
 }
 
 static int add_expr(ast_t *ast) {

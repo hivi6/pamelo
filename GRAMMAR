@@ -18,7 +18,8 @@ GRAMMAR
 <expr-stmt>   := <expr> SEMICOLON
 
 <expr>         := <add-expr>
-<add-expr>     := <cast-expr> ((PLUS | MINUS) <cast-expr>)*
+<add-expr>     := <mul-expr> ((PLUS | MINUS) <mul-expr>)*
+<mul-expr>     := <cast-expr> ((STAR | FSLASH | MOD) <cast-exor>)*
 <cast-expr>    := <postfix-expr> (AS_KEYWORD <type-specifier>)?
 <postfix-expr> := <primary-expr> <postfix-op>*
 <primary-expr> := <var-expr> | <literal-expr>
@@ -42,6 +43,9 @@ PLUS      := "+"
 MINUS     := "-"
 EQUAL     := "="
 COMMA     := ","
+STAR      := "*"
+FSLASH    := "/"
+MOD       := "%"
 
 INT_LITERAL := "0" 
              | "0" ("x" | "X") [a-fA-F0-9]+

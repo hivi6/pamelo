@@ -70,6 +70,12 @@ char *token_type(token_t token) {
 		sbuilder_appendf(&s, "MINUS");
 	else if (token.kind == TOKEN_COMMA)
 		sbuilder_appendf(&s, "COMMA");
+	else if (token.kind == TOKEN_STAR)
+		sbuilder_appendf(&s, "STAR");
+	else if (token.kind == TOKEN_FSLASH)
+		sbuilder_appendf(&s, "FSLASH");
+	else if (token.kind == TOKEN_MOD)
+		sbuilder_appendf(&s, "MOD");
 	else if (token.kind == TOKEN_INT_LITERAL) 
 		sbuilder_appendf(&s, "INT_LITERAL");
 	else if (token.kind == TOKEN_ID)
@@ -161,6 +167,9 @@ static void generate_token(lexer_t *lexer) {
 	else if (char_at(lexer, 0) == '-') kind = TOKEN_MINUS;
 	else if (char_at(lexer, 0) == '=') kind = TOKEN_EQUAL;
 	else if (char_at(lexer, 0) == ',') kind = TOKEN_COMMA;
+	else if (char_at(lexer, 0) == '*') kind = TOKEN_STAR;
+	else if (char_at(lexer, 0) == '/') kind = TOKEN_FSLASH;
+	else if (char_at(lexer, 0) == '%') kind = TOKEN_MOD;
 	else if (isdigit(char_at(lexer, 0))) {
 		kind = int_literal_skip(lexer);
 		skip = 0;
