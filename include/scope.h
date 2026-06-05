@@ -11,8 +11,8 @@ struct scope_t {
 	// vector of type_t*
 	vec_t types;
 
-	symbol_t **symbols;
-	int symbols_len;
+	// vector of symbol_t*
+	vec_t symbols;
 };
 
 scope_t *get_global_scope();

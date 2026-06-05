@@ -59,14 +59,15 @@ int add_symbol(scope_t *scope, symbol_t *symbol) {
 	if (get_symbol(scope, symbol->name)) {
 		return 0;
 	}
-	append_symbol(&scope->symbols, &scope->symbols_len, symbol);
+	vec_append(&scope->symbols, symbol);
 	return 1;
 }
 
 symbol_t *get_symbol(scope_t *scope, const char *name) {
-	for (int i = 0; i < scope->symbols_len; i++) {
-		if (strcmp(scope->symbols[i]->name, name) == 0) {
-			return scope->symbols[i];
+	for (int i = 0; i < scope->symbols.len; i++) {
+		symbol_t *symbol = scope->symbols.elems[i];
+		if (strcmp(symbol->name, name) == 0) {
+			return symbol;
 		}
 	}
 	return NULL;
@@ -99,10 +100,10 @@ void print_scope() {
 			free(name);
 		}
 		printf("symbols:\n");
-		for (int j = 0; j < scope_list[i]->symbols_len; j++) {
-			char *name = symbol_str(scope_list[i]->symbols[j]);
-			printf("    %d. %s (%d)\n", j+1, name, 
-				scope_list[i]->symbols[j]->id);
+		for (int j = 0; j < scope_list[i]->symbols.len; j++) {
+			symbol_t *symbol = scope_list[i]->symbols.elems[j];
+			char *name = symbol_str(symbol);
+			printf("    %d. %s (%d)\n", j+1, name, symbol->id);
 			free(name);
 		}
 		printf("\n");

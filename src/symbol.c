@@ -13,12 +13,6 @@ symbol_t *create_symbol(int id, const char *name, type_t *type) {
 	return res;
 }
 
-void append_symbol(symbol_t ***list, int *len, symbol_t *symbol) {
-	*len += 1;
-	*list = realloc(*list, *len * sizeof(symbol_t*));
-	(*list)[*len-1] = symbol;
-}
-
 char *symbol_str(symbol_t *symbol) {
 	char *type_info = type_str(symbol->type);
 	char *res = sbuildf("name: %s | type: %s", symbol->name, type_info);
