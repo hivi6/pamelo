@@ -1,6 +1,8 @@
 #ifndef TYPE_H
 #define TYPE_H
 
+#include "util.h"
+
 enum {
 	TYPE_VOID,
 	TYPE_PRIMITIVE,
@@ -15,8 +17,8 @@ struct type_t {
 
 	union {
 		struct {
-			type_t **param_types;
-			int param_types_len;
+			// vector of type_t*
+			vec_t param_types;
 
 			type_t *return_type;
 		} fn_type;

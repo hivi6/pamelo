@@ -102,8 +102,10 @@ static void create_fn(ast_t *ast, scope_t *scope) {
 	type_t *return_type = type_specifier(ast->ast.fn_decl.type_specifier,
 		scope);
 
-	type_t **param_types = NULL;
-	int param_types_len = 0;
+	// vector of type_t*
+	vec_t param_types;
+	vec_init(&param_types);
+
 	for (int i = 0; i < ast->ast.fn_decl.params.len; i++) {
 		token_t *param = ast->ast.fn_decl.params.elems[i];
 		char *param_name = token_lexical(*param);
@@ -125,14 +127,13 @@ static void create_fn(ast_t *ast, scope_t *scope) {
 			exit(1);
 		}
 
-		append_type(&param_types, &param_types_len, param_type);
+		vec_append(&param_types, param_type);
 		free(param_name);
 	}
 
 	// Add the function type in the parent scope
 	type_t *fn_type = create_type(TYPE_FN, name, 0);
 	fn_type->type.fn_type.param_types = param_types;
-	fn_type->type.fn_type.param_types_len = param_types_len;
 	fn_type->type.fn_type.return_type = return_type;
 	if (!add_type(scope, fn_type)) {
 		eprintf(tok->filepath, tok->source, tok->start, tok->end,
@@ -207,7 +208,7 @@ static void prog(ast_t *ast, scope_t *scope) {
 		printf("Expected return type of main as void!\n");
 		exit(1);
 	}
-	if (main_fn->type.fn_type.param_types_len > 0) {
+	if (main_fn->type.fn_type.param_types.len > 0) {
 		printf("Expected main to have no parameters!\n");
 		exit(1);
 	}
@@ -458,15 +459,15 @@ static type_t *call_expr(ast_t *ast, scope_t *scope) {
 		exit(1);
 	}
 
-	if (ast->ast.call_expr.args.len != type->type.fn_type.param_types_len) {
+	if (ast->ast.call_expr.args.len != type->type.fn_type.param_types.len) {
 		eprintf(ast->filepath, ast->source, ast->start, ast->end,
 			"Unmatch function arguments; expected '%d'",
-			type->type.fn_type.param_types_len);
+			type->type.fn_type.param_types.len);
 		exit(1);
 	}
 
 	for (int i = 0; i < ast->ast.call_expr.args.len; i++) {
-		type_t *param_type = type->type.fn_type.param_types[i];
+		type_t *param_type = type->type.fn_type.param_types.elems[i];
 		type_t *arg_type = expr(ast->ast.call_expr.args.elems[i], scope);
 		if (!is_castable(param_type, arg_type)) {
 			ast_t *arg = ast->ast.call_expr.args.elems[i];

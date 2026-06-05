@@ -36,13 +36,13 @@ char *type_str(type_t *type) {
 		char *return_type = type_str(type->type.fn_type.return_type);
 		sbuilder_appendf(&s, "fn %s (", type->name);
 
-		for (int i = 0; i < type->type.fn_type.param_types_len; i++) {
-			char *param = 
-				type_str(type->type.fn_type.param_types[i]);
+		for (int i = 0; i < type->type.fn_type.param_types.len; i++) {
+			char *param = type_str(
+				type->type.fn_type.param_types.elems[i]);
 			sbuilder_appendf(&s, "%s", param);
 			free(param);
 
-			if (i < type->type.fn_type.param_types_len-1)
+			if (i < type->type.fn_type.param_types.len-1)
 				sbuilder_appendf(&s, ", ");
 		}
 

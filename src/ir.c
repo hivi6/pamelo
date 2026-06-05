@@ -383,7 +383,8 @@ static int call_expr(ast_t *ast) {
 			exit(1);
 		}
 
-		int size = fn_type->type.fn_type.param_types[i]->size;
+		type_t *type = fn_type->type.fn_type.param_types.elems[i];
+		int size = type->size;
 
 		emit(IR_INST_ALLOCATE, arg_temp, size, 0, 0);
 		emit(IR_INST_STORE, arg_temp, temp, size, 0);
