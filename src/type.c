@@ -14,12 +14,6 @@ type_t *create_type(int kind, const char *name, int size) {
 	return type;
 }
 
-void append_type(type_t ***list, int *len, type_t *type) {
-	*len += 1;
-	*list = realloc(*list, *len * sizeof(type_t*));
-	(*list)[*len-1] = type;
-}
-
 char *type_str(type_t *type) {
 	if (type == NULL) return NULL;
 

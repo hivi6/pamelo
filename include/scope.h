@@ -8,8 +8,8 @@ typedef struct scope_t scope_t;
 struct scope_t {
 	scope_t *parent_scope;
 
-	type_t **types;
-	int types_len;
+	// vector of type_t*
+	vec_t types;
 
 	symbol_t **symbols;
 	int symbols_len;

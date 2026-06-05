@@ -33,14 +33,15 @@ int add_type(scope_t *scope, type_t *type) {
 	if (get_type(scope, type->name)) {
 		return 0;
 	}
-	append_type(&scope->types, &scope->types_len, type);
+	vec_append(&scope->types, type);
 	return 1; // success
 }
 
 type_t *get_type(scope_t *scope, const char *name) {
-	for (int i = 0; i < scope->types_len; i++) {
-		if (strcmp(scope->types[i]->name, name) == 0) {
-			return scope->types[i];
+	for (int i = 0; i < scope->types.len; i++) {
+		type_t *type = scope->types.elems[i];
+		if (strcmp(type->name, name) == 0) {
+			return type;
 		}
 	}
 	return NULL;
@@ -92,8 +93,8 @@ void print_scope() {
 		printf("id: %p\n", scope_list[i]);
 		printf("parent-id: %p\n", scope_list[i]->parent_scope);
 		printf("types:\n");
-		for (int j = 0; j < scope_list[i]->types_len; j++) {
-			char *name = type_str(scope_list[i]->types[j]);
+		for (int j = 0; j < scope_list[i]->types.len; j++) {
+			char *name = type_str(scope_list[i]->types.elems[j]);
 			printf("    %d. %s\n", j+1, name);
 			free(name);
 		}
