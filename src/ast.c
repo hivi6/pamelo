@@ -108,11 +108,11 @@ static void print_ast_helper(ast_t *ast, char *indent, int depth,
 	}
 	case AST_FN_DECL: {
 		char *str = token_str(ast->ast.fn_decl.name);
-		printf("AST_FN_DECL(%s) ", str);
+		printf("AST_FN_DECL(%s)", str);
 		free(str);
 
 		if (ast->ast.fn_decl.extern_keyword) {
-			printf("EXTERN");
+			printf(" EXTERN");
 		}
 		printf("\n");
 		
