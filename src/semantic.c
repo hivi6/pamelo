@@ -182,16 +182,16 @@ static void prog(ast_t *ast, scope_t *scope) {
 
 	// first go through all the function declaration and 
 	// create the function
-	for (int i = 0; i < ast->ast.prog.decls_len; i++) {
-		ast_t *decl = ast->ast.prog.decls[i];
+	for (int i = 0; i < ast->ast.prog.decls.len; i++) {
+		ast_t *decl = ast->ast.prog.decls.elems[i];
 		if (decl->kind == AST_FN_DECL) {
 			create_fn(decl, new_scope);
 		}
 	}
 
 	// first go through all the function declaration
-	for (int i = 0; i < ast->ast.prog.decls_len; i++) {
-		ast_t *decl = ast->ast.prog.decls[i];
+	for (int i = 0; i < ast->ast.prog.decls.len; i++) {
+		ast_t *decl = ast->ast.prog.decls.elems[i];
 		if (decl->kind == AST_FN_DECL) {
 			fn_decl(decl, new_scope);
 		}

@@ -106,10 +106,10 @@ static void print_ast_helper(ast_t *ast, char *indent, int depth,
 	switch (ast->kind) {
 	case AST_PROG: {
 		printf("AST_PROG\n");
-		for (int i = 0; i < ast->ast.prog.decls_len; i++) {
-			if (i == ast->ast.prog.decls_len-1) 
+		for (int i = 0; i < ast->ast.prog.decls.len; i++) {
+			if (i == ast->ast.prog.decls.len-1) 
 				indent[depth+1] = 0;
-			print_ast_helper(ast->ast.prog.decls[i], indent, 
+			print_ast_helper(ast->ast.prog.decls.elems[i], indent, 
 				depth+1, NULL);
 		}
 		break;
@@ -425,7 +425,7 @@ static ast_t *prog(parser_t *parser) {
 	ast_t *ast = malloc_ast_prog();
 	while (!check(parser, 0, TOKEN_EOF)) {
 		ast_t *d = decl(parser);
-		append_ast(&ast->ast.prog.decls, &ast->ast.prog.decls_len, d);
+		vec_append(&ast->ast.prog.decls, d);
 		if (!ast->filepath) {
 			ast->filepath = d->filepath;
 			ast->source = d->source;

@@ -37,8 +37,8 @@ struct ast_t {
 
 	union {
 		struct {
-			ast_t **decls;
-			int decls_len;
+			// vector of ast* pointers
+			vec_t decls;
 		} prog;
 
 		struct {

@@ -222,8 +222,8 @@ static word_t get_int_literal(const char *lexical) {
 static void prog(ast_t *ast) {
 	match(ast, AST_PROG, "Expected AST_PROG");
 
-	for (int i = 0; i < ast->ast.prog.decls_len; i++) {
-		decl(ast->ast.prog.decls[i]);
+	for (int i = 0; i < ast->ast.prog.decls.len; i++) {
+		decl(ast->ast.prog.decls.elems[i]);
 	}
 }
 
