@@ -271,12 +271,12 @@ static void block_stmt(ast_t *ast, scope_t *scope) {
 	match(ast, AST_BLOCK_STMT, "Expected AST_BLOCK_STMT");
 
 	if (g_check_return_stmt) {
-		int len = ast->ast.block_stmt.stmts_len;
+		int len = ast->ast.block_stmt.stmts.len;
 		int invalid = 0;
 		ast_t *err = ast;
 
 		if (len > 0) {
-			ast_t *last_stmt = ast->ast.block_stmt.stmts[len-1];
+			ast_t *last_stmt = ast->ast.block_stmt.stmts.elems[len-1];
 			if (last_stmt->kind != AST_RETURN_STMT) invalid = 1;
 			err = last_stmt;
 		}
@@ -296,8 +296,8 @@ static void block_stmt(ast_t *ast, scope_t *scope) {
 	ast->scope = new_scope;
 
 
-	for (int i = 0; i < ast->ast.block_stmt.stmts_len; i++) {
-		stmt(ast->ast.block_stmt.stmts[i], new_scope);
+	for (int i = 0; i < ast->ast.block_stmt.stmts.len; i++) {
+		stmt(ast->ast.block_stmt.stmts.elems[i], new_scope);
 	}
 }
 

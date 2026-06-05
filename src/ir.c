@@ -277,8 +277,8 @@ static void block_stmt(ast_t *ast) {
 
 	int allocated_size = 0;
 
-	for (int i = 0; i < ast->ast.block_stmt.stmts_len; i++) {
-		ast_t *s = ast->ast.block_stmt.stmts[i];
+	for (int i = 0; i < ast->ast.block_stmt.stmts.len; i++) {
+		ast_t *s = ast->ast.block_stmt.stmts.elems[i];
 		stmt(s);
 		if (s->kind == AST_VAR_STMT) {
 			allocated_size += s->type->size;

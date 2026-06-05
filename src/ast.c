@@ -144,11 +144,11 @@ static void print_ast_helper(ast_t *ast, char *indent, int depth,
 	}
 	case AST_BLOCK_STMT: {
 		printf("AST_BLOCK_STMT\n");
-		ast_t **stmts = ast->ast.block_stmt.stmts;
-		int stmts_len = ast->ast.block_stmt.stmts_len;
+		vec_t stmts = ast->ast.block_stmt.stmts;
+		int stmts_len = ast->ast.block_stmt.stmts.len;
 		for (int i = 0; i < stmts_len; i++) {
 			if (i == stmts_len-1) indent[depth+1] = 0;
-			print_ast_helper(stmts[i], indent, depth+1, NULL);
+			print_ast_helper(stmts.elems[i], indent, depth+1, NULL);
 		}
 		break;
 	}
@@ -494,8 +494,7 @@ static ast_t *block_stmt(parser_t *parser) {
 	ast_t *ast = malloc_ast_block_stmt(lbrace);
 	while (!check(parser, 0, TOKEN_RBRACE)) {
 		ast_t *s = stmt(parser);
-		append_ast(&ast->ast.block_stmt.stmts, 
-			&ast->ast.block_stmt.stmts_len, s);
+		vec_append(&ast->ast.block_stmt.stmts, s);
 	}
 	token_t *rbrace = match(parser, TOKEN_RBRACE, "Expected }");
 

@@ -64,8 +64,8 @@ struct ast_t {
 		struct {
 			token_t *lbrace;
 
-			ast_t **stmts;
-			int stmts_len;
+			// vector of ast_t*
+			vec_t stmts;
 
 			token_t *rbrace;
 		} block_stmt;
