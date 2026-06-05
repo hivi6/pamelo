@@ -151,3 +151,41 @@ void eprintf(const char *filepath, const char *source, pos_t start, pos_t end,
 	free(res);
 }
 
+// ++++++++++++++++++++++++++++++++++++++++ vector
+
+void vec_init(vec_t *self) {
+	self->elems = NULL;
+	self->len = self->cap = 0;
+}
+
+void vec_reserve(vec_t *self, int new_cap) {
+	if (new_cap <= self->cap) return;
+
+	self->elems = realloc(self->elems, new_cap * sizeof(void*));
+	self->cap = new_cap;
+}
+
+void vec_append(vec_t *self, void *elem) {
+	if (self->cap <= self->len + 1) {
+		vec_reserve(self, (self->len + 1) * 2);
+	}
+
+	self->elems[self->len] = elem;
+	self->len += 1;
+}
+
+void vec_get(vec_t *self, int index, void **out) {
+	assert(0 <= index && index < self->len);
+	*out = self->elems[index];
+}
+
+void vec_set(vec_t *self, int index, void *elem) {
+	assert(0 <= index && index < self->len);
+	self->elems[index] = elem;
+}
+
+void vec_free(vec_t *self) {
+	free(self->elems);
+	vec_init(self);
+}
+

@@ -28,5 +28,21 @@ char *sbuildf(const char *format, ...);
 void eprintf(const char *filepath, const char *source, pos_t start, pos_t end,
 	const char *format, ...);
 
+// ++++++++++++++++++++++++++++++++++++++++ vector
+
+typedef struct vec_t vec_t;
+struct vec_t {
+	void **elems;
+	int len;
+	int cap;
+};
+
+void vec_init(vec_t *self);
+void vec_reserve(vec_t *self, int new_cap);
+void vec_append(vec_t *self, void *elem);
+void vec_get(vec_t *self, int index, void **out);
+void vec_set(vec_t *self, int index, void *elem);
+void vec_free(vec_t *self);
+
 #endif /* UTIL_H */
 
