@@ -1,0 +1,15 @@
+file: tests/21-extern-fn.pam
++- AST_PROG
+   +- AST_FN_DECL(type: ID | lexical: printNum) EXTERN
+   |  +- RETURN TYPE: AST_TYPE_SPECIFIER(type: ID | lexical: void) [void]
+   |  +- a: AST_TYPE_SPECIFIER(type: ID | lexical: u32) [u32]
+   +- AST_FN_DECL(type: ID | lexical: main)
+      +- RETURN TYPE: AST_TYPE_SPECIFIER(type: ID | lexical: void) [void]
+      +- FUNCTION BODY: AST_BLOCK_STMT
+         +- AST_VAR_STMT(type: ID | lexical: a) [u32]
+         |  +- AST_LITERAL_EXPR(type: INT_LITERAL | lexical: 12) [u32]
+         +- AST_EXPR_STMT
+            +- AST_CALL_EXPR [void]
+               +- AST_VAR_EXPR(type: ID | lexical: printNum) [fn printNum (u32) -> void]
+               +- ARG 1: AST_VAR_EXPR(type: ID | lexical: a) [u32]
+

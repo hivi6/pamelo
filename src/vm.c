@@ -70,6 +70,8 @@ static void inst_set_param_addr(ir_inst_t inst);
 static void inst_store(ir_inst_t inst);
 static void inst_sub(ir_inst_t inst);
 
+static void run_extern_fn(ir_fn_t *ir_fn);
+
 // ========================================
 // vm.h - definition
 // ========================================
@@ -116,9 +118,6 @@ static void run() {
 static ir_inst_t current_inst() {
 	vm_fn_state_t *state = current_state();
 	ir_fn_t *ir_fn = g_list.elems[state->fn_id];
-
-	assert(!ir_fn->is_extern && "Not implemented");
-
 	ir_inst_t *inst = ir_fn->insts.elems[state->ip];
 	return *inst;
 }
@@ -144,6 +143,12 @@ static void push_fn_state() {
 static void next_fn_state(int fn_id) {
 	g_current_fn_state += 1;
 	g_fn_states[g_current_fn_state].fn_id = fn_id;
+
+	vm_fn_state_t *state = current_state();
+	ir_fn_t *ir_fn = g_list.elems[state->fn_id];
+	if (ir_fn->is_extern) {
+		run_extern_fn(ir_fn);
+	}
 }
 
 static void prev_fn_state() {
@@ -414,5 +419,27 @@ static void inst_sub(ir_inst_t inst) {
 	word_t res = cast(v1 - v2, inst.arg4);
 	set(inst.arg1, res);
 	next_ip();
+}
+
+static void run_extern_fn(ir_fn_t *ir_fn) {
+	assert(strcmp(ir_fn->name, "printNum") == 0 && "Only printNum supported");
+
+	// check if the type information is correct
+	type_t *fn_type = ir_fn->type;
+	assert(fn_type->kind == TYPE_FN);
+
+	type_t *param0_type = fn_type->type.fn_type.param_types.elems[0];
+	assert(param0_type->kind == TYPE_PRIMITIVE && param0_type->size == 4);
+
+	type_t *return_type = fn_type->type.fn_type.return_type;
+	assert(return_type->kind == TYPE_VOID);
+
+	inst_get_param_addr((ir_inst_t) {.arg1=0, .arg2=0});
+	inst_load((ir_inst_t) {.arg1=1, .arg2=0, .arg3=4});
+
+	word_t v = get(1);
+	printf("%llu\n", v);
+
+	inst_return((ir_inst_t) {});
 }
 

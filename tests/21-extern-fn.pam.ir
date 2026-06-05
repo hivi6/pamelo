@@ -1,0 +1,20 @@
+$0: # fn printNum (u32) -> void
+extern
+
+$1: # fn main () -> void
+@function_start
+    %0 := ALLOCATE 4
+    %2 := CONST 12
+    STORE %0 4 := %2
+    %3 := LOAD %0 4
+    %4 := ALLOCATE 4
+    STORE %4 4 := %3
+    BEGIN_CALL
+    SET_PARAM_ADDR 0 %4
+    CALL $0
+    END_CALL
+    DEALLOCATE 4
+    DEALLOCATE 4
+    RETURN
+@function_end
+
