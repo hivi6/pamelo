@@ -17,7 +17,8 @@ static void match(ast_t *ast, int kind, const char *message);
 static symbol_t *get_symbol_from_token(scope_t *scope, token_t *token);
 static int create_temp_id();
 static void set_temp_id(int id);
-static ir_fn_t *create_ir_fn(int id, const char *name, int is_extern);
+static ir_fn_t *create_ir_fn(int id, const char *name, int is_extern, 
+	type_t *type);
 static void append(ir_fn_t *ir_fn);
 static void emit(int kind, word_t arg1, word_t arg2, word_t arg3, word_t arg4);
 static void emitReturn();
@@ -50,8 +51,9 @@ void print_ir(ir_t ir) {
 
 	for (int i = 0; i < list.len; i++) {
 		ir_fn_t *ir_fn = list.elems[i];
-
-		printf("$%d: # %s\n", ir_fn->id, ir_fn->name);
+		char *str = type_str(ir_fn->type);
+		printf("$%d: # %s\n", ir_fn->id, str);
+		free(str);
 
 		if (ir_fn->is_extern) {
 			printf("extern\n");
@@ -171,11 +173,13 @@ static void set_temp_id(int id) {
 	g_temp_id = id;
 }
 
-static ir_fn_t *create_ir_fn(int id, const char *name, int is_extern) {
+static ir_fn_t *create_ir_fn(int id, const char *name, int is_extern, 
+	type_t *type) {
 	ir_fn_t *res = calloc(sizeof(ir_fn_t), 1);
 	res->id = id;
 	res->name = sbuildf("%s", name);
 	res->is_extern = is_extern;
+	res->type = type;
 	return res;
 }
 
@@ -260,7 +264,7 @@ static void fn_decl(ast_t *ast) {
 	assert(s->type->kind == TYPE_FN);
 
 	int is_extern = (ast->ast.fn_decl.block_stmt ? 0 : 1);
-	ir_fn_t *ir_fn = create_ir_fn(s->id, s->name, is_extern);
+	ir_fn_t *ir_fn = create_ir_fn(s->id, s->name, is_extern, s->type);
 	g_current_fn_type = s->type;
 	g_current_ir_fn = ir_fn;
 

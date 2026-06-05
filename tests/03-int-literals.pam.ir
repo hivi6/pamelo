@@ -1,4 +1,4 @@
-$0: # main
+$0: # fn main () -> void
 @function_start
     %0 := ALLOCATE 4
     %4 := CONST 105

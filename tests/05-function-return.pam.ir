@@ -1,4 +1,4 @@
-$0: # value
+$0: # fn value () -> u32
 @function_start
     %1 := GET_RETURN_ADDR
     %2 := CONST 42
@@ -6,7 +6,7 @@ $0: # value
     RETURN
 @function_end
 
-$1: # main
+$1: # fn main () -> void
 @function_start
     BEGIN_CALL
     %1 := ALLOCATE 4

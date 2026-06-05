@@ -1,4 +1,4 @@
-$0: # add
+$0: # fn add (u32, u32) -> u32
 @function_start
     %0 := GET_PARAM_ADDR 0
     %1 := GET_PARAM_ADDR 1
@@ -10,7 +10,7 @@ $0: # add
     RETURN
 @function_end
 
-$1: # main
+$1: # fn main () -> void
 @function_start
     BEGIN_CALL
     %1 := CONST 19

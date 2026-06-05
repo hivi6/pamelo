@@ -2,6 +2,7 @@
 #define IR_H
 
 #include "ast.h"
+#include "type.h"
 
 typedef unsigned long long word_t;
 
@@ -93,6 +94,7 @@ struct ir_fn_t {
 	int id;
 	const char *name;
 	int is_extern;
+	type_t *type;
 
 	// vector of ir_inst_t*
 	vec_t insts;
