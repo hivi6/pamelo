@@ -290,12 +290,6 @@ static void skip(parser_t *parser, int inc) {
 	}
 }
 
-static void append_token(token_t ***list, int *len, token_t *token) {
-	*len += 1;
-	*list = realloc(*list, *len * sizeof(token_t *));
-	(*list)[*len-1] = token;
-}
-
 static ast_t *malloc_ast(int kind, const char *filepath, const char *source,
 	pos_t start, pos_t end) {
 	ast_t *res = calloc(sizeof(ast_t), 1);
