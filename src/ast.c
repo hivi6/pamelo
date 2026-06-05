@@ -22,9 +22,6 @@ static char check(parser_t *parser, int offset, int token_kind);
 static token_t *match(parser_t *parser, int token_kind, const char *message);
 static void skip(parser_t *parser, int inc);
 
-static void append_token(token_t ***list, int *len, 
-	token_t *token);
-
 static ast_t *malloc_ast(int kind, const char *filepath, const char *source,
 	pos_t start, pos_t end);
 static ast_t *malloc_ast_prog();
@@ -71,12 +68,6 @@ ast_t *parse(vec_t tokens) {
 	parser_t parser = {0};
 	init(&parser, tokens);
 	return prog(&parser);
-}
-
-void append_ast(ast_t ***list, int *len, ast_t *ast) {
-	*len += 1;
-	*list = realloc(*list, *len * sizeof(ast_t*));
-	(*list)[*len-1] = ast;
 }
 
 void print_ast(ast_t *ast) {
