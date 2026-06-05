@@ -208,16 +208,16 @@ static void print_ast_helper(ast_t *ast, char *indent, int depth,
 		printf("AST_CALL_EXPR [%s]\n", type_info);
 		free(type_info);
 
-		if (ast->ast.call_expr.args_len <= 0) indent[depth+1] = 0;
+		if (ast->ast.call_expr.args.len <= 0) indent[depth+1] = 0;
 		print_ast_helper(ast->ast.call_expr.left, indent, depth+1, 
 			NULL);
 
-		for (int i = 0; i < ast->ast.call_expr.args_len; i++) {
-			if (i == ast->ast.call_expr.args_len-1)
+		for (int i = 0; i < ast->ast.call_expr.args.len; i++) {
+			if (i == ast->ast.call_expr.args.len-1)
 				indent[depth+1] = 0;
 			char *arg_name = sbuildf("ARG %d", i+1);
-			print_ast_helper(ast->ast.call_expr.args[i], indent,
-				depth+1, arg_name);
+			print_ast_helper(ast->ast.call_expr.args.elems[i], 
+				indent, depth+1, arg_name);
 			free(arg_name);
 		}
 
@@ -581,15 +581,16 @@ static ast_t *postfix_expr(parser_t *parser) {
 }
 
 static ast_t *call_expr(parser_t *parser, ast_t *left) {
-	ast_t **args = NULL;
-	int args_len = 0;
+	// vector of ast_t*
+	vec_t args;
+	vec_init(&args);
 
 	token_t *lparen = match(parser, TOKEN_LPAREN, "Expected '('");
 	
 	while (!check(parser, 0, TOKEN_RPAREN)) {
 		ast_t *arg = expr(parser);
 
-		append_ast(&args, &args_len, arg);
+		vec_append(&args, arg);
 		
 		if (!check(parser, 0, TOKEN_COMMA)) break;
 		match(parser, TOKEN_COMMA, "Expected ','");
@@ -599,7 +600,6 @@ static ast_t *call_expr(parser_t *parser, ast_t *left) {
 
 	ast_t *res = malloc_ast_call_expr(left, lparen, rparen);
 	res->ast.call_expr.args = args;
-	res->ast.call_expr.args_len = args_len;
 	return res;
 }
 

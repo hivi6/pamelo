@@ -372,9 +372,9 @@ static int call_expr(ast_t *ast) {
 
 	emit(IR_INST_BEGIN_CALL, 0, 0, 0, 0);
 
-	for (int i = 0; i < ast->ast.call_expr.args_len; i++) {
+	for (int i = 0; i < ast->ast.call_expr.args.len; i++) {
 		type_t *fn_type = ast->ast.call_expr.left->type;
-		ast_t *arg = ast->ast.call_expr.args[i];
+		ast_t *arg = ast->ast.call_expr.args.elems[i];
 		int temp = expr(arg);
 		int arg_temp = create_temp_id();
 

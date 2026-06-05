@@ -458,18 +458,18 @@ static type_t *call_expr(ast_t *ast, scope_t *scope) {
 		exit(1);
 	}
 
-	if (ast->ast.call_expr.args_len != type->type.fn_type.param_types_len) {
+	if (ast->ast.call_expr.args.len != type->type.fn_type.param_types_len) {
 		eprintf(ast->filepath, ast->source, ast->start, ast->end,
 			"Unmatch function arguments; expected '%d'",
 			type->type.fn_type.param_types_len);
 		exit(1);
 	}
 
-	for (int i = 0; i < ast->ast.call_expr.args_len; i++) {
+	for (int i = 0; i < ast->ast.call_expr.args.len; i++) {
 		type_t *param_type = type->type.fn_type.param_types[i];
-		type_t *arg_type = expr(ast->ast.call_expr.args[i], scope);
+		type_t *arg_type = expr(ast->ast.call_expr.args.elems[i], scope);
 		if (!is_castable(param_type, arg_type)) {
-			ast_t *arg = ast->ast.call_expr.args[i];
+			ast_t *arg = ast->ast.call_expr.args.elems[i];
 			eprintf(arg->filepath, ast->source, ast->start,
 				arg->end, "Mismatch type");
 			exit(1);

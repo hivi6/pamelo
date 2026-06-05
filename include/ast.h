@@ -101,8 +101,8 @@ struct ast_t {
 			ast_t *left;
 			token_t *lparen;
 
-			ast_t **args;
-			int args_len;
+			// vector of ast_t*
+			vec_t args;
 
 			token_t *rparen;
 		} call_expr;
