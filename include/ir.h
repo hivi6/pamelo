@@ -93,8 +93,8 @@ struct ir_fn_t {
 	int id;
 	const char *name;
 
-	ir_inst_t *list;
-	int len;
+	// vector of ir_inst_t*
+	vec_t insts;
 };
 
 void print_ir(ir_fn_t **list, int len);

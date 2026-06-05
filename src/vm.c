@@ -116,7 +116,8 @@ static void run() {
 
 static ir_inst_t current_inst() {
 	vm_fn_state_t *state = current_state();
-	return g_list[state->fn_id]->list[state->ip];
+	ir_inst_t *inst = g_list[state->fn_id]->insts.elems[state->ip];
+	return *inst;
 }
 
 static vm_fn_state_t *current_state() {

@@ -50,9 +50,12 @@ void print_ir(ir_fn_t **list, int len) {
 	for (int i = 0; i < len; i++) {
 		printf("$%d: # %s\n", list[i]->id, list[i]->name);
 		printf("@function_start\n");
-		for (int j = 0; j < list[i]->len; j++) {
-			print_inst(list[i]->list[j]);
+
+		for (int j = 0; j < list[i]->insts.len; j++) {
+			ir_inst_t *inst = list[i]->insts.elems[j];
+			print_inst(*inst);
 		}
+
 		printf("@function_end\n\n");
 	}
 }
@@ -170,21 +173,24 @@ static void append(ir_fn_t *ir_fn) {
 }
 
 static void emit(int kind, word_t arg1, word_t arg2, word_t arg3, word_t arg4) {
-	g_current_ir_fn->len += 1;
-	g_current_ir_fn->list = realloc(g_current_ir_fn->list,
-		g_current_ir_fn->len * sizeof(ir_inst_t));
-	g_current_ir_fn->list[g_current_ir_fn->len - 1] = (ir_inst_t) {
-		.kind = kind,
-		.arg1 = arg1,
-		.arg2 = arg2,
-		.arg3 = arg3,
-		.arg4 = arg4,
-	};
+	ir_inst_t *inst = calloc(sizeof(ir_inst_t), 1);
+	inst->kind = kind;
+	inst->arg1 = arg1;
+	inst->arg2 = arg2;
+	inst->arg3 = arg3;
+	inst->arg4 = arg4;
+	vec_append(&g_current_ir_fn->insts, inst);
 }
 
 static void emitReturn() {
-	if (g_current_ir_fn->len <= 0 || 
-		g_current_ir_fn->list[g_current_ir_fn->len - 1].kind != IR_INST_RETURN) {
+	if (g_current_ir_fn->insts.len <= 0) {
+		emit(IR_INST_RETURN, 0, 0, 0, 0);
+		return;
+	}
+
+	int len = g_current_ir_fn->insts.len;
+	ir_inst_t *inst = g_current_ir_fn->insts.elems[len-1];
+	if (inst->kind != IR_INST_RETURN) {
 		emit(IR_INST_RETURN, 0, 0, 0, 0);
 	}
 }
