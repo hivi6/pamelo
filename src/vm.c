@@ -24,8 +24,7 @@ struct vm_fn_state_t {
 	char *return_addr;
 };
 
-static ir_fn_t **g_list;
-static int g_len;
+static vec_t g_list; // vector of ir_fn_t*
 static int g_main_fn;
 static int g_is_running = 1;
 static vm_fn_state_t *g_fn_states;
@@ -33,7 +32,7 @@ static int g_fn_states_len;
 static int g_current_fn_state;
 static word_t g_last_value = 0; // for debug
 
-static void init(ir_fn_t **list, int len);
+static void init(vec_t list);
 static void run();
 static ir_inst_t current_inst();
 static vm_fn_state_t *current_state();
@@ -75,8 +74,8 @@ static void inst_sub(ir_inst_t inst);
 // vm.h - definition
 // ========================================
 
-void run_vm(ir_fn_t **list, int len) {
-	init(list, len);
+void run_vm(vec_t list) {
+	init(list);
 	run();
 }
 
@@ -84,18 +83,18 @@ void run_vm(ir_fn_t **list, int len) {
 // helper definition
 // ========================================
 
-static void init(ir_fn_t **list, int len) {
+static void init(vec_t list) {
 	g_list = list;
-	g_len = len;
 	g_main_fn = -1;
 	g_is_running = 1;
 	g_fn_states = NULL;
 	g_fn_states_len = 0;
 	g_current_fn_state = -1;
 
-	for (int i = 0; i < len; i++) {
-		if (strcmp(list[i]->name, "main") == 0) {
-			g_main_fn = list[i]->id;
+	for (int i = 0; i < g_list.len; i++) {
+		ir_fn_t *ir_fn = list.elems[i];
+		if (strcmp(ir_fn->name, "main") == 0) {
+			g_main_fn = ir_fn->id;
 		}
 	}
 
@@ -116,7 +115,8 @@ static void run() {
 
 static ir_inst_t current_inst() {
 	vm_fn_state_t *state = current_state();
-	ir_inst_t *inst = g_list[state->fn_id]->insts.elems[state->ip];
+	ir_fn_t *ir_fn = g_list.elems[state->fn_id];
+	ir_inst_t *inst = ir_fn->insts.elems[state->ip];
 	return *inst;
 }
 

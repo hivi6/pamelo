@@ -97,8 +97,8 @@ struct ir_fn_t {
 	vec_t insts;
 };
 
-void print_ir(ir_fn_t **list, int len);
-void generate_ir(ast_t *ast, ir_fn_t ***list, int *len);
+void print_ir(vec_t ir_list); // vector of ir_fn_t*
+vec_t generate_ir(ast_t *ast); // vector of ir_fn_t*
 
 #endif /* IR_H */
 

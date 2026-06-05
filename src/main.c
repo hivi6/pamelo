@@ -61,16 +61,13 @@ int main(int argc, const char **argv) {
 		return 0;
 	}
 
-	ir_fn_t **ir_list = NULL;
-	int ir_list_len = 0;
-	generate_ir(ast, &ir_list, &ir_list_len);
-
+	vec_t ir_list = generate_ir(ast);
 	if (g_print_ir_flag) {
-		print_ir(ir_list, ir_list_len);
+		print_ir(ir_list);
 		return 0;
 	}
 
-	run_vm(ir_list, ir_list_len);
+	run_vm(ir_list);
 
 	return 0;
 }

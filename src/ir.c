@@ -5,15 +5,14 @@
 // helper declaration
 // ========================================
 
-static ir_fn_t ***g_list;
-static int *g_len;
+static vec_t g_list; // vector of ir_fn_t*
 static int g_temp_id = 0;
 static type_t *g_current_fn_type = NULL;
 static ir_fn_t *g_current_ir_fn = NULL;
 static int g_current_return_temp = 0;
 
 static void print_inst(ir_inst_t inst);
-static void init(ir_fn_t ***list, int *len);
+static void init();
 static void match(ast_t *ast, int kind, const char *message);
 static symbol_t *get_symbol_from_token(scope_t *scope, token_t *token);
 static int create_temp_id();
@@ -46,13 +45,15 @@ static int add_expr(ast_t *ast);
 // ir.h - definition
 // ========================================
 
-void print_ir(ir_fn_t **list, int len) {
-	for (int i = 0; i < len; i++) {
-		printf("$%d: # %s\n", list[i]->id, list[i]->name);
+void print_ir(vec_t list) {
+	for (int i = 0; i < list.len; i++) {
+		ir_fn_t *ir_fn = list.elems[i];
+
+		printf("$%d: # %s\n", ir_fn->id, ir_fn->name);
 		printf("@function_start\n");
 
-		for (int j = 0; j < list[i]->insts.len; j++) {
-			ir_inst_t *inst = list[i]->insts.elems[j];
+		for (int j = 0; j < ir_fn->insts.len; j++) {
+			ir_inst_t *inst = ir_fn->insts.elems[j];
 			print_inst(*inst);
 		}
 
@@ -60,10 +61,10 @@ void print_ir(ir_fn_t **list, int len) {
 	}
 }
 
-void generate_ir(ast_t *ast, ir_fn_t ***list, int *len) {
-	init(list, len);
-
+vec_t generate_ir(ast_t *ast) {
+	init();
 	prog(ast);
+	return g_list;
 }
 
 // ========================================
@@ -131,9 +132,8 @@ static void print_inst(ir_inst_t inst) {
 	printf("\n");
 }
 
-static void init(ir_fn_t ***list, int *len) {
-	g_list = list;
-	g_len = len;
+static void init() {
+	vec_init(&g_list);
 }
 
 static void match(ast_t *ast, int kind, const char *message) {
@@ -167,9 +167,7 @@ static ir_fn_t *create_ir_fn(int id, const char *name) {
 }
 
 static void append(ir_fn_t *ir_fn) {
-	*g_len += 1;
-	*g_list = realloc(*g_list, *g_len * sizeof(ir_fn_t*));
-	(*g_list)[*g_len - 1] = ir_fn;
+	vec_append(&g_list, ir_fn);
 }
 
 static void emit(int kind, word_t arg1, word_t arg2, word_t arg3, word_t arg4) {
