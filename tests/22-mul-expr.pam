@@ -1,0 +1,16 @@
+fn printNum(a u32) void extern;
+
+fn main() void {
+	var a = 2 * 3;
+	printNum(a);
+
+	var b = a * 3 / 9;
+	printNum(b);
+
+	var c = b % 2;
+	printNum(c);
+
+	var d = a % 5;
+	printNum(d);
+}
+

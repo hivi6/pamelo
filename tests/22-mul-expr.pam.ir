@@ -1,0 +1,63 @@
+$0: # fn printNum (u32) -> void
+extern
+
+$1: # fn main () -> void
+@function_start
+    %0 := ALLOCATE 4
+    %5 := CONST 2
+    %6 := CONST 3
+    %7 := MUL %5 %6 4
+    STORE %0 4 := %7
+    %8 := LOAD %0 4
+    %9 := ALLOCATE 4
+    STORE %9 4 := %8
+    BEGIN_CALL
+    SET_PARAM_ADDR 0 %9
+    CALL $0
+    END_CALL
+    DEALLOCATE 4
+    %1 := ALLOCATE 4
+    %10 := LOAD %0 4
+    %11 := CONST 3
+    %12 := MUL %10 %11 4
+    %13 := CONST 9
+    %14 := DIV %12 %13 4
+    STORE %1 4 := %14
+    %15 := LOAD %1 4
+    %16 := ALLOCATE 4
+    STORE %16 4 := %15
+    BEGIN_CALL
+    SET_PARAM_ADDR 0 %16
+    CALL $0
+    END_CALL
+    DEALLOCATE 4
+    %2 := ALLOCATE 4
+    %17 := LOAD %1 4
+    %18 := CONST 2
+    %19 := MOD %17 %18 4
+    STORE %2 4 := %19
+    %20 := LOAD %2 4
+    %21 := ALLOCATE 4
+    STORE %21 4 := %20
+    BEGIN_CALL
+    SET_PARAM_ADDR 0 %21
+    CALL $0
+    END_CALL
+    DEALLOCATE 4
+    %3 := ALLOCATE 4
+    %22 := LOAD %0 4
+    %23 := CONST 5
+    %24 := MOD %22 %23 4
+    STORE %3 4 := %24
+    %25 := LOAD %3 4
+    %26 := ALLOCATE 4
+    STORE %26 4 := %25
+    BEGIN_CALL
+    SET_PARAM_ADDR 0 %26
+    CALL $0
+    END_CALL
+    DEALLOCATE 4
+    DEALLOCATE 16
+    RETURN
+@function_end
+
