@@ -393,7 +393,7 @@ static int var_expr(ast_t *ast) {
 	match(ast, AST_VAR_EXPR, "Expected AST_VAR_EXPR");
 
 	token_t *token = ast->ast.var_expr.token;
-	symbol_t *s = get_symbol_from_token(ast->scope, token);
+	symbol_t *s = ast->symbol;
 	
 	if (s->type->kind == TYPE_FN) return s->id;
 

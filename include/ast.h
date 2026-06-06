@@ -35,6 +35,7 @@ struct ast_t {
 
 	scope_t *scope;
 	type_t *type;
+	symbol_t *symbol; // for var_expr
 	int total_id; // for fn_decl
 
 	union {

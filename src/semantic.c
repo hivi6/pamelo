@@ -468,6 +468,7 @@ static type_t *var_expr(ast_t *ast, scope_t *scope) {
 	token_t *tok = ast->ast.var_expr.token;
 	char *name = token_lexical(*tok);
 	symbol_t *s = get_symbol_in_chain(scope, name);
+	ast->symbol = s;
 	if (s == NULL) {
 		eprintf(tok->filepath, tok->source, tok->start, tok->end,
 			"No such variable defined");
