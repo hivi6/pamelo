@@ -1,0 +1,91 @@
+SYMBOL MEANING:
+$ = Accessing function index
+% = Accessing temp index
+# = Accessing instruction index
+
+$0: // fn printNum (u32) -> void
+extern
+
+$1: // fn fib (u32) -> u32
+@function_start
+    #0  | %0 := GET_PARAM_ADDR 0
+    #1  | %3 := GET_RETURN_ADDR
+    #2  | NOP
+    #3  | %4 := LOAD %0 4
+    #4  | JUMP_TRUE %4 #9
+    #5  | %5 := CONST 0
+    #6  | STORE %3 4 := %5
+    #7  | RETURN
+    #8  | JUMP #10
+    #9  | NOP
+    #10 | NOP
+    #11 | %1 := ALLOCATE 4
+    #12 | %6 := LOAD %0 4
+    #13 | %7 := CONST 1
+    #14 | %8 := SUB %6 %7 4
+    #15 | STORE %1 4 := %8
+    #16 | NOP
+    #17 | %9 := LOAD %1 4
+    #18 | JUMP_TRUE %9 #23
+    #19 | %10 := CONST 1
+    #20 | STORE %3 4 := %10
+    #21 | RETURN
+    #22 | JUMP #24
+    #23 | NOP
+    #24 | NOP
+    #25 | %11 := LOAD %0 4
+    #26 | %12 := CONST 1
+    #27 | %13 := SUB %11 %12 4
+    #28 | %14 := ALLOCATE 4
+    #29 | STORE %14 4 := %13
+    #30 | BEGIN_CALL
+    #31 | SET_PARAM_ADDR 0 %14
+    #32 | %15 := ALLOCATE 4
+    #33 | SET_RETURN_ADDR %15
+    #34 | CALL $1
+    #35 | %16 := LOAD %15 4
+    #36 | END_CALL
+    #37 | DEALLOCATE 8
+    #38 | %17 := LOAD %0 4
+    #39 | %18 := CONST 2
+    #40 | %19 := SUB %17 %18 4
+    #41 | %20 := ALLOCATE 4
+    #42 | STORE %20 4 := %19
+    #43 | BEGIN_CALL
+    #44 | SET_PARAM_ADDR 0 %20
+    #45 | %21 := ALLOCATE 4
+    #46 | SET_RETURN_ADDR %21
+    #47 | CALL $1
+    #48 | %22 := LOAD %21 4
+    #49 | END_CALL
+    #50 | DEALLOCATE 8
+    #51 | %23 := ADD %16 %22 4
+    #52 | STORE %3 4 := %23
+    #53 | RETURN
+    #54 | DEALLOCATE 4
+    #55 | RETURN
+@function_end
+
+$2: // fn main () -> void
+@function_start
+    #0  | %1 := CONST 20
+    #1  | %2 := ALLOCATE 4
+    #2  | STORE %2 4 := %1
+    #3  | BEGIN_CALL
+    #4  | SET_PARAM_ADDR 0 %2
+    #5  | %3 := ALLOCATE 4
+    #6  | SET_RETURN_ADDR %3
+    #7  | CALL $1
+    #8  | %4 := LOAD %3 4
+    #9  | END_CALL
+    #10 | DEALLOCATE 8
+    #11 | %5 := ALLOCATE 4
+    #12 | STORE %5 4 := %4
+    #13 | BEGIN_CALL
+    #14 | SET_PARAM_ADDR 0 %5
+    #15 | CALL $0
+    #16 | END_CALL
+    #17 | DEALLOCATE 4
+    #18 | RETURN
+@function_end
+

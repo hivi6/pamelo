@@ -1,0 +1,17 @@
+fn printNum(a u32) void extern;
+
+fn fib(a u32) u32 {
+	if (a) {}
+	else return 0;
+
+	var x = a - 1;
+	if (x) {}
+	else return 1;
+
+	return fib(a-1) + fib(a-2);
+}
+
+fn main() void {
+	printNum(fib(20));
+}
+
