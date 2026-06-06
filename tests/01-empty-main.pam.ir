@@ -1,5 +1,5 @@
 $0: # fn main () -> void
 @function_start
-    RETURN
+    0 | RETURN
 @function_end
 

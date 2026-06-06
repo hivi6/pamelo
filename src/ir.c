@@ -1,6 +1,8 @@
 #include "ir.h"
 #include "util.h"
 
+#include <math.h>
+
 // ========================================
 // helper declaration
 // ========================================
@@ -63,8 +65,11 @@ void print_ir(ir_t ir) {
 			printf("@function_start\n");
 
 			for (int j = 0; j < ir_fn->insts.len; j++) {
+				int indent = log10(ir_fn->insts.len + 1) + 1;
+				printf("    %*d | ", indent, j);
 				ir_inst_t *inst = ir_fn->insts.elems[j];
 				print_inst(*inst);
+				printf("\n");
 			}
 
 			printf("@function_end\n");
@@ -87,8 +92,6 @@ ir_t generate_ir(ast_t *ast) {
 // ========================================
 
 static void print_inst(ir_inst_t inst) {
-	printf("    ");
-
 	switch (inst.kind) {
 	case IR_INST_NOP:
 		printf("NOP");
@@ -158,8 +161,6 @@ static void print_inst(ir_inst_t inst) {
 		printf("WHAT IS THIS INST\n");
 		exit(1);
 	}
-	
-	printf("\n");
 }
 
 static void init() {

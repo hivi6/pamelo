@@ -1,10 +1,10 @@
 $0: # fn main () -> void
 @function_start
-    %0 := ALLOCATE 1
-    %2 := CONST 300
-    STORE %0 1 := %2
-    %3 := LOAD %0 1
-    DEALLOCATE 1
-    RETURN
+    0 | %0 := ALLOCATE 1
+    1 | %2 := CONST 300
+    2 | STORE %0 1 := %2
+    3 | %3 := LOAD %0 1
+    4 | DEALLOCATE 1
+    5 | RETURN
 @function_end
 
