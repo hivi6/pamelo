@@ -75,6 +75,8 @@ static void inst_sub(ir_inst_t inst);
 static void inst_mul(ir_inst_t inst);
 static void inst_div(ir_inst_t inst);
 static void inst_mod(ir_inst_t inst);
+static void inst_logical_equal(ir_inst_t inst);
+static void inst_logical_not(ir_inst_t inst);
 static void inst_jump(ir_inst_t inst);
 static void inst_jump_true(ir_inst_t inst);
 static void inst_jump_false(ir_inst_t inst);
@@ -357,6 +359,14 @@ static void run_inst() {
 		inst_mod(inst);
 		break;
 	}
+	case IR_INST_LOGICAL_EQUAL: {
+		inst_logical_equal(inst);
+		break;
+	}
+	case IR_INST_LOGICAL_NOT: {
+		inst_logical_not(inst);
+		break;
+	}
 	case IR_INST_JUMP: {
 		inst_jump(inst);
 		break;
@@ -491,6 +501,21 @@ static void inst_mod(ir_inst_t inst) {
 	word_t v1 = get(inst.arg2);
 	word_t v2 = get(inst.arg3);
 	word_t res = cast(v1 % v2, inst.arg4);
+	set(inst.arg1, res);
+	next_ip();
+}
+
+static void inst_logical_equal(ir_inst_t inst) {
+	word_t v1 = get(inst.arg2);
+	word_t v2 = get(inst.arg3);
+	word_t res = (v1 == v2);
+	set(inst.arg1, res);
+	next_ip();
+}
+
+static void inst_logical_not(ir_inst_t inst) {
+	word_t v1 = get(inst.arg2);
+	word_t res = !v1;
 	set(inst.arg1, res);
 	next_ip();
 }

@@ -103,6 +103,17 @@ enum {
 	// arg4 = size of result
 	IR_INST_MOD,
 
+	// desc: store the value of equality to destination temp
+	// arg1 = destination temp
+	// arg2 = left temp
+	// arg3 = right temp
+	IR_INST_LOGICAL_EQUAL,
+
+	// desc: store the logical not of the source temp to destination temp
+	// arg1 = destination temp
+	// arg2 = left temp
+	IR_INST_LOGICAL_NOT,
+
 	// desc: jump to given instruction index
 	// arg1 = instruction index
 	IR_INST_JUMP,
