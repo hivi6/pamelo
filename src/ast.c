@@ -34,6 +34,9 @@ static ast_t *malloc_ast_var_stmt(token_t *var_keyword, token_t *name,
 	ast_t *type_specifier, ast_t *expr, token_t *semicolon);
 static ast_t *malloc_ast_return_stmt(token_t *return_keyword, ast_t *expr,
 	token_t *semicolon);
+static ast_t *malloc_ast_if_stmt(token_t *if_keyword, token_t *lparen,
+	ast_t *expr, token_t *rparen, ast_t *true_stmt, token_t *else_keyword,
+	ast_t *false_stmt);
 static ast_t *malloc_ast_expr_stmt(ast_t *expr, token_t *semicolon);
 static ast_t *malloc_ast_literal_expr(token_t *token);
 static ast_t *malloc_ast_var_expr(token_t *token);
@@ -52,6 +55,7 @@ static ast_t *stmt(parser_t *parser);
 static ast_t *block_stmt(parser_t *parser);
 static ast_t *var_stmt(parser_t *parser);
 static ast_t *return_stmt(parser_t *parser);
+static ast_t *if_stmt(parser_t *parser);
 static ast_t *expr_stmt(parser_t *parser);
 static ast_t *expr(parser_t *parser);
 static ast_t *literal_expr(parser_t *parser);
@@ -182,6 +186,26 @@ static void print_ast_helper(ast_t *ast, char *indent, int depth,
 			print_ast_helper(ast->ast.return_stmt.expr, indent,
 				depth+1, NULL);
 		}
+		break;
+	}
+	case AST_IF_STMT: {
+		printf("AST_IF_STMT\n");
+
+		print_ast_helper(ast->ast.if_stmt.expr, indent, depth+1,
+			"IF CONDITION");
+
+		if (ast->ast.if_stmt.false_stmt == NULL) {
+			indent[depth+1] = 0;
+		}
+		print_ast_helper(ast->ast.if_stmt.true_stmt, indent, depth+1,
+			"TRUE STATEMENT");
+		
+		if (ast->ast.if_stmt.false_stmt) {
+			indent[depth+1] = 0;
+			print_ast_helper(ast->ast.if_stmt.false_stmt, indent,
+				depth+1, "FALSE STATEMENT");
+		}
+
 		break;
 	}
 	case AST_EXPR_STMT: {
@@ -388,6 +412,23 @@ static ast_t *malloc_ast_return_stmt(token_t *return_keyword, ast_t *expr,
 	return res;
 }
 
+static ast_t *malloc_ast_if_stmt(token_t *if_keyword, token_t *lparen,
+	ast_t *expr, token_t *rparen, ast_t *true_stmt, token_t *else_keyword,
+	ast_t *false_stmt) {
+	
+	pos_t end = (false_stmt ? false_stmt->end : true_stmt->end);
+	ast_t *res = malloc_ast(AST_IF_STMT, if_keyword->filepath,
+		if_keyword->source, if_keyword->start, end);
+	res->ast.if_stmt.if_keyword = if_keyword;
+	res->ast.if_stmt.lparen = lparen;
+	res->ast.if_stmt.expr = expr;
+	res->ast.if_stmt.rparen = rparen;
+	res->ast.if_stmt.true_stmt = true_stmt;
+	res->ast.if_stmt.else_keyword = else_keyword;
+	res->ast.if_stmt.false_stmt = false_stmt;
+	return res;
+}
+
 static ast_t *malloc_ast_expr_stmt(ast_t *expr, token_t *semicolon) {
 	ast_t *res = malloc_ast(AST_EXPR_STMT, expr->filepath,
 		expr->source, expr->start, semicolon->end);
@@ -524,6 +565,7 @@ static ast_t *stmt(parser_t *parser) {
 	if (check(parser, 0, TOKEN_LBRACE)) return block_stmt(parser);
 	if (check(parser, 0, TOKEN_VAR_KEYWORD)) return var_stmt(parser);
 	if (check(parser, 0, TOKEN_RETURN_KEYWORD)) return return_stmt(parser);
+	if (check(parser, 0, TOKEN_IF_KEYWORD)) return if_stmt(parser);
 	return expr_stmt(parser);
 }
 
@@ -575,6 +617,29 @@ static ast_t *return_stmt(parser_t *parser) {
 	token_t *semicolon = match(parser, TOKEN_SEMICOLON, 
 		"Expected ';' at the end of return statement");
 	return malloc_ast_return_stmt(return_keyword, e, semicolon);
+}
+
+static ast_t *if_stmt(parser_t *parser) {
+	token_t *if_keyword = match(parser, TOKEN_IF_KEYWORD, 
+		"Expected 'if' keyword");
+	token_t *lparen = match(parser, TOKEN_LPAREN, 
+		"Expected '(' after if keyword");
+	ast_t *e = expr(parser);
+	token_t *rparen = match(parser, TOKEN_RPAREN,
+		"Expected ')' at the end of if condition");
+	ast_t *true_stmt = stmt(parser);
+
+	token_t *else_keyword = NULL;
+	ast_t *false_stmt = NULL;
+
+	if (check(parser, 0, TOKEN_ELSE_KEYWORD)) {
+		else_keyword = match(parser, TOKEN_ELSE_KEYWORD,
+			"Expected 'else'");
+		false_stmt = stmt(parser);
+	}
+
+	return malloc_ast_if_stmt(if_keyword, lparen, e, rparen, true_stmt,
+		else_keyword, false_stmt);
 }
 
 static ast_t *expr_stmt(parser_t *parser) {

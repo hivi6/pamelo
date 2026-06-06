@@ -50,4 +50,5 @@
 
 2026.06.06:
 - [x] Check for recursive calls (and check for stack trace size exahaution)
+- [ ] Add support for conditional statements
 

@@ -15,6 +15,7 @@ GRAMMAR
 <block-stmt>  := LBRACE <stmt>* RBRACE
 <var-stmt>    := VAR_KEYWORD ID <type-specifier>? (EQUAL <expr>)? SEMICOLON
 <return-stmt> := RETURN_KEYWORD <expr>? SEMICOLON
+<if-stmt>     := IF_KEYWORD LPAREN <expr> RPAREN <stmt> (ELSE_KEYWORD <stmt>)?
 <expr-stmt>   := <expr> SEMICOLON
 
 <expr>         := <add-expr>
@@ -60,4 +61,6 @@ AS_KEYWORD     := "as"
 VAR_KEYWORD    := "var"
 RETURN_KEYWORD := "return"
 EXTERN_KEYWORD := "extern"
+IF_KEYWORD     := "if"
+ELSE_KEYWORD   := "else"
 

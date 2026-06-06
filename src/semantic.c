@@ -37,6 +37,7 @@ static void stmt(ast_t *ast, scope_t *scope);
 static void block_stmt(ast_t *ast, scope_t *scope);
 static void var_stmt(ast_t *ast, scope_t *scope);
 static void return_stmt(ast_t *ast, scope_t *scope);
+static void if_stmt(ast_t *ast, scope_t *scope);
 static void expr_stmt(ast_t *ast, scope_t *scope);
 
 static type_t *expr(ast_t *ast, scope_t *scope);
@@ -266,6 +267,9 @@ static void stmt(ast_t *ast, scope_t *scope) {
 	else if (ast->kind == AST_RETURN_STMT) {
 		return_stmt(ast, scope);
 	}
+	else if (ast->kind == AST_IF_STMT) {
+		if_stmt(ast, scope);
+	}
 	else {
 		eprintf(ast->filepath, ast->source, ast->start, ast->end,
 			"What is this statement?");
@@ -382,6 +386,23 @@ static void return_stmt(ast_t *ast, scope_t *scope) {
 		eprintf(ast->filepath, ast->source, ast->start, ast->end,
 			"Incompatible return expression and function return type");
 		exit(1);
+	}
+}
+
+static void if_stmt(ast_t *ast, scope_t *scope) {
+	match(ast, AST_IF_STMT, "Expected AST_IF_STMT");
+
+	ast_t *cond = ast->ast.if_stmt.expr;
+	type_t *cond_type = expr(cond, scope);
+	if (!is_numeric(cond_type)) {
+		eprintf(cond->filepath, cond->source, cond->start, cond->end,
+			"Expected numeric condition value");
+		exit(1);
+	}
+
+	stmt(ast->ast.if_stmt.true_stmt, scope);
+	if (ast->ast.if_stmt.false_stmt) {
+		stmt(ast->ast.if_stmt.false_stmt, scope);
 	}
 }
 
