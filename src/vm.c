@@ -55,20 +55,20 @@ static void set_param_addr(int param_index, char *addr);
 static word_t get_param_addr(int param_index);
 static void run_inst();
 
-static void inst_add(ir_inst_t inst);
-static void inst_allocate(ir_inst_t inst);
-static void inst_deallocate(ir_inst_t inst);
 static void inst_begin_call(ir_inst_t inst);
 static void inst_call(ir_inst_t inst);
-static void inst_const(ir_inst_t inst);
 static void inst_end_call(ir_inst_t inst);
-static void inst_get_return_addr(ir_inst_t inst);
-static void inst_get_param_addr(ir_inst_t inst);
-static void inst_load(ir_inst_t inst);
 static void inst_return(ir_inst_t inst);
 static void inst_set_return_addr(ir_inst_t inst);
 static void inst_set_param_addr(ir_inst_t inst);
+static void inst_get_return_addr(ir_inst_t inst);
+static void inst_get_param_addr(ir_inst_t inst);
+static void inst_allocate(ir_inst_t inst);
+static void inst_deallocate(ir_inst_t inst);
+static void inst_const(ir_inst_t inst);
+static void inst_load(ir_inst_t inst);
 static void inst_store(ir_inst_t inst);
+static void inst_add(ir_inst_t inst);
 static void inst_sub(ir_inst_t inst);
 static void inst_mul(ir_inst_t inst);
 static void inst_div(ir_inst_t inst);
@@ -349,25 +349,6 @@ static void run_inst() {
 	}
 }
 
-static void inst_add(ir_inst_t inst) {
-	word_t v1 = get(inst.arg2);
-	word_t v2 = get(inst.arg3);
-	word_t res = cast(v1 + v2, inst.arg4);
-	set(inst.arg1, res);
-	next_ip();
-}
-
-static void inst_allocate(ir_inst_t inst) {
-	word_t addr = allocate(inst.arg2);
-	set(inst.arg1, addr);
-	next_ip();
-}
-
-static void inst_deallocate(ir_inst_t inst) {
-	deallocate(inst.arg1);
-	next_ip();
-}
-
 static void inst_begin_call(ir_inst_t inst) { 
 	push_fn_state();
 	next_ip();
@@ -377,13 +358,17 @@ static void inst_call(ir_inst_t inst) {
 	next_fn_state(inst.arg1);
 }
 
-static void inst_const(ir_inst_t inst) {
-	set(inst.arg1, inst.arg2);
+static void inst_end_call(ir_inst_t inst) {
+	pop_fn_state();
 	next_ip();
 }
 
-static void inst_end_call(ir_inst_t inst) {
-	pop_fn_state();
+static void inst_return(ir_inst_t inst) {
+	if (current_state()->fn_id == g_main_fn) {
+		g_is_running = 0;
+		return;
+	}
+	prev_fn_state();
 	next_ip();
 }
 
@@ -399,22 +384,6 @@ static void inst_get_param_addr(ir_inst_t inst) {
 	next_ip();
 }
 
-static void inst_load(ir_inst_t inst) { 
-	word_t addr = get(inst.arg2);
-	word_t res = load((char*) addr, inst.arg3);
-	set(inst.arg1, res);
-	next_ip();
-}
-
-static void inst_return(ir_inst_t inst) {
-	if (current_state()->fn_id == g_main_fn) {
-		g_is_running = 0;
-		return;
-	}
-	prev_fn_state();
-	next_ip();
-}
-
 static void inst_set_return_addr(ir_inst_t inst) {
 	word_t addr = get(inst.arg1);
 	set_return_addr((char*) addr);
@@ -427,10 +396,41 @@ static void inst_set_param_addr(ir_inst_t inst) {
 	next_ip();
 }
 
+static void inst_allocate(ir_inst_t inst) {
+	word_t addr = allocate(inst.arg2);
+	set(inst.arg1, addr);
+	next_ip();
+}
+
+static void inst_deallocate(ir_inst_t inst) {
+	deallocate(inst.arg1);
+	next_ip();
+}
+
+static void inst_const(ir_inst_t inst) {
+	set(inst.arg1, inst.arg2);
+	next_ip();
+}
+
+static void inst_load(ir_inst_t inst) { 
+	word_t addr = get(inst.arg2);
+	word_t res = load((char*) addr, inst.arg3);
+	set(inst.arg1, res);
+	next_ip();
+}
+
 static void inst_store(ir_inst_t inst) {
 	word_t addr = get(inst.arg1);
 	word_t value = get(inst.arg2);
 	store((char*) addr, value, inst.arg3);
+	next_ip();
+}
+
+static void inst_add(ir_inst_t inst) {
+	word_t v1 = get(inst.arg2);
+	word_t v2 = get(inst.arg3);
+	word_t res = cast(v1 + v2, inst.arg4);
+	set(inst.arg1, res);
 	next_ip();
 }
 

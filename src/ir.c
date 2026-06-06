@@ -90,27 +90,35 @@ static void print_inst(ir_inst_t inst) {
 	printf("    ");
 
 	switch (inst.kind) {
-	case IR_INST_GET_RETURN_ADDR:
-		printf("%%%llu := GET_RETURN_ADDR", inst.arg1);
+	case IR_INST_BEGIN_CALL:
+		printf("BEGIN_CALL");
 		break;
-	case IR_INST_SET_RETURN_ADDR:
-		printf("SET_RETURN_ADDR %%%llu", inst.arg1);
+	case IR_INST_CALL:
+		printf("CALL $%llu", inst.arg1);
 		break;
-	case IR_INST_GET_PARAM_ADDR:
-		printf("%%%llu := GET_PARAM_ADDR %llu", inst.arg1, inst.arg2);
-		break;
-	case IR_INST_SET_PARAM_ADDR:
-		printf("SET_PARAM_ADDR %llu %%%llu", inst.arg1, inst.arg2);
+	case IR_INST_END_CALL:
+		printf("END_CALL");
 		break;
 	case IR_INST_RETURN:
 		printf("RETURN");
 		break;
+	case IR_INST_SET_RETURN_ADDR:
+		printf("SET_RETURN_ADDR %%%llu", inst.arg1);
+		break;
+	case IR_INST_SET_PARAM_ADDR:
+		printf("SET_PARAM_ADDR %llu %%%llu", inst.arg1, inst.arg2);
+		break;
+	case IR_INST_GET_RETURN_ADDR:
+		printf("%%%llu := GET_RETURN_ADDR", inst.arg1);
+		break;
+	case IR_INST_GET_PARAM_ADDR:
+		printf("%%%llu := GET_PARAM_ADDR %llu", inst.arg1, inst.arg2);
+		break;
 	case IR_INST_ALLOCATE:
 		printf("%%%llu := ALLOCATE %llu", inst.arg1, inst.arg2);
 		break;
-	case IR_INST_STORE:
-		printf("STORE %%%llu %llu := %%%llu", inst.arg1, inst.arg3, 
-			inst.arg2);
+	case IR_INST_DEALLOCATE:
+		printf("DEALLOCATE %llu", inst.arg1);
 		break;
 	case IR_INST_CONST:
 		printf("%%%llu := CONST %llu", inst.arg1, inst.arg2);
@@ -118,6 +126,18 @@ static void print_inst(ir_inst_t inst) {
 	case IR_INST_LOAD:
 		printf("%%%llu := LOAD %%%llu %llu", inst.arg1, inst.arg2, 
 			inst.arg3);
+		break;
+	case IR_INST_STORE:
+		printf("STORE %%%llu %llu := %%%llu", inst.arg1, inst.arg3, 
+			inst.arg2);
+		break;
+	case IR_INST_ADD:
+		printf("%%%llu := ADD %%%llu %%%llu %llu", inst.arg1, inst.arg2, 
+			inst.arg3, inst.arg4);
+		break;
+	case IR_INST_SUB:
+		printf("%%%llu := SUB %%%llu %%%llu %llu", inst.arg1, inst.arg2, 
+			inst.arg3, inst.arg4);
 		break;
 	case IR_INST_MUL:
 		printf("%%%llu := MUL %%%llu %%%llu %llu", inst.arg1, inst.arg2, 
@@ -130,26 +150,6 @@ static void print_inst(ir_inst_t inst) {
 	case IR_INST_MOD:
 		printf("%%%llu := MOD %%%llu %%%llu %llu", inst.arg1, inst.arg2, 
 			inst.arg3, inst.arg4);
-		break;
-	case IR_INST_ADD:
-		printf("%%%llu := ADD %%%llu %%%llu %llu", inst.arg1, inst.arg2, 
-			inst.arg3, inst.arg4);
-		break;
-	case IR_INST_SUB:
-		printf("%%%llu := SUB %%%llu %%%llu %llu", inst.arg1, inst.arg2, 
-			inst.arg3, inst.arg4);
-		break;
-	case IR_INST_CALL:
-		printf("CALL $%llu", inst.arg1);
-		break;
-	case IR_INST_BEGIN_CALL:
-		printf("BEGIN_CALL");
-		break;
-	case IR_INST_END_CALL:
-		printf("END_CALL");
-		break;
-	case IR_INST_DEALLOCATE:
-		printf("DEALLOCATE %llu", inst.arg1);
 		break;
 	default:
 		printf("WHAT IS THIS INST\n");
