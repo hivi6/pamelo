@@ -401,19 +401,18 @@ static void if_stmt(ast_t *ast) {
 
 	if (ast->ast.if_stmt.false_stmt) {
 		stmt(ast->ast.if_stmt.false_stmt);
-		int else_jmp_index = emit(IR_INST_JUMP, 0, 0, 0, 0);
-		else_jmp_inst = get_inst(else_jmp_index);
 	}
+
+	int else_jmp_index = emit(IR_INST_JUMP, 0, 0, 0, 0);
+	else_jmp_inst = get_inst(else_jmp_index);
 
 	int true_stmt_index = emit(IR_INST_NOP, 0, 0, 0, 0);
 	if_jmp_inst->arg2 = true_stmt_index;
 
 	stmt(ast->ast.if_stmt.true_stmt);
 
-	if (else_jmp_inst) {
-		int if_end = emit(IR_INST_NOP, 0, 0, 0, 0);
-		else_jmp_inst->arg1 = if_end;
-	}
+	int if_end = emit(IR_INST_NOP, 0, 0, 0, 0);
+	else_jmp_inst->arg1 = if_end;
 }
 
 static void expr_stmt(ast_t *ast) {

@@ -1,0 +1,6 @@
+fn printNum(a u32) void extern;
+
+fn main() void {
+	if (1 == 1) printNum(69);
+}
+
