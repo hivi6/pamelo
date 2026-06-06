@@ -22,8 +22,9 @@ static void set_temp_id(int id);
 static ir_fn_t *create_ir_fn(int id, const char *name, int is_extern, 
 	type_t *type);
 static void append(ir_fn_t *ir_fn);
-static void emit(int kind, word_t arg1, word_t arg2, word_t arg3, word_t arg4);
+static int emit(int kind, word_t arg1, word_t arg2, word_t arg3, word_t arg4);
 static void emitReturn();
+static ir_inst_t *get_inst(int index);
 static word_t get_int_literal(const char *lexical);
 
 static void prog(ast_t *ast);
@@ -35,6 +36,7 @@ static void stmt(ast_t *ast);
 static void block_stmt(ast_t *ast);
 static void var_stmt(ast_t *ast);
 static void return_stmt(ast_t *ast);
+static void if_stmt(ast_t *ast);
 static void expr_stmt(ast_t *ast);
 
 static int expr(ast_t *ast);
@@ -163,6 +165,15 @@ static void print_inst(ir_inst_t inst) {
 		printf("%%%llu := MOD %%%llu %%%llu %llu", inst.arg1, inst.arg2, 
 			inst.arg3, inst.arg4);
 		break;
+	case IR_INST_JUMP:
+		printf("JUMP #%llu", inst.arg1);
+		break;
+	case IR_INST_JUMP_TRUE:
+		printf("JUMP_TRUE %%%llu #%llu", inst.arg1, inst.arg2);
+		break;
+	case IR_INST_JUMP_FALSE:
+		printf("JUMP_FALSE %%%llu #%llu", inst.arg1, inst.arg2);
+		break;
 	default:
 		printf("WHAT IS THIS INST\n");
 		exit(1);
@@ -210,7 +221,7 @@ static void append(ir_fn_t *ir_fn) {
 	vec_append(&g_list, ir_fn);
 }
 
-static void emit(int kind, word_t arg1, word_t arg2, word_t arg3, word_t arg4) {
+static int emit(int kind, word_t arg1, word_t arg2, word_t arg3, word_t arg4) {
 	ir_inst_t *inst = calloc(sizeof(ir_inst_t), 1);
 	inst->kind = kind;
 	inst->arg1 = arg1;
@@ -218,6 +229,7 @@ static void emit(int kind, word_t arg1, word_t arg2, word_t arg3, word_t arg4) {
 	inst->arg3 = arg3;
 	inst->arg4 = arg4;
 	vec_append(&g_current_ir_fn->insts, inst);
+	return g_current_ir_fn->insts.len - 1;
 }
 
 static void emitReturn() {
@@ -231,6 +243,11 @@ static void emitReturn() {
 	if (inst->kind != IR_INST_RETURN) {
 		emit(IR_INST_RETURN, 0, 0, 0, 0);
 	}
+}
+
+static ir_inst_t *get_inst(int index) {
+	assert(index < g_current_ir_fn->insts.len);
+	return g_current_ir_fn->insts.elems[index];
 }
 
 static word_t get_int_literal(const char *lexical) {
@@ -314,6 +331,7 @@ static void stmt(ast_t *ast) {
 	else if (ast->kind == AST_VAR_STMT) var_stmt(ast);
 	else if (ast->kind == AST_RETURN_STMT) return_stmt(ast);
 	else if (ast->kind == AST_EXPR_STMT) expr_stmt(ast);
+	else if (ast->kind == AST_IF_STMT) if_stmt(ast);
 	else {
 		eprintf(ast->filepath, ast->source, ast->start, ast->end,
 			"What is this statement kind?");
@@ -361,6 +379,33 @@ static void return_stmt(ast_t *ast) {
 	}
 
 	emitReturn();
+}
+
+static void if_stmt(ast_t *ast) {
+	match(ast, AST_IF_STMT, "Expected AST_IF_STMT");
+
+	int if_start = emit(IR_INST_NOP, 0, 0, 0, 0);
+
+	word_t temp = expr(ast->ast.if_stmt.expr);
+	int if_jmp_index = emit(IR_INST_JUMP_TRUE, temp, 0, 0, 0);
+	ir_inst_t *if_jmp_inst = get_inst(if_jmp_index);
+	ir_inst_t *else_jmp_inst = NULL;
+
+	if (ast->ast.if_stmt.false_stmt) {
+		stmt(ast->ast.if_stmt.false_stmt);
+		int else_jmp_index = emit(IR_INST_JUMP, 0, 0, 0, 0);
+		else_jmp_inst = get_inst(else_jmp_index);
+	}
+
+	int true_stmt_index = emit(IR_INST_NOP, 0, 0, 0, 0);
+	if_jmp_inst->arg2 = true_stmt_index;
+
+	stmt(ast->ast.if_stmt.true_stmt);
+
+	if (else_jmp_inst) {
+		int if_end = emit(IR_INST_NOP, 0, 0, 0, 0);
+		else_jmp_inst->arg1 = if_end;
+	}
 }
 
 static void expr_stmt(ast_t *ast) {

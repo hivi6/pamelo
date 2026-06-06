@@ -102,6 +102,20 @@ enum {
 	// arg3 = right temp
 	// arg4 = size of result
 	IR_INST_MOD,
+
+	// desc: jump to given instruction index
+	// arg1 = instruction index
+	IR_INST_JUMP,
+
+	// desc: jump if non-zero to instruction index
+	// arg1 = temp value
+	// arg2 = instruction index
+	IR_INST_JUMP_TRUE,
+
+	// desc: jump if zero to instruction index
+	// arg1 = temp value
+	// arg2 = instruction index
+	IR_INST_JUMP_FALSE,
 };
 
 typedef struct ir_inst_t ir_inst_t;

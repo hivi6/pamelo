@@ -44,6 +44,7 @@ static void pop_fn_state();
 static word_t get(int temp_id);
 static void set(int temp_id, word_t value);
 static void next_ip();
+static void set_ip(int index);
 static word_t cast(word_t v, int bytes);
 static word_t allocate(int size);
 static void deallocate(int size);
@@ -74,6 +75,9 @@ static void inst_sub(ir_inst_t inst);
 static void inst_mul(ir_inst_t inst);
 static void inst_div(ir_inst_t inst);
 static void inst_mod(ir_inst_t inst);
+static void inst_jump(ir_inst_t inst);
+static void inst_jump_true(ir_inst_t inst);
+static void inst_jump_false(ir_inst_t inst);
 
 static void run_extern_fn(ir_fn_t *ir_fn);
 
@@ -203,6 +207,11 @@ static void set(int temp_id, word_t value) {
 static void next_ip() {
 	vm_fn_state_t *state = current_state();
 	state->ip += 1;
+}
+
+static void set_ip(int index) {
+	vm_fn_state_t *state = current_state();
+	state->ip = index;
 }
 
 static word_t cast(word_t v, int bytes) {
@@ -348,6 +357,18 @@ static void run_inst() {
 		inst_mod(inst);
 		break;
 	}
+	case IR_INST_JUMP: {
+		inst_jump(inst);
+		break;
+	}
+	case IR_INST_JUMP_TRUE: {
+		inst_jump_true(inst);
+		break;
+	}
+	case IR_INST_JUMP_FALSE: {
+		inst_jump_false(inst);
+		break;
+	}
 	default:
 		printf("What is this inst?");
 		exit(1);
@@ -472,6 +493,22 @@ static void inst_mod(ir_inst_t inst) {
 	word_t res = cast(v1 % v2, inst.arg4);
 	set(inst.arg1, res);
 	next_ip();
+}
+
+static void inst_jump(ir_inst_t inst) {
+	set_ip(inst.arg1);
+}
+
+static void inst_jump_true(ir_inst_t inst) {
+	word_t v = get(inst.arg1);
+	if (v) set_ip(inst.arg2);
+	else next_ip();
+}
+
+static void inst_jump_false(ir_inst_t inst) {
+	word_t v = get(inst.arg1);
+	if (!v) set_ip(inst.arg2);
+	else next_ip();
 }
 
 static void run_extern_fn(ir_fn_t *ir_fn) {
