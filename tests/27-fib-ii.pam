@@ -1,0 +1,32 @@
+fn printNum(a u32) void extern;
+
+fn fib(a u32) u32 {
+	if (a == 0) return 0;
+	if (a == 1) return 1;
+
+	return fib(a-1) + fib(a-2);
+}
+
+fn main() void {
+	printNum(fib(1));
+	printNum(fib(2));
+	printNum(fib(3));
+	printNum(fib(4));
+	printNum(fib(5));
+	printNum(fib(6));
+	printNum(fib(7));
+	printNum(fib(8));
+	printNum(fib(9));
+	printNum(fib(10));
+	printNum(fib(11));
+	printNum(fib(12));
+	printNum(fib(13));
+	printNum(fib(14));
+	printNum(fib(15));
+	printNum(fib(16));
+	printNum(fib(17));
+	printNum(fib(18));
+	printNum(fib(19));
+	printNum(fib(20));
+}
+

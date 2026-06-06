@@ -1,0 +1,430 @@
+SYMBOL MEANING:
+$ = Accessing function index
+% = Accessing temp index
+# = Accessing instruction index
+
+$0: // fn printNum (u32) -> void
+extern
+
+$1: // fn fib (u32) -> u32
+@function_start
+    #0  | %0 := GET_PARAM_ADDR 0
+    #1  | %2 := GET_RETURN_ADDR
+    #2  | NOP
+    #3  | %3 := LOAD %0 4
+    #4  | %4 := CONST 0
+    #5  | %5 := LOGICAL_EQUAL %3 %4
+    #6  | JUMP_TRUE %5 #8
+    #7  | JUMP #12
+    #8  | NOP
+    #9  | %6 := CONST 0
+    #10 | STORE %2 4 := %6
+    #11 | RETURN
+    #12 | NOP
+    #13 | NOP
+    #14 | %7 := LOAD %0 4
+    #15 | %8 := CONST 1
+    #16 | %9 := LOGICAL_EQUAL %7 %8
+    #17 | JUMP_TRUE %9 #19
+    #18 | JUMP #23
+    #19 | NOP
+    #20 | %10 := CONST 1
+    #21 | STORE %2 4 := %10
+    #22 | RETURN
+    #23 | NOP
+    #24 | %11 := LOAD %0 4
+    #25 | %12 := CONST 1
+    #26 | %13 := SUB %11 %12 4
+    #27 | %14 := ALLOCATE 4
+    #28 | STORE %14 4 := %13
+    #29 | BEGIN_CALL
+    #30 | SET_PARAM_ADDR 0 %14
+    #31 | %15 := ALLOCATE 4
+    #32 | SET_RETURN_ADDR %15
+    #33 | CALL $1
+    #34 | %16 := LOAD %15 4
+    #35 | END_CALL
+    #36 | DEALLOCATE 8
+    #37 | %17 := LOAD %0 4
+    #38 | %18 := CONST 2
+    #39 | %19 := SUB %17 %18 4
+    #40 | %20 := ALLOCATE 4
+    #41 | STORE %20 4 := %19
+    #42 | BEGIN_CALL
+    #43 | SET_PARAM_ADDR 0 %20
+    #44 | %21 := ALLOCATE 4
+    #45 | SET_RETURN_ADDR %21
+    #46 | CALL $1
+    #47 | %22 := LOAD %21 4
+    #48 | END_CALL
+    #49 | DEALLOCATE 8
+    #50 | %23 := ADD %16 %22 4
+    #51 | STORE %2 4 := %23
+    #52 | RETURN
+@function_end
+
+$2: // fn main () -> void
+@function_start
+    #0   | %1 := CONST 1
+    #1   | %2 := ALLOCATE 4
+    #2   | STORE %2 4 := %1
+    #3   | BEGIN_CALL
+    #4   | SET_PARAM_ADDR 0 %2
+    #5   | %3 := ALLOCATE 4
+    #6   | SET_RETURN_ADDR %3
+    #7   | CALL $1
+    #8   | %4 := LOAD %3 4
+    #9   | END_CALL
+    #10  | DEALLOCATE 8
+    #11  | %5 := ALLOCATE 4
+    #12  | STORE %5 4 := %4
+    #13  | BEGIN_CALL
+    #14  | SET_PARAM_ADDR 0 %5
+    #15  | CALL $0
+    #16  | END_CALL
+    #17  | DEALLOCATE 4
+    #18  | %6 := CONST 2
+    #19  | %7 := ALLOCATE 4
+    #20  | STORE %7 4 := %6
+    #21  | BEGIN_CALL
+    #22  | SET_PARAM_ADDR 0 %7
+    #23  | %8 := ALLOCATE 4
+    #24  | SET_RETURN_ADDR %8
+    #25  | CALL $1
+    #26  | %9 := LOAD %8 4
+    #27  | END_CALL
+    #28  | DEALLOCATE 8
+    #29  | %10 := ALLOCATE 4
+    #30  | STORE %10 4 := %9
+    #31  | BEGIN_CALL
+    #32  | SET_PARAM_ADDR 0 %10
+    #33  | CALL $0
+    #34  | END_CALL
+    #35  | DEALLOCATE 4
+    #36  | %11 := CONST 3
+    #37  | %12 := ALLOCATE 4
+    #38  | STORE %12 4 := %11
+    #39  | BEGIN_CALL
+    #40  | SET_PARAM_ADDR 0 %12
+    #41  | %13 := ALLOCATE 4
+    #42  | SET_RETURN_ADDR %13
+    #43  | CALL $1
+    #44  | %14 := LOAD %13 4
+    #45  | END_CALL
+    #46  | DEALLOCATE 8
+    #47  | %15 := ALLOCATE 4
+    #48  | STORE %15 4 := %14
+    #49  | BEGIN_CALL
+    #50  | SET_PARAM_ADDR 0 %15
+    #51  | CALL $0
+    #52  | END_CALL
+    #53  | DEALLOCATE 4
+    #54  | %16 := CONST 4
+    #55  | %17 := ALLOCATE 4
+    #56  | STORE %17 4 := %16
+    #57  | BEGIN_CALL
+    #58  | SET_PARAM_ADDR 0 %17
+    #59  | %18 := ALLOCATE 4
+    #60  | SET_RETURN_ADDR %18
+    #61  | CALL $1
+    #62  | %19 := LOAD %18 4
+    #63  | END_CALL
+    #64  | DEALLOCATE 8
+    #65  | %20 := ALLOCATE 4
+    #66  | STORE %20 4 := %19
+    #67  | BEGIN_CALL
+    #68  | SET_PARAM_ADDR 0 %20
+    #69  | CALL $0
+    #70  | END_CALL
+    #71  | DEALLOCATE 4
+    #72  | %21 := CONST 5
+    #73  | %22 := ALLOCATE 4
+    #74  | STORE %22 4 := %21
+    #75  | BEGIN_CALL
+    #76  | SET_PARAM_ADDR 0 %22
+    #77  | %23 := ALLOCATE 4
+    #78  | SET_RETURN_ADDR %23
+    #79  | CALL $1
+    #80  | %24 := LOAD %23 4
+    #81  | END_CALL
+    #82  | DEALLOCATE 8
+    #83  | %25 := ALLOCATE 4
+    #84  | STORE %25 4 := %24
+    #85  | BEGIN_CALL
+    #86  | SET_PARAM_ADDR 0 %25
+    #87  | CALL $0
+    #88  | END_CALL
+    #89  | DEALLOCATE 4
+    #90  | %26 := CONST 6
+    #91  | %27 := ALLOCATE 4
+    #92  | STORE %27 4 := %26
+    #93  | BEGIN_CALL
+    #94  | SET_PARAM_ADDR 0 %27
+    #95  | %28 := ALLOCATE 4
+    #96  | SET_RETURN_ADDR %28
+    #97  | CALL $1
+    #98  | %29 := LOAD %28 4
+    #99  | END_CALL
+    #100 | DEALLOCATE 8
+    #101 | %30 := ALLOCATE 4
+    #102 | STORE %30 4 := %29
+    #103 | BEGIN_CALL
+    #104 | SET_PARAM_ADDR 0 %30
+    #105 | CALL $0
+    #106 | END_CALL
+    #107 | DEALLOCATE 4
+    #108 | %31 := CONST 7
+    #109 | %32 := ALLOCATE 4
+    #110 | STORE %32 4 := %31
+    #111 | BEGIN_CALL
+    #112 | SET_PARAM_ADDR 0 %32
+    #113 | %33 := ALLOCATE 4
+    #114 | SET_RETURN_ADDR %33
+    #115 | CALL $1
+    #116 | %34 := LOAD %33 4
+    #117 | END_CALL
+    #118 | DEALLOCATE 8
+    #119 | %35 := ALLOCATE 4
+    #120 | STORE %35 4 := %34
+    #121 | BEGIN_CALL
+    #122 | SET_PARAM_ADDR 0 %35
+    #123 | CALL $0
+    #124 | END_CALL
+    #125 | DEALLOCATE 4
+    #126 | %36 := CONST 8
+    #127 | %37 := ALLOCATE 4
+    #128 | STORE %37 4 := %36
+    #129 | BEGIN_CALL
+    #130 | SET_PARAM_ADDR 0 %37
+    #131 | %38 := ALLOCATE 4
+    #132 | SET_RETURN_ADDR %38
+    #133 | CALL $1
+    #134 | %39 := LOAD %38 4
+    #135 | END_CALL
+    #136 | DEALLOCATE 8
+    #137 | %40 := ALLOCATE 4
+    #138 | STORE %40 4 := %39
+    #139 | BEGIN_CALL
+    #140 | SET_PARAM_ADDR 0 %40
+    #141 | CALL $0
+    #142 | END_CALL
+    #143 | DEALLOCATE 4
+    #144 | %41 := CONST 9
+    #145 | %42 := ALLOCATE 4
+    #146 | STORE %42 4 := %41
+    #147 | BEGIN_CALL
+    #148 | SET_PARAM_ADDR 0 %42
+    #149 | %43 := ALLOCATE 4
+    #150 | SET_RETURN_ADDR %43
+    #151 | CALL $1
+    #152 | %44 := LOAD %43 4
+    #153 | END_CALL
+    #154 | DEALLOCATE 8
+    #155 | %45 := ALLOCATE 4
+    #156 | STORE %45 4 := %44
+    #157 | BEGIN_CALL
+    #158 | SET_PARAM_ADDR 0 %45
+    #159 | CALL $0
+    #160 | END_CALL
+    #161 | DEALLOCATE 4
+    #162 | %46 := CONST 10
+    #163 | %47 := ALLOCATE 4
+    #164 | STORE %47 4 := %46
+    #165 | BEGIN_CALL
+    #166 | SET_PARAM_ADDR 0 %47
+    #167 | %48 := ALLOCATE 4
+    #168 | SET_RETURN_ADDR %48
+    #169 | CALL $1
+    #170 | %49 := LOAD %48 4
+    #171 | END_CALL
+    #172 | DEALLOCATE 8
+    #173 | %50 := ALLOCATE 4
+    #174 | STORE %50 4 := %49
+    #175 | BEGIN_CALL
+    #176 | SET_PARAM_ADDR 0 %50
+    #177 | CALL $0
+    #178 | END_CALL
+    #179 | DEALLOCATE 4
+    #180 | %51 := CONST 11
+    #181 | %52 := ALLOCATE 4
+    #182 | STORE %52 4 := %51
+    #183 | BEGIN_CALL
+    #184 | SET_PARAM_ADDR 0 %52
+    #185 | %53 := ALLOCATE 4
+    #186 | SET_RETURN_ADDR %53
+    #187 | CALL $1
+    #188 | %54 := LOAD %53 4
+    #189 | END_CALL
+    #190 | DEALLOCATE 8
+    #191 | %55 := ALLOCATE 4
+    #192 | STORE %55 4 := %54
+    #193 | BEGIN_CALL
+    #194 | SET_PARAM_ADDR 0 %55
+    #195 | CALL $0
+    #196 | END_CALL
+    #197 | DEALLOCATE 4
+    #198 | %56 := CONST 12
+    #199 | %57 := ALLOCATE 4
+    #200 | STORE %57 4 := %56
+    #201 | BEGIN_CALL
+    #202 | SET_PARAM_ADDR 0 %57
+    #203 | %58 := ALLOCATE 4
+    #204 | SET_RETURN_ADDR %58
+    #205 | CALL $1
+    #206 | %59 := LOAD %58 4
+    #207 | END_CALL
+    #208 | DEALLOCATE 8
+    #209 | %60 := ALLOCATE 4
+    #210 | STORE %60 4 := %59
+    #211 | BEGIN_CALL
+    #212 | SET_PARAM_ADDR 0 %60
+    #213 | CALL $0
+    #214 | END_CALL
+    #215 | DEALLOCATE 4
+    #216 | %61 := CONST 13
+    #217 | %62 := ALLOCATE 4
+    #218 | STORE %62 4 := %61
+    #219 | BEGIN_CALL
+    #220 | SET_PARAM_ADDR 0 %62
+    #221 | %63 := ALLOCATE 4
+    #222 | SET_RETURN_ADDR %63
+    #223 | CALL $1
+    #224 | %64 := LOAD %63 4
+    #225 | END_CALL
+    #226 | DEALLOCATE 8
+    #227 | %65 := ALLOCATE 4
+    #228 | STORE %65 4 := %64
+    #229 | BEGIN_CALL
+    #230 | SET_PARAM_ADDR 0 %65
+    #231 | CALL $0
+    #232 | END_CALL
+    #233 | DEALLOCATE 4
+    #234 | %66 := CONST 14
+    #235 | %67 := ALLOCATE 4
+    #236 | STORE %67 4 := %66
+    #237 | BEGIN_CALL
+    #238 | SET_PARAM_ADDR 0 %67
+    #239 | %68 := ALLOCATE 4
+    #240 | SET_RETURN_ADDR %68
+    #241 | CALL $1
+    #242 | %69 := LOAD %68 4
+    #243 | END_CALL
+    #244 | DEALLOCATE 8
+    #245 | %70 := ALLOCATE 4
+    #246 | STORE %70 4 := %69
+    #247 | BEGIN_CALL
+    #248 | SET_PARAM_ADDR 0 %70
+    #249 | CALL $0
+    #250 | END_CALL
+    #251 | DEALLOCATE 4
+    #252 | %71 := CONST 15
+    #253 | %72 := ALLOCATE 4
+    #254 | STORE %72 4 := %71
+    #255 | BEGIN_CALL
+    #256 | SET_PARAM_ADDR 0 %72
+    #257 | %73 := ALLOCATE 4
+    #258 | SET_RETURN_ADDR %73
+    #259 | CALL $1
+    #260 | %74 := LOAD %73 4
+    #261 | END_CALL
+    #262 | DEALLOCATE 8
+    #263 | %75 := ALLOCATE 4
+    #264 | STORE %75 4 := %74
+    #265 | BEGIN_CALL
+    #266 | SET_PARAM_ADDR 0 %75
+    #267 | CALL $0
+    #268 | END_CALL
+    #269 | DEALLOCATE 4
+    #270 | %76 := CONST 16
+    #271 | %77 := ALLOCATE 4
+    #272 | STORE %77 4 := %76
+    #273 | BEGIN_CALL
+    #274 | SET_PARAM_ADDR 0 %77
+    #275 | %78 := ALLOCATE 4
+    #276 | SET_RETURN_ADDR %78
+    #277 | CALL $1
+    #278 | %79 := LOAD %78 4
+    #279 | END_CALL
+    #280 | DEALLOCATE 8
+    #281 | %80 := ALLOCATE 4
+    #282 | STORE %80 4 := %79
+    #283 | BEGIN_CALL
+    #284 | SET_PARAM_ADDR 0 %80
+    #285 | CALL $0
+    #286 | END_CALL
+    #287 | DEALLOCATE 4
+    #288 | %81 := CONST 17
+    #289 | %82 := ALLOCATE 4
+    #290 | STORE %82 4 := %81
+    #291 | BEGIN_CALL
+    #292 | SET_PARAM_ADDR 0 %82
+    #293 | %83 := ALLOCATE 4
+    #294 | SET_RETURN_ADDR %83
+    #295 | CALL $1
+    #296 | %84 := LOAD %83 4
+    #297 | END_CALL
+    #298 | DEALLOCATE 8
+    #299 | %85 := ALLOCATE 4
+    #300 | STORE %85 4 := %84
+    #301 | BEGIN_CALL
+    #302 | SET_PARAM_ADDR 0 %85
+    #303 | CALL $0
+    #304 | END_CALL
+    #305 | DEALLOCATE 4
+    #306 | %86 := CONST 18
+    #307 | %87 := ALLOCATE 4
+    #308 | STORE %87 4 := %86
+    #309 | BEGIN_CALL
+    #310 | SET_PARAM_ADDR 0 %87
+    #311 | %88 := ALLOCATE 4
+    #312 | SET_RETURN_ADDR %88
+    #313 | CALL $1
+    #314 | %89 := LOAD %88 4
+    #315 | END_CALL
+    #316 | DEALLOCATE 8
+    #317 | %90 := ALLOCATE 4
+    #318 | STORE %90 4 := %89
+    #319 | BEGIN_CALL
+    #320 | SET_PARAM_ADDR 0 %90
+    #321 | CALL $0
+    #322 | END_CALL
+    #323 | DEALLOCATE 4
+    #324 | %91 := CONST 19
+    #325 | %92 := ALLOCATE 4
+    #326 | STORE %92 4 := %91
+    #327 | BEGIN_CALL
+    #328 | SET_PARAM_ADDR 0 %92
+    #329 | %93 := ALLOCATE 4
+    #330 | SET_RETURN_ADDR %93
+    #331 | CALL $1
+    #332 | %94 := LOAD %93 4
+    #333 | END_CALL
+    #334 | DEALLOCATE 8
+    #335 | %95 := ALLOCATE 4
+    #336 | STORE %95 4 := %94
+    #337 | BEGIN_CALL
+    #338 | SET_PARAM_ADDR 0 %95
+    #339 | CALL $0
+    #340 | END_CALL
+    #341 | DEALLOCATE 4
+    #342 | %96 := CONST 20
+    #343 | %97 := ALLOCATE 4
+    #344 | STORE %97 4 := %96
+    #345 | BEGIN_CALL
+    #346 | SET_PARAM_ADDR 0 %97
+    #347 | %98 := ALLOCATE 4
+    #348 | SET_RETURN_ADDR %98
+    #349 | CALL $1
+    #350 | %99 := LOAD %98 4
+    #351 | END_CALL
+    #352 | DEALLOCATE 8
+    #353 | %100 := ALLOCATE 4
+    #354 | STORE %100 4 := %99
+    #355 | BEGIN_CALL
+    #356 | SET_PARAM_ADDR 0 %100
+    #357 | CALL $0
+    #358 | END_CALL
+    #359 | DEALLOCATE 4
+    #360 | RETURN
+@function_end
+
