@@ -1,20 +1,25 @@
-$0: # fn printNum (u32) -> void
+SYMBOL MEANING:
+$ = Accessing function index
+% = Accessing temp index
+# = Accessing instruction index
+
+$0: // fn printNum (u32) -> void
 extern
 
-$1: # fn main () -> void
+$1: // fn main () -> void
 @function_start
-     0 | %0 := ALLOCATE 4
-     1 | %2 := CONST 12
-     2 | STORE %0 4 := %2
-     3 | %3 := LOAD %0 4
-     4 | %4 := ALLOCATE 4
-     5 | STORE %4 4 := %3
-     6 | BEGIN_CALL
-     7 | SET_PARAM_ADDR 0 %4
-     8 | CALL $0
-     9 | END_CALL
-    10 | DEALLOCATE 4
-    11 | DEALLOCATE 4
-    12 | RETURN
+    #0  | %0 := ALLOCATE 4
+    #1  | %2 := CONST 12
+    #2  | STORE %0 4 := %2
+    #3  | %3 := LOAD %0 4
+    #4  | %4 := ALLOCATE 4
+    #5  | STORE %4 4 := %3
+    #6  | BEGIN_CALL
+    #7  | SET_PARAM_ADDR 0 %4
+    #8  | CALL $0
+    #9  | END_CALL
+    #10 | DEALLOCATE 4
+    #11 | DEALLOCATE 4
+    #12 | RETURN
 @function_end
 

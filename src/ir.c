@@ -50,12 +50,18 @@ static int add_expr(ast_t *ast);
 // ========================================
 
 void print_ir(ir_t ir) {
+	printf("SYMBOL MEANING:\n");
+	printf("$ = Accessing function index\n");
+	printf("%% = Accessing temp index\n");
+	printf("# = Accessing instruction index\n");
+	printf("\n");
+
 	vec_t list = ir.fn_list;
 
 	for (int i = 0; i < list.len; i++) {
 		ir_fn_t *ir_fn = list.elems[i];
 		char *str = type_str(ir_fn->type);
-		printf("$%d: # %s\n", ir_fn->id, str);
+		printf("$%d: // %s\n", ir_fn->id, str);
 		free(str);
 
 		if (ir_fn->is_extern) {
@@ -66,7 +72,7 @@ void print_ir(ir_t ir) {
 
 			for (int j = 0; j < ir_fn->insts.len; j++) {
 				int indent = log10(ir_fn->insts.len + 1) + 1;
-				printf("    %*d | ", indent, j);
+				printf("    #%-*d | ", indent, j);
 				ir_inst_t *inst = ir_fn->insts.elems[j];
 				print_inst(*inst);
 				printf("\n");

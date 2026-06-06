@@ -1,16 +1,21 @@
-$0: # fn main () -> void
+SYMBOL MEANING:
+$ = Accessing function index
+% = Accessing temp index
+# = Accessing instruction index
+
+$0: // fn main () -> void
 @function_start
-     0 | %0 := ALLOCATE 4
-     1 | %2 := CONST 1
-     2 | %3 := CONST 2
-     3 | %4 := ADD %2 %3 4
-     4 | %5 := CONST 3
-     5 | %6 := SUB %4 %5 4
-     6 | %7 := CONST 10
-     7 | %8 := ADD %6 %7 4
-     8 | STORE %0 4 := %8
-     9 | %9 := LOAD %0 4
-    10 | DEALLOCATE 4
-    11 | RETURN
+    #0  | %0 := ALLOCATE 4
+    #1  | %2 := CONST 1
+    #2  | %3 := CONST 2
+    #3  | %4 := ADD %2 %3 4
+    #4  | %5 := CONST 3
+    #5  | %6 := SUB %4 %5 4
+    #6  | %7 := CONST 10
+    #7  | %8 := ADD %6 %7 4
+    #8  | STORE %0 4 := %8
+    #9  | %9 := LOAD %0 4
+    #10 | DEALLOCATE 4
+    #11 | RETURN
 @function_end
 

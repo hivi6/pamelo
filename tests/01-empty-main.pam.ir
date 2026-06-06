@@ -1,5 +1,10 @@
-$0: # fn main () -> void
+SYMBOL MEANING:
+$ = Accessing function index
+% = Accessing temp index
+# = Accessing instruction index
+
+$0: // fn main () -> void
 @function_start
-    0 | RETURN
+    #0 | RETURN
 @function_end
 

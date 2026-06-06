@@ -1,63 +1,68 @@
-$0: # fn printNum (u32) -> void
+SYMBOL MEANING:
+$ = Accessing function index
+% = Accessing temp index
+# = Accessing instruction index
+
+$0: // fn printNum (u32) -> void
 extern
 
-$1: # fn main () -> void
+$1: // fn main () -> void
 @function_start
-     0 | %0 := ALLOCATE 4
-     1 | %5 := CONST 2
-     2 | %6 := CONST 3
-     3 | %7 := MUL %5 %6 4
-     4 | STORE %0 4 := %7
-     5 | %8 := LOAD %0 4
-     6 | %9 := ALLOCATE 4
-     7 | STORE %9 4 := %8
-     8 | BEGIN_CALL
-     9 | SET_PARAM_ADDR 0 %9
-    10 | CALL $0
-    11 | END_CALL
-    12 | DEALLOCATE 4
-    13 | %1 := ALLOCATE 4
-    14 | %10 := LOAD %0 4
-    15 | %11 := CONST 3
-    16 | %12 := MUL %10 %11 4
-    17 | %13 := CONST 9
-    18 | %14 := DIV %12 %13 4
-    19 | STORE %1 4 := %14
-    20 | %15 := LOAD %1 4
-    21 | %16 := ALLOCATE 4
-    22 | STORE %16 4 := %15
-    23 | BEGIN_CALL
-    24 | SET_PARAM_ADDR 0 %16
-    25 | CALL $0
-    26 | END_CALL
-    27 | DEALLOCATE 4
-    28 | %2 := ALLOCATE 4
-    29 | %17 := LOAD %1 4
-    30 | %18 := CONST 2
-    31 | %19 := MOD %17 %18 4
-    32 | STORE %2 4 := %19
-    33 | %20 := LOAD %2 4
-    34 | %21 := ALLOCATE 4
-    35 | STORE %21 4 := %20
-    36 | BEGIN_CALL
-    37 | SET_PARAM_ADDR 0 %21
-    38 | CALL $0
-    39 | END_CALL
-    40 | DEALLOCATE 4
-    41 | %3 := ALLOCATE 4
-    42 | %22 := LOAD %0 4
-    43 | %23 := CONST 5
-    44 | %24 := MOD %22 %23 4
-    45 | STORE %3 4 := %24
-    46 | %25 := LOAD %3 4
-    47 | %26 := ALLOCATE 4
-    48 | STORE %26 4 := %25
-    49 | BEGIN_CALL
-    50 | SET_PARAM_ADDR 0 %26
-    51 | CALL $0
-    52 | END_CALL
-    53 | DEALLOCATE 4
-    54 | DEALLOCATE 16
-    55 | RETURN
+    #0  | %0 := ALLOCATE 4
+    #1  | %5 := CONST 2
+    #2  | %6 := CONST 3
+    #3  | %7 := MUL %5 %6 4
+    #4  | STORE %0 4 := %7
+    #5  | %8 := LOAD %0 4
+    #6  | %9 := ALLOCATE 4
+    #7  | STORE %9 4 := %8
+    #8  | BEGIN_CALL
+    #9  | SET_PARAM_ADDR 0 %9
+    #10 | CALL $0
+    #11 | END_CALL
+    #12 | DEALLOCATE 4
+    #13 | %1 := ALLOCATE 4
+    #14 | %10 := LOAD %0 4
+    #15 | %11 := CONST 3
+    #16 | %12 := MUL %10 %11 4
+    #17 | %13 := CONST 9
+    #18 | %14 := DIV %12 %13 4
+    #19 | STORE %1 4 := %14
+    #20 | %15 := LOAD %1 4
+    #21 | %16 := ALLOCATE 4
+    #22 | STORE %16 4 := %15
+    #23 | BEGIN_CALL
+    #24 | SET_PARAM_ADDR 0 %16
+    #25 | CALL $0
+    #26 | END_CALL
+    #27 | DEALLOCATE 4
+    #28 | %2 := ALLOCATE 4
+    #29 | %17 := LOAD %1 4
+    #30 | %18 := CONST 2
+    #31 | %19 := MOD %17 %18 4
+    #32 | STORE %2 4 := %19
+    #33 | %20 := LOAD %2 4
+    #34 | %21 := ALLOCATE 4
+    #35 | STORE %21 4 := %20
+    #36 | BEGIN_CALL
+    #37 | SET_PARAM_ADDR 0 %21
+    #38 | CALL $0
+    #39 | END_CALL
+    #40 | DEALLOCATE 4
+    #41 | %3 := ALLOCATE 4
+    #42 | %22 := LOAD %0 4
+    #43 | %23 := CONST 5
+    #44 | %24 := MOD %22 %23 4
+    #45 | STORE %3 4 := %24
+    #46 | %25 := LOAD %3 4
+    #47 | %26 := ALLOCATE 4
+    #48 | STORE %26 4 := %25
+    #49 | BEGIN_CALL
+    #50 | SET_PARAM_ADDR 0 %26
+    #51 | CALL $0
+    #52 | END_CALL
+    #53 | DEALLOCATE 4
+    #54 | DEALLOCATE 16
+    #55 | RETURN
 @function_end
 
