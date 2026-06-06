@@ -57,7 +57,8 @@
 - [x] Add instruction index for each ir printed
 - [ ] Cleanup the ir types and there placing in the code
 	- What does this even mean past me?? T_T
-- [ ] Add support for equality
+- [x] Add support for equality
 	- [x] Parsing
-	- [ ] IR Generation
+	- [x] IR Generation
+	- [x] VM Support
 
