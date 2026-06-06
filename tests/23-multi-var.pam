@@ -1,0 +1,13 @@
+fn printNum(a u32) void extern;
+
+fn f(a u32) void {
+	printNum(a);
+
+	var a = 12;
+	printNum(a);
+}
+
+fn main() void {
+	f(10);
+}
+
