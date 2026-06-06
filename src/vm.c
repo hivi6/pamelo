@@ -6,6 +6,7 @@
 // ========================================
 
 #define VM_STACK_CAPACITY (64 * 1024)
+#define VM_STACK_TRACE_DEPTH 1000
 
 typedef struct vm_fn_state_t vm_fn_state_t;
 struct vm_fn_state_t {
@@ -130,6 +131,11 @@ static vm_fn_state_t *current_state() {
 }
 
 static void push_fn_state() {
+	if (g_fn_states_len > VM_STACK_TRACE_DEPTH) {
+		fprintf(stderr, "exhausted stack trace depth\n");
+		exit(1);
+	}
+
 	g_fn_states_len += 1;
 	g_fn_states = realloc(g_fn_states, g_fn_states_len * sizeof(vm_fn_state_t));
 	g_fn_states[g_fn_states_len-1] = (vm_fn_state_t) {
