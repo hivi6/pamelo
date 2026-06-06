@@ -53,10 +53,10 @@ static int equal_expr(ast_t *ast);
 // ========================================
 
 void print_ir(ir_t ir) {
-	printf("SYMBOL MEANING:\n");
-	printf("$ = Accessing function index\n");
-	printf("%% = Accessing temp index\n");
-	printf("# = Accessing instruction index\n");
+	printf("// SYMBOL MEANING:\n");
+	printf("// $ = Accessing function index\n");
+	printf("// %% = Accessing temp index\n");
+	printf("// # = Accessing instruction index\n");
 	printf("\n");
 
 	vec_t list = ir.fn_list;

@@ -1,7 +1,7 @@
-SYMBOL MEANING:
-$ = Accessing function index
-% = Accessing temp index
-# = Accessing instruction index
+// SYMBOL MEANING:
+// $ = Accessing function index
+// % = Accessing temp index
+// # = Accessing instruction index
 
 $0: // fn value () -> u32
 @function_start
