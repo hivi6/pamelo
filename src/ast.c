@@ -46,6 +46,7 @@ static ast_t *malloc_ast_cast_expr(ast_t *left, token_t *as_keyword,
 	ast_t *type_specifier);
 static ast_t *malloc_ast_mul_expr(ast_t *left, token_t *op, ast_t *right);
 static ast_t *malloc_ast_add_expr(ast_t *left, token_t *op, ast_t *right);
+static ast_t *malloc_ast_equal_expr(ast_t *left, token_t *op, ast_t *right);
 
 static ast_t *prog(parser_t *parser);
 static ast_t *decl(parser_t *parser);
@@ -66,6 +67,7 @@ static ast_t *call_expr(parser_t *parser, ast_t *left);
 static ast_t *cast_expr(parser_t *parser);
 static ast_t *mul_expr(parser_t *parser);
 static ast_t *add_expr(parser_t *parser);
+static ast_t *equal_expr(parser_t *parser);
 
 // ========================================
 // ast.h - definition
@@ -262,6 +264,19 @@ static void print_ast_helper(ast_t *ast, char *indent, int depth,
 			depth+1, "CASTING TYPE");
 		break;
 	}
+	case AST_MUL_EXPR: {
+		char *type_info = type_str(ast->type);
+		char *op = token_str(ast->ast.mul_expr.op);
+		printf("AST_MUL_EXPR(%s) [%s]\n", op, type_info);
+		free(op);
+		free(type_info);
+		print_ast_helper(ast->ast.mul_expr.left, indent, depth+1, 
+			NULL);
+		indent[depth+1] = 0;
+		print_ast_helper(ast->ast.mul_expr.right, indent, depth+1, 
+			NULL);
+		break;
+	}
 	case AST_ADD_EXPR: {
 		char *type_info = type_str(ast->type);
 		char *op = token_str(ast->ast.add_expr.op);
@@ -275,16 +290,16 @@ static void print_ast_helper(ast_t *ast, char *indent, int depth,
 			NULL);
 		break;
 	}
-	case AST_MUL_EXPR: {
+	case AST_EQUAL_EXPR: {
 		char *type_info = type_str(ast->type);
-		char *op = token_str(ast->ast.mul_expr.op);
-		printf("AST_MUL_EXPR(%s) [%s]\n", op, type_info);
+		char *op = token_str(ast->ast.equal_expr.op);
+		printf("AST_EQUAL_EXPR(%s) [%s]\n", op, type_info);
 		free(op);
 		free(type_info);
-		print_ast_helper(ast->ast.mul_expr.left, indent, depth+1, 
+		print_ast_helper(ast->ast.equal_expr.left, indent, depth+1, 
 			NULL);
 		indent[depth+1] = 0;
-		print_ast_helper(ast->ast.mul_expr.right, indent, depth+1, 
+		print_ast_helper(ast->ast.equal_expr.right, indent, depth+1, 
 			NULL);
 		break;
 	}
@@ -489,6 +504,15 @@ static ast_t *malloc_ast_add_expr(ast_t *left, token_t *op, ast_t *right) {
 	return res;
 }
 
+static ast_t *malloc_ast_equal_expr(ast_t *left, token_t *op, ast_t *right) {
+	ast_t *res = malloc_ast(AST_EQUAL_EXPR, left->filepath, left->source,
+		left->start, right->end);
+	res->ast.equal_expr.left = left;
+	res->ast.equal_expr.op = op;
+	res->ast.equal_expr.right = right;
+	return res;
+}
+
 static ast_t *prog(parser_t *parser) {
 	ast_t *ast = malloc_ast_prog();
 	while (!check(parser, 0, TOKEN_EOF)) {
@@ -649,7 +673,7 @@ static ast_t *expr_stmt(parser_t *parser) {
 }
 
 static ast_t *expr(parser_t *parser) {
-	return add_expr(parser);
+	return equal_expr(parser);
 }
 
 static ast_t *literal_expr(parser_t *parser) {
@@ -736,6 +760,18 @@ static ast_t *add_expr(parser_t *parser) {
 		skip(parser, 1);
 		ast_t *right = mul_expr(parser);
 		left = malloc_ast_add_expr(left, op, right);
+	}
+	return left;
+}
+
+static ast_t *equal_expr(parser_t *parser) {
+	ast_t *left = add_expr(parser);
+	while (check(parser, 0, TOKEN_EQUAL_EQUAL) || 
+		check(parser, 0, TOKEN_BANG_EQUAL)) {
+		token_t *op = token_at(parser, 0);
+		skip(parser, 1);
+		ast_t *right = add_expr(parser);
+		left = malloc_ast_equal_expr(left, op, right);
 	}
 	return left;
 }

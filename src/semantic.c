@@ -47,6 +47,7 @@ static type_t *call_expr(ast_t *ast, scope_t *scope);
 static type_t *cast_expr(ast_t *ast, scope_t *scope);
 static type_t *mul_expr(ast_t *ast, scope_t *scope);
 static type_t *add_expr(ast_t *ast, scope_t *scope);
+static type_t *equal_expr(ast_t *ast, scope_t *scope);
 
 // ========================================
 // semantic.h - definition
@@ -434,6 +435,9 @@ static type_t *expr(ast_t *ast, scope_t *scope) {
 	else if (ast->kind == AST_ADD_EXPR) {
 		type = add_expr(ast, scope);
 	}
+	else if (ast->kind == AST_EQUAL_EXPR) {
+		type = equal_expr(ast, scope);
+	}
 
 	if (type == NULL) {
 		eprintf(ast->filepath, ast->source, ast->start, ast->end,
@@ -558,6 +562,28 @@ static type_t *mul_expr(ast_t *ast, scope_t *scope) {
 
 static type_t *add_expr(ast_t *ast, scope_t *scope) {
 	match(ast, AST_ADD_EXPR, "Expected AST_ADD_EXPR");
+	
+	type_t *left = expr(ast->ast.add_expr.left, scope);
+	type_t *right = expr(ast->ast.add_expr.right, scope);
+	ast_t *err_ast = NULL;
+	if (!is_numeric(left)) {
+		err_ast = ast->ast.add_expr.left;
+	}
+	if (!is_numeric(right)) {
+		err_ast = ast->ast.add_expr.right;
+	}
+	if (err_ast) {
+		eprintf(err_ast->filepath, err_ast->source, err_ast->start,
+			err_ast->end, "Expected a numeric type");
+		exit(1);
+	}
+
+	if (left->size > right->size) return left;
+	return right;
+}
+
+static type_t *equal_expr(ast_t *ast, scope_t *scope) {
+	match(ast, AST_EQUAL_EXPR, "Expected AST_EQUAL_EXPR");
 	
 	type_t *left = expr(ast->ast.add_expr.left, scope);
 	type_t *right = expr(ast->ast.add_expr.right, scope);

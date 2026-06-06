@@ -21,8 +21,9 @@ enum {
 	AST_VAR_EXPR,
 	AST_CALL_EXPR,
 	AST_CAST_EXPR,
-	AST_ADD_EXPR,
 	AST_MUL_EXPR,
+	AST_ADD_EXPR,
+	AST_EQUAL_EXPR,
 };
 
 typedef struct ast_t ast_t;
@@ -135,13 +136,19 @@ struct ast_t {
 			ast_t *left;
 			token_t *op;
 			ast_t *right;
+		} mul_expr;
+
+		struct {
+			ast_t *left;
+			token_t *op;
+			ast_t *right;
 		} add_expr;
 
 		struct {
 			ast_t *left;
 			token_t *op;
 			ast_t *right;
-		} mul_expr;
+		} equal_expr;
 	} ast;
 };
 

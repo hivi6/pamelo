@@ -76,6 +76,10 @@ char *token_type(token_t token) {
 		sbuilder_appendf(&s, "FSLASH");
 	else if (token.kind == TOKEN_MOD)
 		sbuilder_appendf(&s, "MOD");
+	else if (token.kind == TOKEN_EQUAL_EQUAL)
+		sbuilder_appendf(&s, "EQUAL_EQUAL");
+	else if (token.kind == TOKEN_BANG_EQUAL)
+		sbuilder_appendf(&s, "BANG_EQUAL");
 	else if (token.kind == TOKEN_INT_LITERAL) 
 		sbuilder_appendf(&s, "INT_LITERAL");
 	else if (token.kind == TOKEN_ID)
@@ -162,7 +166,16 @@ static void generate_token(lexer_t *lexer) {
 
 	int skip = 1;
 	int kind = TOKEN_EOF;
-	if (char_at(lexer, 0) == '{') kind = TOKEN_LBRACE;
+
+	if (char_at(lexer, 0) == '=' && char_at(lexer, 1) == '=') {
+		skip = 2;
+		kind = TOKEN_EQUAL_EQUAL;
+	}
+	else if (char_at(lexer, 0) == '!' && char_at(lexer, 1) == '=') {
+		skip = 2;
+		kind = TOKEN_BANG_EQUAL;
+	}
+	else if (char_at(lexer, 0) == '{') kind = TOKEN_LBRACE;
 	else if (char_at(lexer, 0) == '(') kind = TOKEN_LPAREN;
 	else if (char_at(lexer, 0) == '}') kind = TOKEN_RBRACE;
 	else if (char_at(lexer, 0) == ')') kind = TOKEN_RPAREN;

@@ -18,7 +18,8 @@ GRAMMAR
 <if-stmt>     := IF_KEYWORD LPAREN <expr> RPAREN <stmt> (ELSE_KEYWORD <stmt>)?
 <expr-stmt>   := <expr> SEMICOLON
 
-<expr>         := <add-expr>
+<expr>         := <equal-expr>
+<equal-expr>   := <add-expr> ((EQUAL_EQUAL | BANG_EQUAL) <add-expr>)*
 <add-expr>     := <mul-expr> ((PLUS | MINUS) <mul-expr>)*
 <mul-expr>     := <cast-expr> ((STAR | FSLASH | MOD) <cast-exor>)*
 <cast-expr>    := <postfix-expr> (AS_KEYWORD <type-specifier>)?
@@ -47,6 +48,9 @@ COMMA     := ","
 STAR      := "*"
 FSLASH    := "/"
 MOD       := "%"
+
+EQUAL_EQUAL := "=="
+BANG_EQUAL  := "!="
 
 INT_LITERAL := "0" 
              | "0" ("x" | "X") [a-fA-F0-9]+
