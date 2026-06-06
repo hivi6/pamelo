@@ -55,6 +55,7 @@ static void set_param_addr(int param_index, char *addr);
 static word_t get_param_addr(int param_index);
 static void run_inst();
 
+static void inst_nop(ir_inst_t inst);
 static void inst_begin_call(ir_inst_t inst);
 static void inst_call(ir_inst_t inst);
 static void inst_end_call(ir_inst_t inst);
@@ -271,16 +272,8 @@ static word_t get_param_addr(int param_index) {
 static void run_inst() {
 	ir_inst_t inst = current_inst();
 	switch (inst.kind) {
-	case IR_INST_ADD: {
-		inst_add(inst);
-		break;
-	}
-	case IR_INST_ALLOCATE: {
-		inst_allocate(inst);
-		break;
-	}
-	case IR_INST_DEALLOCATE: {
-		inst_deallocate(inst);
+	case IR_INST_NOP: {
+		inst_nop(inst);
 		break;
 	}
 	case IR_INST_BEGIN_CALL: {
@@ -291,12 +284,12 @@ static void run_inst() {
 		inst_call(inst);
 		break;
 	}
-	case IR_INST_CONST: {
-		inst_const(inst);
-		break;
-	}
 	case IR_INST_END_CALL: {
 		inst_end_call(inst);
+		break;
+	}
+	case IR_INST_RETURN: {
+		inst_return(inst);
 		break;
 	}
 	case IR_INST_GET_RETURN_ADDR: {
@@ -307,14 +300,6 @@ static void run_inst() {
 		inst_get_param_addr(inst);
 		break;
 	}
-	case IR_INST_LOAD: {
-		inst_load(inst);
-		break;
-	}
-	case IR_INST_RETURN: {
-		inst_return(inst);
-		break;
-	}
 	case IR_INST_SET_RETURN_ADDR: {
 		inst_set_return_addr(inst);
 		break;
@@ -323,8 +308,28 @@ static void run_inst() {
 		inst_set_param_addr(inst);
 		break;
 	}
+	case IR_INST_ALLOCATE: {
+		inst_allocate(inst);
+		break;
+	}
+	case IR_INST_DEALLOCATE: {
+		inst_deallocate(inst);
+		break;
+	}
+	case IR_INST_CONST: {
+		inst_const(inst);
+		break;
+	}
+	case IR_INST_LOAD: {
+		inst_load(inst);
+		break;
+	}
 	case IR_INST_STORE: {
 		inst_store(inst);
+		break;
+	}
+	case IR_INST_ADD: {
+		inst_add(inst);
 		break;
 	}
 	case IR_INST_SUB: {
@@ -347,6 +352,10 @@ static void run_inst() {
 		printf("What is this inst?");
 		exit(1);
 	}
+}
+
+static void inst_nop(ir_inst_t inst) {
+	next_ip();
 }
 
 static void inst_begin_call(ir_inst_t inst) { 

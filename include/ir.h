@@ -7,6 +7,9 @@
 typedef unsigned long long word_t;
 
 enum {
+	// desc: No operation
+	IR_INST_NOP,
+
 	// desc: Start the call process
 	IR_INST_BEGIN_CALL,
 

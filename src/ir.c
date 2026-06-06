@@ -90,6 +90,9 @@ static void print_inst(ir_inst_t inst) {
 	printf("    ");
 
 	switch (inst.kind) {
+	case IR_INST_NOP:
+		printf("NOP");
+		break;
 	case IR_INST_BEGIN_CALL:
 		printf("BEGIN_CALL");
 		break;
