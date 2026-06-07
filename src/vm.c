@@ -13,8 +13,7 @@ struct vm_fn_state_t {
 	int fn_id;
 	int ip;
 
-	word_t *temps;
-	int temps_len;
+	vec_t temps; // vector of void*
 
 	char *stack;
 	int stack_size;
@@ -148,8 +147,7 @@ static void push_fn_state() {
 	g_fn_states[g_fn_states_len-1] = (vm_fn_state_t) {
 		.fn_id=-1, 
 		.ip=0,
-		.temps=NULL,
-		.temps_len=0,
+		.temps=((vec_t) {}),
 		.stack=calloc(sizeof(char), VM_STACK_CAPACITY),
 		.stack_size=0,
 		.return_addr=NULL,
@@ -173,7 +171,7 @@ static void prev_fn_state() {
 
 static void pop_fn_state() {
 	vm_fn_state_t *state = current_state() + 1;
-	free(state->temps);
+	vec_free(&state->temps);
 	free(state->stack);
 	g_fn_states_len -= 1;
 	g_fn_states = realloc(g_fn_states, g_fn_states_len * sizeof(vm_fn_state_t));
@@ -182,25 +180,21 @@ static void pop_fn_state() {
 static word_t get(int temp_id) {
 	vm_fn_state_t *state = current_state();
 
-	if (state->temps_len <= temp_id) {
-		state->temps_len = 2 * temp_id + 100;
-		state->temps = realloc(state->temps, 
-			state->temps_len * sizeof(word_t));
+	if (state->temps.len <= temp_id) {
+		vec_reserve(&state->temps, 2 * temp_id + 100);
 	}
 
-	return state->temps[temp_id];
+	return (word_t) state->temps.elems[temp_id];
 }
 
 static void set(int temp_id, word_t value) {
 	vm_fn_state_t *state = current_state();
 
-	if (state->temps_len <= temp_id) {
-		state->temps_len = 2 * temp_id + 100;
-		state->temps = realloc(state->temps, 
-			state->temps_len * sizeof(word_t));
+	if (state->temps.len <= temp_id) {
+		vec_reserve(&state->temps, 2 * temp_id + 100);
 	}
 
-	state->temps[temp_id] = value;
+	state->temps.elems[temp_id] = (void*) value;
 
 	// DEBUGGING
 	g_last_value = value;
