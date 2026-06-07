@@ -37,6 +37,7 @@ static void block_stmt(ast_t *ast);
 static void var_stmt(ast_t *ast);
 static void return_stmt(ast_t *ast);
 static void if_stmt(ast_t *ast);
+static void while_stmt(ast_t *ast);
 static void expr_stmt(ast_t *ast);
 
 static int expr(ast_t *ast);
@@ -340,6 +341,7 @@ static void stmt(ast_t *ast) {
 	else if (ast->kind == AST_RETURN_STMT) return_stmt(ast);
 	else if (ast->kind == AST_EXPR_STMT) expr_stmt(ast);
 	else if (ast->kind == AST_IF_STMT) if_stmt(ast);
+	else if (ast->kind == AST_WHILE_STMT) while_stmt(ast);
 	else {
 		eprintf(ast->filepath, ast->source, ast->start, ast->end,
 			"What is this statement kind?");
@@ -413,6 +415,22 @@ static void if_stmt(ast_t *ast) {
 
 	int if_end = emit(IR_INST_NOP, 0, 0, 0, 0);
 	else_jmp_inst->arg1 = if_end;
+}
+
+static void while_stmt(ast_t *ast) {
+	match(ast, AST_WHILE_STMT, "Expected AST_WHILE_STMT");
+
+	int while_start = emit(IR_INST_NOP, 0, 0, 0, 0);
+
+	word_t temp = expr(ast->ast.while_stmt.expr);
+	int while_jmp_index = emit(IR_INST_JUMP_FALSE, temp, 0, 0, 0);
+	ir_inst_t *while_jmp_inst = get_inst(while_jmp_index);
+
+	stmt(ast->ast.while_stmt.true_stmt);
+
+	emit(IR_INST_JUMP, while_start, 0, 0, 0);
+	int while_end = emit(IR_INST_NOP, 0, 0, 0, 0);
+	while_jmp_inst->arg2 = while_end;
 }
 
 static void expr_stmt(ast_t *ast) {

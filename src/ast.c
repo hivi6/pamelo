@@ -37,7 +37,7 @@ static ast_t *malloc_ast_return_stmt(token_t *return_keyword, ast_t *expr,
 static ast_t *malloc_ast_if_stmt(token_t *if_keyword, token_t *lparen,
 	ast_t *expr, token_t *rparen, ast_t *true_stmt, token_t *else_keyword,
 	ast_t *false_stmt);
-static ast_t *malloc_ast_while_stmt(token_t *if_keyword, token_t *lparen,
+static ast_t *malloc_ast_while_stmt(token_t *while_keyword, token_t *lparen,
 	ast_t *expr, token_t *rparen, ast_t *true_stmt);
 static ast_t *malloc_ast_expr_stmt(ast_t *expr, token_t *semicolon);
 static ast_t *malloc_ast_literal_expr(token_t *token);
