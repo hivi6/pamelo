@@ -48,6 +48,10 @@ static int cast_expr(ast_t *ast);
 static int mul_expr(ast_t *ast);
 static int add_expr(ast_t *ast);
 static int equal_expr(ast_t *ast);
+static int assign_expr(ast_t *ast);
+
+static int expr_lvalue(ast_t *ast);
+static int var_expr_lvalue(ast_t *ast);
 
 // ========================================
 // ir.h - definition
@@ -446,6 +450,7 @@ static int expr(ast_t *ast) {
 	if (ast->kind == AST_MUL_EXPR) return mul_expr(ast);
 	if (ast->kind == AST_ADD_EXPR) return add_expr(ast);
 	if (ast->kind == AST_EQUAL_EXPR) return equal_expr(ast);
+	if (ast->kind == AST_ASSIGN_EXPR) return assign_expr(ast);
 
 	eprintf(ast->filepath, ast->source, ast->start, ast->end,
 		"Invalid expr kind");
@@ -602,5 +607,31 @@ static int equal_expr(ast_t *ast) {
 	}
 
 	return res;
+}
+
+static int assign_expr(ast_t *ast) {
+	match(ast, AST_ASSIGN_EXPR, "Expected AST_ASSIGN_EXPR");
+
+	int left = expr_lvalue(ast->ast.assign_expr.left);
+	int right = expr(ast->ast.assign_expr.right);
+
+	int size = ast->ast.assign_expr.left->type->size;
+	emit(IR_INST_STORE, left, right, size, 0);
+
+	return right;
+}
+
+static int expr_lvalue(ast_t *ast) {
+	if (ast->kind == AST_VAR_EXPR) return var_expr_lvalue(ast);
+
+	eprintf(ast->filepath, ast->source, ast->start, ast->end,
+		"Invalid lvalue expr kind");
+	exit(1);
+}
+
+static int var_expr_lvalue(ast_t *ast) {
+	match(ast, AST_VAR_EXPR, "Expected AST_VAR_EXPR");
+
+	return ast->symbol->id;
 }
 
