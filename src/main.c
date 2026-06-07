@@ -109,9 +109,9 @@ static char *read_file(const char *filepath) {
 		exit(1);
 	}
 
-	char ch = 0;
+	int ch = 0;
 	while ((ch = fgetc(f)) != EOF) {
-		sbuilder_appendf(&s, "%c", ch);
+		sbuilder_appendf(&s, "%c", (char) ch);
 	}
 
 	sbuilder_build(&s, &res);
