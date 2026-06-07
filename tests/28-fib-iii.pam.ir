@@ -1,0 +1,50 @@
+// SYMBOL MEANING:
+// $ = Accessing function index
+// % = Accessing temp index
+// # = Accessing instruction index
+
+$0: // fn printNum (u32) -> void
+extern
+
+$1: // fn main () -> void
+@function_start
+    #0  | %0 := ALLOCATE 8
+    #1  | %5 := CONST 0
+    #2  | STORE %0 8 := %5
+    #3  | %1 := ALLOCATE 8
+    #4  | %6 := CONST 1
+    #5  | STORE %1 8 := %6
+    #6  | %2 := ALLOCATE 4
+    #7  | %7 := CONST 30
+    #8  | STORE %2 4 := %7
+    #9  | NOP
+    #10 | %8 := LOAD %2 4
+    #11 | JUMP_FALSE %8 #27
+    #12 | %3 := ALLOCATE 8
+    #13 | %9 := LOAD %0 8
+    #14 | %10 := LOAD %1 8
+    #15 | %11 := ADD %9 %10 8
+    #16 | STORE %3 8 := %11
+    #17 | %12 := LOAD %1 8
+    #18 | STORE %0 8 := %12
+    #19 | %13 := LOAD %3 8
+    #20 | STORE %1 8 := %13
+    #21 | %14 := LOAD %2 4
+    #22 | %15 := CONST 1
+    #23 | %16 := SUB %14 %15 4
+    #24 | STORE %2 4 := %16
+    #25 | DEALLOCATE 8
+    #26 | JUMP #9
+    #27 | NOP
+    #28 | %17 := LOAD %0 8
+    #29 | %18 := ALLOCATE 4
+    #30 | STORE %18 4 := %17
+    #31 | BEGIN_CALL
+    #32 | SET_PARAM_ADDR 0 %18
+    #33 | CALL $0
+    #34 | END_CALL
+    #35 | DEALLOCATE 4
+    #36 | DEALLOCATE 20
+    #37 | RETURN
+@function_end
+

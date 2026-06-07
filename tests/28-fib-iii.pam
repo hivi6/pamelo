@@ -1,0 +1,15 @@
+fn printNum(a u32) void extern;
+
+fn main() void {
+	var a u64 = 0;
+	var b u64 = 1;
+	var n = 30;
+	while (n) {
+		var temp = a + b;
+		a = b;
+		b = temp;
+		n = n - 1;
+	}
+	printNum(a);
+}
+

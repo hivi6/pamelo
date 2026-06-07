@@ -1,0 +1,42 @@
+file: tests/28-fib-iii.pam
++- AST_PROG
+   +- AST_FN_DECL(type: ID | lexical: printNum) EXTERN
+   |  +- RETURN TYPE: AST_TYPE_SPECIFIER(type: ID | lexical: void) [void]
+   |  +- a: AST_TYPE_SPECIFIER(type: ID | lexical: u32) [u32]
+   +- AST_FN_DECL(type: ID | lexical: main)
+      +- RETURN TYPE: AST_TYPE_SPECIFIER(type: ID | lexical: void) [void]
+      +- FUNCTION BODY: AST_BLOCK_STMT
+         +- AST_VAR_STMT(type: ID | lexical: a) [u64]
+         |  +- AST_TYPE_SPECIFIER(type: ID | lexical: u64) [u64]
+         |  +- AST_LITERAL_EXPR(type: INT_LITERAL | lexical: 0) [u32]
+         +- AST_VAR_STMT(type: ID | lexical: b) [u64]
+         |  +- AST_TYPE_SPECIFIER(type: ID | lexical: u64) [u64]
+         |  +- AST_LITERAL_EXPR(type: INT_LITERAL | lexical: 1) [u32]
+         +- AST_VAR_STMT(type: ID | lexical: n) [u32]
+         |  +- AST_LITERAL_EXPR(type: INT_LITERAL | lexical: 30) [u32]
+         +- AST_WHILE_STMT
+         |  +- WHILE CONDITION: AST_VAR_EXPR(type: ID | lexical: n) [u32]
+         |  +- WHILE STATEMENT: AST_BLOCK_STMT
+         |     +- AST_VAR_STMT(type: ID | lexical: temp) [u64]
+         |     |  +- AST_ADD_EXPR(type: PLUS | lexical: +) [u64]
+         |     |     +- AST_VAR_EXPR(type: ID | lexical: a) [u64]
+         |     |     +- AST_VAR_EXPR(type: ID | lexical: b) [u64]
+         |     +- AST_EXPR_STMT
+         |     |  +- AST_ASSIGN_EXPR(type: EQUAL | lexical: =) [u64]
+         |     |     +- AST_VAR_EXPR(type: ID | lexical: a) [u64]
+         |     |     +- AST_VAR_EXPR(type: ID | lexical: b) [u64]
+         |     +- AST_EXPR_STMT
+         |     |  +- AST_ASSIGN_EXPR(type: EQUAL | lexical: =) [u64]
+         |     |     +- AST_VAR_EXPR(type: ID | lexical: b) [u64]
+         |     |     +- AST_VAR_EXPR(type: ID | lexical: temp) [u64]
+         |     +- AST_EXPR_STMT
+         |        +- AST_ASSIGN_EXPR(type: EQUAL | lexical: =) [u32]
+         |           +- AST_VAR_EXPR(type: ID | lexical: n) [u32]
+         |           +- AST_ADD_EXPR(type: MINUS | lexical: -) [u32]
+         |              +- AST_VAR_EXPR(type: ID | lexical: n) [u32]
+         |              +- AST_LITERAL_EXPR(type: INT_LITERAL | lexical: 1) [u32]
+         +- AST_EXPR_STMT
+            +- AST_CALL_EXPR [void]
+               +- AST_VAR_EXPR(type: ID | lexical: printNum) [fn printNum (u32) -> void]
+               +- ARG 1: AST_VAR_EXPR(type: ID | lexical: a) [u64]
+
