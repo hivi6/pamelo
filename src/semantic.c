@@ -608,14 +608,14 @@ static type_t *add_expr(ast_t *ast, scope_t *scope) {
 static type_t *equal_expr(ast_t *ast, scope_t *scope) {
 	match(ast, AST_EQUAL_EXPR, "Expected AST_EQUAL_EXPR");
 	
-	type_t *left = expr(ast->ast.add_expr.left, scope);
-	type_t *right = expr(ast->ast.add_expr.right, scope);
+	type_t *left = expr(ast->ast.equal_expr.left, scope);
+	type_t *right = expr(ast->ast.equal_expr.right, scope);
 	ast_t *err_ast = NULL;
 	if (!is_numeric(left)) {
-		err_ast = ast->ast.add_expr.left;
+		err_ast = ast->ast.equal_expr.left;
 	}
 	if (!is_numeric(right)) {
-		err_ast = ast->ast.add_expr.right;
+		err_ast = ast->ast.equal_expr.right;
 	}
 	if (err_ast) {
 		eprintf(err_ast->filepath, err_ast->source, err_ast->start,
@@ -630,15 +630,15 @@ static type_t *equal_expr(ast_t *ast, scope_t *scope) {
 static type_t *assign_expr(ast_t *ast, scope_t *scope) {
 	match(ast, AST_ASSIGN_EXPR, "Expected AST_ASSIGN_EXPR");
 
-	type_t *left = expr(ast->ast.add_expr.left, scope);
-	if (!ast->ast.add_expr.left->is_lvalue) {
-		ast_t *leftAst = ast->ast.add_expr.left;
+	type_t *left = expr(ast->ast.assign_expr.left, scope);
+	if (!ast->ast.assign_expr.left->is_lvalue) {
+		ast_t *leftAst = ast->ast.assign_expr.left;
 		eprintf(leftAst->filepath, leftAst->source, leftAst->start,
 			leftAst->end, "Not a lvalue");
 		exit(1);
 	}
 
-	type_t *right = expr(ast->ast.add_expr.right, scope);
+	type_t *right = expr(ast->ast.assign_expr.right, scope);
 
 	if (!is_castable(left, right)) {
 		eprintf(ast->filepath, ast->source, ast->start, ast->end,
