@@ -34,6 +34,7 @@ enum {
 	TOKEN_EXTERN_KEYWORD,
 	TOKEN_IF_KEYWORD,
 	TOKEN_ELSE_KEYWORD,
+	TOKEN_WHILE_KEYWORD,
 };
 
 typedef struct token_t token_t;

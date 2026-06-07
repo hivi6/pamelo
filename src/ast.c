@@ -37,6 +37,8 @@ static ast_t *malloc_ast_return_stmt(token_t *return_keyword, ast_t *expr,
 static ast_t *malloc_ast_if_stmt(token_t *if_keyword, token_t *lparen,
 	ast_t *expr, token_t *rparen, ast_t *true_stmt, token_t *else_keyword,
 	ast_t *false_stmt);
+static ast_t *malloc_ast_while_stmt(token_t *if_keyword, token_t *lparen,
+	ast_t *expr, token_t *rparen, ast_t *true_stmt);
 static ast_t *malloc_ast_expr_stmt(ast_t *expr, token_t *semicolon);
 static ast_t *malloc_ast_literal_expr(token_t *token);
 static ast_t *malloc_ast_var_expr(token_t *token);
@@ -57,6 +59,7 @@ static ast_t *block_stmt(parser_t *parser);
 static ast_t *var_stmt(parser_t *parser);
 static ast_t *return_stmt(parser_t *parser);
 static ast_t *if_stmt(parser_t *parser);
+static ast_t *while_stmt(parser_t *parser);
 static ast_t *expr_stmt(parser_t *parser);
 static ast_t *expr(parser_t *parser);
 static ast_t *literal_expr(parser_t *parser);
@@ -207,6 +210,18 @@ static void print_ast_helper(ast_t *ast, char *indent, int depth,
 			print_ast_helper(ast->ast.if_stmt.false_stmt, indent,
 				depth+1, "FALSE STATEMENT");
 		}
+
+		break;
+	}
+	case AST_WHILE_STMT: {
+		printf("AST_WHILE_STMT\n");
+
+		print_ast_helper(ast->ast.while_stmt.expr, indent, depth+1,
+			"WHILE CONDITION");
+
+		indent[depth+1] = 0;
+		print_ast_helper(ast->ast.while_stmt.true_stmt, indent, depth+1,
+			"WHILE STATEMENT");
 
 		break;
 	}
@@ -444,6 +459,18 @@ static ast_t *malloc_ast_if_stmt(token_t *if_keyword, token_t *lparen,
 	return res;
 }
 
+static ast_t *malloc_ast_while_stmt(token_t *while_keyword, token_t *lparen,
+	ast_t *expr, token_t *rparen, ast_t *true_stmt) {
+	ast_t *res = malloc_ast(AST_WHILE_STMT, while_keyword->filepath,
+		while_keyword->source, while_keyword->start, true_stmt->end);
+	res->ast.while_stmt.while_keyword = while_keyword;
+	res->ast.while_stmt.lparen = lparen;
+	res->ast.while_stmt.expr = expr;
+	res->ast.while_stmt.rparen = rparen;
+	res->ast.while_stmt.true_stmt = true_stmt;
+	return res;
+}
+
 static ast_t *malloc_ast_expr_stmt(ast_t *expr, token_t *semicolon) {
 	ast_t *res = malloc_ast(AST_EXPR_STMT, expr->filepath,
 		expr->source, expr->start, semicolon->end);
@@ -590,6 +617,7 @@ static ast_t *stmt(parser_t *parser) {
 	if (check(parser, 0, TOKEN_VAR_KEYWORD)) return var_stmt(parser);
 	if (check(parser, 0, TOKEN_RETURN_KEYWORD)) return return_stmt(parser);
 	if (check(parser, 0, TOKEN_IF_KEYWORD)) return if_stmt(parser);
+	if (check(parser, 0, TOKEN_WHILE_KEYWORD)) return while_stmt(parser);
 	return expr_stmt(parser);
 }
 
@@ -664,6 +692,20 @@ static ast_t *if_stmt(parser_t *parser) {
 
 	return malloc_ast_if_stmt(if_keyword, lparen, e, rparen, true_stmt,
 		else_keyword, false_stmt);
+}
+
+static ast_t *while_stmt(parser_t *parser) {
+	token_t *while_keyword = match(parser, TOKEN_WHILE_KEYWORD,
+		"Expected while keyword");
+	token_t *lparen = match(parser, TOKEN_LPAREN, 
+		"Expected '(' after while keyword");
+	ast_t *e = expr(parser);
+	token_t *rparen = match(parser, TOKEN_RPAREN,
+		"Expected ')' after while condition");
+	ast_t *true_stmt = stmt(parser);
+
+	return malloc_ast_while_stmt(while_keyword, lparen, e, rparen, 
+		true_stmt);
 }
 
 static ast_t *expr_stmt(parser_t *parser) {

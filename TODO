@@ -62,3 +62,8 @@
 	- [x] IR Generation
 	- [x] VM Support
 
+2026.06.07:
+- [ ] Add support for while loop
+	- [x] Parsing
+	- [ ] IR Generation and VM Support
+

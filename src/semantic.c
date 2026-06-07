@@ -38,6 +38,7 @@ static void block_stmt(ast_t *ast, scope_t *scope);
 static void var_stmt(ast_t *ast, scope_t *scope);
 static void return_stmt(ast_t *ast, scope_t *scope);
 static void if_stmt(ast_t *ast, scope_t *scope);
+static void while_stmt(ast_t *ast, scope_t *scope);
 static void expr_stmt(ast_t *ast, scope_t *scope);
 
 static type_t *expr(ast_t *ast, scope_t *scope);
@@ -271,6 +272,9 @@ static void stmt(ast_t *ast, scope_t *scope) {
 	else if (ast->kind == AST_IF_STMT) {
 		if_stmt(ast, scope);
 	}
+	else if (ast->kind == AST_WHILE_STMT) {
+		while_stmt(ast, scope);
+	}
 	else {
 		eprintf(ast->filepath, ast->source, ast->start, ast->end,
 			"What is this statement?");
@@ -405,6 +409,20 @@ static void if_stmt(ast_t *ast, scope_t *scope) {
 	if (ast->ast.if_stmt.false_stmt) {
 		stmt(ast->ast.if_stmt.false_stmt, scope);
 	}
+}
+
+static void while_stmt(ast_t *ast, scope_t *scope) {
+	match(ast, AST_WHILE_STMT, "Expected AST_WHILE_STMT");
+	
+	ast_t *cond = ast->ast.while_stmt.expr;
+	type_t *cond_type = expr(cond, scope);
+	if (!is_numeric(cond_type)) {
+		eprintf(cond->filepath, cond->source, cond->start, cond->end,
+			"Expected numeric condition value");
+		exit(1);
+	}
+
+	stmt(ast->ast.while_stmt.true_stmt, scope);
 }
 
 static void expr_stmt(ast_t *ast, scope_t *scope) {

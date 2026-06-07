@@ -16,6 +16,7 @@ GRAMMAR
 <var-stmt>    := VAR_KEYWORD ID <type-specifier>? (EQUAL <expr>)? SEMICOLON
 <return-stmt> := RETURN_KEYWORD <expr>? SEMICOLON
 <if-stmt>     := IF_KEYWORD LPAREN <expr> RPAREN <stmt> (ELSE_KEYWORD <stmt>)?
+<while-stmt>  := WHILE_KEYWORD LPAREN <expr> RPAREN <stmt>
 <expr-stmt>   := <expr> SEMICOLON
 
 <expr>         := <equal-expr>
@@ -67,4 +68,5 @@ RETURN_KEYWORD := "return"
 EXTERN_KEYWORD := "extern"
 IF_KEYWORD     := "if"
 ELSE_KEYWORD   := "else"
+WHILE_KEYWORD  := "while"
 

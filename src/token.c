@@ -98,6 +98,8 @@ char *token_type(token_t token) {
 		sbuilder_appendf(&s, "IF_KEYWORD");
 	else if (token.kind == TOKEN_ELSE_KEYWORD)
 		sbuilder_appendf(&s, "ELSE_KEYWORD");
+	else if (token.kind == TOKEN_WHILE_KEYWORD)
+		sbuilder_appendf(&s, "WHILE_KEYWORD");
 	else {
 		eprintf(token.filepath, token.source, token.start, token.end,
 			"What is this token type?");
@@ -308,6 +310,7 @@ static int keyword_skip(lexer_t *lexer) {
 	if (strcmp(res, "extern") == 0) kind = TOKEN_EXTERN_KEYWORD;
 	if (strcmp(res, "if") == 0) kind = TOKEN_IF_KEYWORD;
 	if (strcmp(res, "else") == 0) kind = TOKEN_ELSE_KEYWORD;
+	if (strcmp(res, "while") == 0) kind = TOKEN_WHILE_KEYWORD;
 
 	free(res);
 
