@@ -18,8 +18,7 @@ struct vm_fn_state_t {
 	char *stack;
 	int stack_size;
 
-	char **param_addrs;
-	int param_addrs_len;
+	vec_t param_addrs; // vector of char*
 
 	char *return_addr;
 };
@@ -151,6 +150,7 @@ static void push_fn_state() {
 		.stack=calloc(sizeof(char), VM_STACK_CAPACITY),
 		.stack_size=0,
 		.return_addr=NULL,
+		.param_addrs=((vec_t) {}),
 	};
 }
 
@@ -260,18 +260,16 @@ static word_t get_return_addr() {
 static void set_param_addr(int param_index, char *addr) {
 	vm_fn_state_t *state = current_state() + 1;
 
-	if (param_index >= state->param_addrs_len) {
-		state->param_addrs_len = param_index * 2 + 100;
-		state->param_addrs = realloc(state->param_addrs, 
-			state->param_addrs_len * sizeof(char*));
+	if (param_index >= state->param_addrs.len) {
+		vec_reserve(&state->param_addrs, param_index * 2 + 100);
 	}
 
-	state->param_addrs[param_index] = addr;
+	state->param_addrs.elems[param_index] = (void*) addr;
 }
 
 static word_t get_param_addr(int param_index) {
 	vm_fn_state_t *state = current_state();
-	return (word_t) state->param_addrs[param_index];
+	return (word_t) state->param_addrs.elems[param_index];
 }
 
 static void run_inst() {
