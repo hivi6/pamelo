@@ -66,9 +66,9 @@
 - [x] Add support for while loop
 	- [x] Parsing
 	- [x] IR Generation and VM Support
-- [ ] Add support for assignment expression
+- [x] Add support for assignment expression
 	- [x] Parsing
 	- [x] IR Generation
 	- [x] VM Support
-	- [ ] Add tests
+	- [x] Add tests
 
