@@ -49,6 +49,7 @@ static type_t *cast_expr(ast_t *ast, scope_t *scope);
 static type_t *mul_expr(ast_t *ast, scope_t *scope);
 static type_t *add_expr(ast_t *ast, scope_t *scope);
 static type_t *equal_expr(ast_t *ast, scope_t *scope);
+static type_t *assign_expr(ast_t *ast, scope_t *scope);
 
 // ========================================
 // semantic.h - definition
@@ -456,6 +457,9 @@ static type_t *expr(ast_t *ast, scope_t *scope) {
 	else if (ast->kind == AST_EQUAL_EXPR) {
 		type = equal_expr(ast, scope);
 	}
+	else if (ast->kind == AST_ASSIGN_EXPR) {
+		type = assign_expr(ast, scope);
+	}
 
 	if (type == NULL) {
 		eprintf(ast->filepath, ast->source, ast->start, ast->end,
@@ -486,7 +490,7 @@ static type_t *literal_expr(ast_t *ast, scope_t *scope) {
 
 static type_t *var_expr(ast_t *ast, scope_t *scope) {
 	match(ast, AST_VAR_EXPR, "Expected AST_VAR_EXPR");
-	
+
 	token_t *tok = ast->ast.var_expr.token;
 	char *name = token_lexical(*tok);
 	symbol_t *s = get_symbol_in_chain(scope, name);
@@ -496,6 +500,7 @@ static type_t *var_expr(ast_t *ast, scope_t *scope) {
 			"No such variable defined");
 		exit(1);
 	}
+	ast->is_lvalue = 1;
 	
 	return s->type;
 }
@@ -620,5 +625,27 @@ static type_t *equal_expr(ast_t *ast, scope_t *scope) {
 
 	if (left->size > right->size) return left;
 	return right;
+}
+
+static type_t *assign_expr(ast_t *ast, scope_t *scope) {
+	match(ast, AST_ASSIGN_EXPR, "Expected AST_ASSIGN_EXPR");
+
+	type_t *left = expr(ast->ast.add_expr.left, scope);
+	if (!ast->ast.add_expr.left->is_lvalue) {
+		ast_t *leftAst = ast->ast.add_expr.left;
+		eprintf(leftAst->filepath, leftAst->source, leftAst->start,
+			leftAst->end, "Not a lvalue");
+		exit(1);
+	}
+
+	type_t *right = expr(ast->ast.add_expr.right, scope);
+
+	if (!is_castable(left, right)) {
+		eprintf(ast->filepath, ast->source, ast->start, ast->end,
+			"right operand is not castable to left operand");
+		exit(1);
+	}
+
+	return left;
 }
 

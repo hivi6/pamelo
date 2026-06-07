@@ -19,7 +19,8 @@ GRAMMAR
 <while-stmt>  := WHILE_KEYWORD LPAREN <expr> RPAREN <stmt>
 <expr-stmt>   := <expr> SEMICOLON
 
-<expr>         := <equal-expr>
+<expr>         := <assign-expr>
+<assign-expr>  := <equal-expr> (EQUAL <equal-expr>)?
 <equal-expr>   := <add-expr> ((EQUAL_EQUAL | BANG_EQUAL) <add-expr>)*
 <add-expr>     := <mul-expr> ((PLUS | MINUS) <mul-expr>)*
 <mul-expr>     := <cast-expr> ((STAR | FSLASH | MOD) <cast-exor>)*

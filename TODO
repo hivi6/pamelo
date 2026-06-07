@@ -67,7 +67,7 @@
 	- [x] Parsing
 	- [x] IR Generation and VM Support
 - [ ] Add support for assignment expression
-	- [ ] Parsing
+	- [x] Parsing
 	- [ ] IR Generation
 	- [ ] VM Support
 

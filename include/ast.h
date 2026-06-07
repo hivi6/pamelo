@@ -25,6 +25,7 @@ enum {
 	AST_MUL_EXPR,
 	AST_ADD_EXPR,
 	AST_EQUAL_EXPR,
+	AST_ASSIGN_EXPR,
 };
 
 typedef struct ast_t ast_t;
@@ -37,8 +38,9 @@ struct ast_t {
 
 	scope_t *scope;
 	type_t *type;
+	int is_lvalue;    // for assign_expr
 	symbol_t *symbol; // for var_expr
-	int total_id; // for fn_decl
+	int total_id;     // for fn_decl
 
 	union {
 		struct {
@@ -158,6 +160,12 @@ struct ast_t {
 			token_t *op;
 			ast_t *right;
 		} equal_expr;
+
+		struct {
+			ast_t *left;
+			token_t *op;
+			ast_t *right;
+		} assign_expr;
 	} ast;
 };
 

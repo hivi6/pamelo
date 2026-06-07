@@ -49,6 +49,7 @@ static ast_t *malloc_ast_cast_expr(ast_t *left, token_t *as_keyword,
 static ast_t *malloc_ast_mul_expr(ast_t *left, token_t *op, ast_t *right);
 static ast_t *malloc_ast_add_expr(ast_t *left, token_t *op, ast_t *right);
 static ast_t *malloc_ast_equal_expr(ast_t *left, token_t *op, ast_t *right);
+static ast_t *malloc_ast_assign_expr(ast_t *left, token_t *op, ast_t *right);
 
 static ast_t *prog(parser_t *parser);
 static ast_t *decl(parser_t *parser);
@@ -71,6 +72,7 @@ static ast_t *cast_expr(parser_t *parser);
 static ast_t *mul_expr(parser_t *parser);
 static ast_t *add_expr(parser_t *parser);
 static ast_t *equal_expr(parser_t *parser);
+static ast_t *assign_expr(parser_t *parser);
 
 // ========================================
 // ast.h - definition
@@ -318,6 +320,19 @@ static void print_ast_helper(ast_t *ast, char *indent, int depth,
 			NULL);
 		break;
 	}
+	case AST_ASSIGN_EXPR: {
+		char *type_info = type_str(ast->type);
+		char *op = token_str(ast->ast.assign_expr.op);
+		printf("AST_ASSIGN_EXPR(%s) [%s]\n", op, type_info);
+		free(op);
+		free(type_info);
+		print_ast_helper(ast->ast.assign_expr.left, indent, depth+1, 
+			NULL);
+		indent[depth+1] = 0;
+		print_ast_helper(ast->ast.assign_expr.right, indent, depth+1, 
+			NULL);
+		break;
+	}
 	default: {
 		eprintf(ast->filepath, ast->source, ast->start, ast->end,
 			"What is this ast?");
@@ -540,6 +555,15 @@ static ast_t *malloc_ast_equal_expr(ast_t *left, token_t *op, ast_t *right) {
 	return res;
 }
 
+static ast_t *malloc_ast_assign_expr(ast_t *left, token_t *op, ast_t *right) {
+	ast_t *res = malloc_ast(AST_ASSIGN_EXPR, left->filepath, left->source,
+		left->start, right->end);
+	res->ast.assign_expr.left = left;
+	res->ast.assign_expr.op = op;
+	res->ast.assign_expr.right = right;
+	return res;
+}
+
 static ast_t *prog(parser_t *parser) {
 	ast_t *ast = malloc_ast_prog();
 	while (!check(parser, 0, TOKEN_EOF)) {
@@ -715,7 +739,7 @@ static ast_t *expr_stmt(parser_t *parser) {
 }
 
 static ast_t *expr(parser_t *parser) {
-	return equal_expr(parser);
+	return assign_expr(parser);
 }
 
 static ast_t *literal_expr(parser_t *parser) {
@@ -814,6 +838,16 @@ static ast_t *equal_expr(parser_t *parser) {
 		skip(parser, 1);
 		ast_t *right = add_expr(parser);
 		left = malloc_ast_equal_expr(left, op, right);
+	}
+	return left;
+}
+
+static ast_t *assign_expr(parser_t *parser) {
+	ast_t *left = equal_expr(parser);
+	if (check(parser, 0, TOKEN_EQUAL)) {
+		token_t *op = match(parser, TOKEN_EQUAL, "Expected '='");
+		ast_t *right = equal_expr(parser);
+		left = malloc_ast_assign_expr(left, op, right);
 	}
 	return left;
 }
