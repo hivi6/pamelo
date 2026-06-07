@@ -1,3 +1,48 @@
+Features
+========
+
+Add support for different language features.
+
+- [ ] Data types
+	- [x] Primitive types (u8, u16, u32, u64)
+	- [x] Void type
+	- [x] Function type
+	- [ ] Pointer type
+	- [ ] Struct type
+- [ ] Function declaration
+	- [ ] Extern support
+		- [x] Basic support
+		- [ ] Extended support with different extern functions
+	- [x] Empty function declaration
+	- [x] Function declaration with basic parameter types
+	- [ ] Function declaration with pointer parameter types
+	- [ ] Function declaration with struct parameter types
+- [ ] Statements
+	- [x] Block statements
+	- [ ] Variable declaration statements
+		- [x] Declare primitive variables
+		- [x] Implicit declaration
+		- [ ] Declare pointer variables
+		- [ ] Declare struct variables
+	- [x] Return statements
+	- [x] If/Else statements
+	- [ ] While statements
+	- [ ] Expression statements
+		- [ ] Function Calls expression
+			- [x] Basic function calls
+			- [x] Function calls with basic parameter types
+			- [ ] Function calls with pointer parameter types
+			- [ ] Function calls with struct type
+		- [ ] Multiplication expression
+			- [x] Only primitive type
+		- [ ] Addition expression
+			- [x] Between primitive types
+			- [ ] Between primitive and pointer types
+		- [ ] Equality expression
+			- [x] Between primitive types
+			- [ ] Between primitive or pointer types
+
+
 IR Generation
 =============
 
