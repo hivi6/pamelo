@@ -8,7 +8,7 @@ GRAMMAR
 <fn-decl> := FN_KEYWORD ID LPAREN <fn-params>? RPAREN <type-specifier> 
              (EXTERN_KEYWORD SEMICOLON | <block-stmt>)
 
-<type-specifier> := ID
+<type-specifier> := STAR? ID
 <fn-params>      := ID <type-specifier> (COMMA ID <type-specifier>)*
 
 <stmt>        := <block-stmt> | <var-stmt> | <return-stmt> | <expr-stmt>

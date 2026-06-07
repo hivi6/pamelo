@@ -581,10 +581,38 @@ static int mul_expr(ast_t *ast) {
 static int add_expr(ast_t *ast) {
 	match(ast, AST_ADD_EXPR, "Expected AST_ADD_EXPR");
 
-	int left = expr(ast->ast.add_expr.left);
-	int right = expr(ast->ast.add_expr.right);
+	ast_t *left_ast = ast->ast.add_expr.left;
+	ast_t *right_ast = ast->ast.add_expr.right;
+
+	int left = expr(left_ast);
+	int right = expr(right_ast);
 	int kind = IR_INST_ADD;
 	if (ast->ast.add_expr.op->kind == TOKEN_MINUS) kind = IR_INST_SUB;
+
+	int is_pointer_arithmetic = 0;
+	int multiplier = 1;
+	int *multiplicand = NULL;
+	if (left_ast->type->kind == TYPE_POINTER) {
+		is_pointer_arithmetic = 1;
+		multiplier = left_ast->type->type.pointer_type.base_type->size;
+		multiplicand = &right;
+	}
+	if (right_ast->type->kind == TYPE_POINTER) {
+		is_pointer_arithmetic = 1;
+		multiplier = right_ast->type->type.pointer_type.base_type->size;
+		multiplicand = &left;
+	}
+
+	if (is_pointer_arithmetic) {
+		// store the size multiplier
+		int size_id = create_temp_id();
+		emit(IR_INST_CONST, size_id, multiplier, 0, 0);
+
+		int final_id = create_temp_id();
+		emit(IR_INST_MUL, final_id, size_id, *multiplicand, 8);
+
+		*multiplicand = final_id;
+	}
 
 	int id = create_temp_id();
 	emit(kind, id, left, right, ast->type->size);

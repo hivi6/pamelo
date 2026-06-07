@@ -71,4 +71,5 @@
 	- [x] IR Generation
 	- [x] VM Support
 	- [x] Add tests
+- [ ] Add support for pointer type
 

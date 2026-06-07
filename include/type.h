@@ -7,6 +7,7 @@ enum {
 	TYPE_VOID,
 	TYPE_PRIMITIVE,
 	TYPE_FN,
+	TYPE_POINTER,
 };
 
 typedef struct type_t type_t;
@@ -22,6 +23,10 @@ struct type_t {
 
 			type_t *return_type;
 		} fn_type;
+
+		struct {
+			type_t *base_type;
+		} pointer_type;
 	} type;
 };
 

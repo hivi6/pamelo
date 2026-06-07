@@ -28,7 +28,7 @@ static ast_t *malloc_ast_prog();
 static ast_t *malloc_ast_fn_decl(token_t *fn_keyword, token_t *name,
 	token_t *lparen, token_t *rparen, ast_t *t, token_t *extern_keyword,
 	token_t *semicolon, ast_t *block_stmt);
-static ast_t *malloc_ast_type_specifier(token_t *id);
+static ast_t *malloc_ast_type_specifier(token_t *asterisk, token_t *id);
 static ast_t *malloc_ast_block_stmt(token_t *lbrace);
 static ast_t *malloc_ast_var_stmt(token_t *var_keyword, token_t *name,
 	ast_t *type_specifier, ast_t *expr, token_t *semicolon);
@@ -421,9 +421,10 @@ static ast_t *malloc_ast_fn_decl(token_t *fn_keyword, token_t *name,
 	return res;
 }
 
-static ast_t *malloc_ast_type_specifier(token_t *id) {
+static ast_t *malloc_ast_type_specifier(token_t *asterisk, token_t *id) {
 	ast_t *res = malloc_ast(AST_TYPE_SPECIFIER, id->filepath,
 		id->source, id->start, id->end);
+	res->ast.type_specifier.asterisk = asterisk;
 	res->ast.type_specifier.name = id;
 	return res;
 }
@@ -632,8 +633,12 @@ static ast_t *fn_decl(parser_t *parser) {
 }
 
 static ast_t *type_specifier(parser_t *parser) {
+	token_t *asterisk = NULL;
+	if (check(parser, 0, TOKEN_STAR)) {
+		asterisk = match(parser, TOKEN_STAR, "Expected *");
+	}
 	token_t *id = match(parser, TOKEN_ID, "Expected type id");
-	return malloc_ast_type_specifier(id);
+	return malloc_ast_type_specifier(asterisk, id);
 }
 
 static ast_t *stmt(parser_t *parser) {

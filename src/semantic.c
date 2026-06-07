@@ -26,6 +26,7 @@ static char is_castable(type_t *out, type_t *in);
 static int create_fn_id();
 static int create_var_id();
 static void reset_var_id(int reset_value);
+static type_t *create_pointer_type(type_t *t);
 
 static void prog(ast_t *ast, scope_t *scope);
 
@@ -161,7 +162,7 @@ static void create_fn(ast_t *ast, scope_t *scope) {
 }
 
 static char is_numeric(type_t *type) {
-	return type->kind == TYPE_PRIMITIVE;
+	return type->kind == TYPE_PRIMITIVE || type->kind == TYPE_POINTER;
 }
 
 static char is_castable(type_t *out, type_t *in) {
@@ -178,6 +179,12 @@ static int create_var_id() {
 
 static void reset_var_id(int reset_value) {
 	g_var_id = reset_value;
+}
+
+static type_t *create_pointer_type(type_t *t) {
+	type_t *res = create_type(TYPE_POINTER, "", 8);
+	res->type.pointer_type.base_type = t;
+	return res;
 }
 
 static void prog(ast_t *ast, scope_t *scope) {
@@ -248,6 +255,10 @@ static type_t *type_specifier(ast_t *ast, scope_t *scope) {
 		eprintf(tok->filepath, tok->source, tok->start, tok->end,
 			"Cannot be a function type");
 		exit(1);
+	}
+
+	if (ast->ast.type_specifier.asterisk) {
+		t = create_pointer_type(t);
 	}
 
 	free(name);
@@ -589,15 +600,20 @@ static type_t *add_expr(ast_t *ast, scope_t *scope) {
 	type_t *left = expr(ast->ast.add_expr.left, scope);
 	type_t *right = expr(ast->ast.add_expr.right, scope);
 	ast_t *err_ast = NULL;
+	const char *err_msg = "Expected a numeric type";
 	if (!is_numeric(left)) {
 		err_ast = ast->ast.add_expr.left;
 	}
 	if (!is_numeric(right)) {
 		err_ast = ast->ast.add_expr.right;
 	}
+	if (left->kind == TYPE_POINTER && right->kind == TYPE_POINTER) {
+		err_ast = ast;
+		err_msg = "Cannot have both operand as pointers";
+	}
 	if (err_ast) {
 		eprintf(err_ast->filepath, err_ast->source, err_ast->start,
-			err_ast->end, "Expected a numeric type");
+			err_ast->end, err_msg);
 		exit(1);
 	}
 

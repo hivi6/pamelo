@@ -43,6 +43,11 @@ char *type_str(type_t *type) {
 		sbuilder_appendf(&s, ") -> %s", return_type);
 		free(return_type);
 	}
+	else if (type->kind == TYPE_POINTER) {
+		char *base_type = type_str(type->type.pointer_type.base_type);
+		sbuilder_appendf(&s, "*%s", base_type);
+		free(base_type);
+	}
 
 	char *res = NULL;
 	sbuilder_build(&s, &res);

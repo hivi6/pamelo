@@ -69,6 +69,7 @@ struct ast_t {
 		} fn_decl;
 
 		struct {
+			token_t *asterisk;
 			token_t *name;
 		} type_specifier;
 
