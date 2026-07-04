@@ -45,6 +45,7 @@ static int literal_expr(ast_t *ast);
 static int var_expr(ast_t *ast);
 static int call_expr(ast_t *ast);
 static int address_of_expr(ast_t *ast);
+static int dereference_expr(ast_t *ast);
 static int cast_expr(ast_t *ast);
 static int mul_expr(ast_t *ast);
 static int add_expr(ast_t *ast);
@@ -53,6 +54,7 @@ static int assign_expr(ast_t *ast);
 
 static int expr_lvalue(ast_t *ast);
 static int var_expr_lvalue(ast_t *ast);
+static int dereference_expr_lvalue(ast_t *ast);
 
 // ========================================
 // ir.h - definition
@@ -448,6 +450,7 @@ static int expr(ast_t *ast) {
 	if (ast->kind == AST_VAR_EXPR) return var_expr(ast);
 	if (ast->kind == AST_CALL_EXPR) return call_expr(ast);
 	if (ast->kind == AST_ADDRESS_OF_EXPR) return address_of_expr(ast);
+	if (ast->kind == AST_DEREFERENCE_EXPR) return dereference_expr(ast);
 	if (ast->kind == AST_CAST_EXPR) return cast_expr(ast);
 	if (ast->kind == AST_MUL_EXPR) return mul_expr(ast);
 	if (ast->kind == AST_ADD_EXPR) return add_expr(ast);
@@ -562,6 +565,17 @@ static int address_of_expr(ast_t *ast) {
 	return e;
 }
 
+static int dereference_expr(ast_t *ast) {
+	match(ast, AST_DEREFERENCE_EXPR, "Expected AST_DEREFERENCE_EXPR");
+	
+	ast_t *right = ast->ast.dereference_expr.right;
+	int e = expr(right);
+
+	int id = create_temp_id();
+	emit(IR_INST_LOAD, id, e, right->type->size, 0);
+	return id;
+}
+
 static int cast_expr(ast_t *ast) {
 	match(ast, AST_CAST_EXPR, "Expected AST_CASE_EXPR");
 
@@ -660,6 +674,8 @@ static int assign_expr(ast_t *ast) {
 
 static int expr_lvalue(ast_t *ast) {
 	if (ast->kind == AST_VAR_EXPR) return var_expr_lvalue(ast);
+	if (ast->kind == AST_DEREFERENCE_EXPR) 
+		return dereference_expr_lvalue(ast);
 
 	eprintf(ast->filepath, ast->source, ast->start, ast->end,
 		"Invalid lvalue expr kind");
@@ -670,5 +686,15 @@ static int var_expr_lvalue(ast_t *ast) {
 	match(ast, AST_VAR_EXPR, "Expected AST_VAR_EXPR");
 
 	return ast->symbol->id;
+}
+
+static int dereference_expr_lvalue(ast_t *ast) {
+	match(ast, AST_DEREFERENCE_EXPR, "Expected AST_DEREFERENCE_EXPR");
+
+	ast_t *right = ast->ast.dereference_expr.right;
+	int e = expr_lvalue(right);
+	int id = create_temp_id();
+	emit(IR_INST_LOAD, id, e, right->type->size, 0);
+	return id;
 }
 
