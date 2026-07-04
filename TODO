@@ -73,3 +73,10 @@
 	- [x] Add tests
 - [ ] Add support for pointer type
 
+2026.07.04:
+- [ ] Add support for address of operator
+	- [ ] Tokenizing
+	- [ ] Parsing
+	- [ ] IR Generation
+	- [ ] VM Support
+

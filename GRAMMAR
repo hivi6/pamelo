@@ -25,6 +25,8 @@ GRAMMAR
 <add-expr>     := <mul-expr> ((PLUS | MINUS) <mul-expr>)*
 <mul-expr>     := <cast-expr> ((STAR | FSLASH | MOD) <cast-exor>)*
 <cast-expr>    := <postfix-expr> (AS_KEYWORD <type-specifier>)?
+<prefix-expr>  := AMPERSAND <prefix-expr>
+                | <postfix-expr>
 <postfix-expr> := <primary-expr> <postfix-op>*
 <primary-expr> := <var-expr> | <literal-expr>
 <var-expr>     := ID
@@ -50,6 +52,7 @@ COMMA     := ","
 STAR      := "*"
 FSLASH    := "/"
 MOD       := "%"
+AMPERSAND := "&"
 
 EQUAL_EQUAL := "=="
 BANG_EQUAL  := "!="
