@@ -75,8 +75,8 @@
 
 2026.07.04:
 - [ ] Add support for address of operator
-	- [ ] Tokenizing
-	- [ ] Parsing
+	- [x] Tokenizing
+	- [x] Parsing
 	- [ ] IR Generation
 	- [ ] VM Support
 

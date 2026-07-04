@@ -46,6 +46,7 @@ static type_t *expr(ast_t *ast, scope_t *scope);
 static type_t *literal_expr(ast_t *ast, scope_t *scope);
 static type_t *var_expr(ast_t *ast, scope_t *scope);
 static type_t *call_expr(ast_t *ast, scope_t *scope);
+static type_t *address_of_expr(ast_t *ast, scope_t *scope);
 static type_t *cast_expr(ast_t *ast, scope_t *scope);
 static type_t *mul_expr(ast_t *ast, scope_t *scope);
 static type_t *add_expr(ast_t *ast, scope_t *scope);
@@ -456,6 +457,9 @@ static type_t *expr(ast_t *ast, scope_t *scope) {
 	else if (ast->kind == AST_CALL_EXPR) {
 		type = call_expr(ast, scope);
 	}
+	else if (ast->kind == AST_ADDRESS_OF_EXPR) {
+		type = address_of_expr(ast, scope);
+	}
 	else if (ast->kind == AST_CAST_EXPR) {
 		type = cast_expr(ast, scope);
 	}
@@ -546,6 +550,20 @@ static type_t *call_expr(ast_t *ast, scope_t *scope) {
 	}
 
 	return type->type.fn_type.return_type;
+}
+
+static type_t *address_of_expr(ast_t *ast, scope_t *scope) {
+	match(ast, AST_ADDRESS_OF_EXPR, "Expected AST_ADDRESS_OF_EXPR");
+
+	ast_t *right = ast->ast.address_of_expr.right;
+	type_t *right_type = expr(right, scope);
+	if (!right->is_lvalue) {
+		eprintf(right->filepath, right->source, right->start, right->end,
+			"Expected lvalue");
+		exit(1);
+	}
+
+	return create_pointer_type(right_type);
 }
 
 static type_t *cast_expr(ast_t *ast, scope_t *scope) {

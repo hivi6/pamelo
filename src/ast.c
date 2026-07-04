@@ -44,6 +44,7 @@ static ast_t *malloc_ast_literal_expr(token_t *token);
 static ast_t *malloc_ast_var_expr(token_t *token);
 static ast_t *malloc_ast_call_expr(ast_t *left, token_t *lparen, 
 	token_t *rparen);
+static ast_t *malloc_ast_address_of_expr(token_t *ampersand, ast_t *right);
 static ast_t *malloc_ast_cast_expr(ast_t *left, token_t *as_keyword, 
 	ast_t *type_specifier);
 static ast_t *malloc_ast_mul_expr(ast_t *left, token_t *op, ast_t *right);
@@ -68,6 +69,8 @@ static ast_t *var_expr(parser_t *parser);
 static ast_t *primary_expr(parser_t *parser);
 static ast_t *postfix_expr(parser_t *parser);
 static ast_t *call_expr(parser_t *parser, ast_t *left);
+static ast_t *prefix_expr(parser_t *parser);
+static ast_t *address_of_expr(parser_t *parser);
 static ast_t *cast_expr(parser_t *parser);
 static ast_t *mul_expr(parser_t *parser);
 static ast_t *add_expr(parser_t *parser);
@@ -268,6 +271,16 @@ static void print_ast_helper(ast_t *ast, char *indent, int depth,
 			free(arg_name);
 		}
 
+		break;
+	}
+	case AST_ADDRESS_OF_EXPR: {
+		char *type_info = type_str(ast->type);
+		printf("AST_ADDRESS_OF_EXPR [%s]\n", type_info);
+		free(type_info);
+
+		indent[depth+1] = 0;
+		print_ast_helper(ast->ast.address_of_expr.right, indent, 
+			depth+1, NULL);
 		break;
 	}
 	case AST_CAST_EXPR: {
@@ -516,6 +529,14 @@ static ast_t *malloc_ast_call_expr(ast_t *left, token_t *lparen,
 	res->ast.call_expr.left = left;
 	res->ast.call_expr.lparen = lparen;
 	res->ast.call_expr.rparen = rparen;
+	return res;
+}
+
+static ast_t *malloc_ast_address_of_expr(token_t *ampersand, ast_t *right) {
+	ast_t *res = malloc_ast(AST_ADDRESS_OF_EXPR, ampersand->filepath,
+		ampersand->source, ampersand->start, right->end);
+	res->ast.address_of_expr.ampersand = ampersand;
+	res->ast.address_of_expr.right = right;
 	return res;
 }
 
@@ -801,8 +822,19 @@ static ast_t *call_expr(parser_t *parser, ast_t *left) {
 	return res;
 }
 
+static ast_t *prefix_expr(parser_t *parser) {
+	if (check(parser, 0, TOKEN_AMPERSAND)) return address_of_expr(parser);
+	return postfix_expr(parser);
+}
+
+static ast_t *address_of_expr(parser_t *parser) {
+	token_t *ampersand = match(parser, TOKEN_AMPERSAND, "Expected &");
+	ast_t *right = prefix_expr(parser);
+	return malloc_ast_address_of_expr(ampersand, right);
+}
+
 static ast_t *cast_expr(parser_t *parser) {
-	ast_t *left = postfix_expr(parser);
+	ast_t *left = prefix_expr(parser);
 	if (check(parser, 0, TOKEN_AS_KEYWORD)) {
 		token_t *as_keyword = token_at(parser, 0);
 		skip(parser, 1);
