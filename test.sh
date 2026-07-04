@@ -45,7 +45,7 @@ for flag in "${flags[@]}"; do
 	echo
 done
 
-echo -n "ALL TEST - "
+echo -n "VERDICT - "
 if [ $exit_code == 0 ]; then
 	echo "PASSED"
 else
