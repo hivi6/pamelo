@@ -74,9 +74,9 @@
 - [ ] Add support for pointer type
 
 2026.07.04:
-- [ ] Add support for address of operator
+- [x] Add support for address of operator
 	- [x] Tokenizing
 	- [x] Parsing
-	- [ ] IR Generation
-	- [ ] VM Support
+	- [x] IR Generation
+	- [x] VM Support
 

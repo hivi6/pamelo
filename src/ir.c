@@ -44,6 +44,7 @@ static int expr(ast_t *ast);
 static int literal_expr(ast_t *ast);
 static int var_expr(ast_t *ast);
 static int call_expr(ast_t *ast);
+static int address_of_expr(ast_t *ast);
 static int cast_expr(ast_t *ast);
 static int mul_expr(ast_t *ast);
 static int add_expr(ast_t *ast);
@@ -446,6 +447,7 @@ static int expr(ast_t *ast) {
 	if (ast->kind == AST_LITERAL_EXPR) return literal_expr(ast);
 	if (ast->kind == AST_VAR_EXPR) return var_expr(ast);
 	if (ast->kind == AST_CALL_EXPR) return call_expr(ast);
+	if (ast->kind == AST_ADDRESS_OF_EXPR) return address_of_expr(ast);
 	if (ast->kind == AST_CAST_EXPR) return cast_expr(ast);
 	if (ast->kind == AST_MUL_EXPR) return mul_expr(ast);
 	if (ast->kind == AST_ADD_EXPR) return add_expr(ast);
@@ -551,6 +553,13 @@ static int call_expr(ast_t *ast) {
 	vec_free(&param_temps);
 
 	return res_id;
+}
+
+static int address_of_expr(ast_t *ast) {
+	match(ast, AST_ADDRESS_OF_EXPR, "Expected AST_ADDRESS_OF_EXPR");
+
+	int e = expr_lvalue(ast->ast.address_of_expr.right);
+	return e;
 }
 
 static int cast_expr(ast_t *ast) {

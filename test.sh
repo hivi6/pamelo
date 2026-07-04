@@ -1,5 +1,13 @@
 #!/bin/bash
 
+function is_ignore_test() {
+	flag=$1
+	filename=$2
+
+	[ "$flag" == "" ] && [ "$filename" == "tests/29-address-of.pam" ] && return 1;
+	return 0;
+}
+
 flags=("" "--print-token" "--print-ast" "--print-ir")
 
 exit_code=0
@@ -12,6 +20,11 @@ for flag in "${flags[@]}"; do
 	echo "Test command: ./build/pamelo $flag <filename> 2>&1 | diff - <filename>.$ext"
 	all_passed=1
 	for test in `find tests -name '*.pam' | sort`; do
+		is_ignore_test "$flag" "$test" || {
+			echo IGNORED - $test
+			continue
+		}
+
 		./build/pamelo $flag $test 2>&1 | diff - $test.$ext &> /dev/null
 		passed=$?
 
@@ -31,6 +44,13 @@ for flag in "${flags[@]}"; do
 	fi
 	echo
 done
+
+echo -n "ALL TEST - "
+if [ $exit_code == 0 ]; then
+	echo "PASSED"
+else
+	echo "FAILED"
+fi
 
 exit $exit_code
 

@@ -1,7 +1,8 @@
 fn printNum(a u32) void extern;
 
 fn main() void {
-	var a u64 = 0;
-	printNum(&a);
+	var a u64 = 12;
+	var b *u64 = &a;
+	printNum(b);
 }
 

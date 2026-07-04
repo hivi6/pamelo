@@ -1,0 +1,27 @@
+// SYMBOL MEANING:
+// $ = Accessing function index
+// % = Accessing temp index
+// # = Accessing instruction index
+
+$0: // fn printNum (u32) -> void
+extern
+
+$1: // fn main () -> void
+@function_start
+    #0  | %0 := ALLOCATE 8
+    #1  | %3 := CONST 12
+    #2  | STORE %0 8 := %3
+    #3  | %1 := ALLOCATE 8
+    #4  | STORE %1 8 := %0
+    #5  | %4 := LOAD %1 8
+    #6  | %5 := ALLOCATE 4
+    #7  | STORE %5 4 := %4
+    #8  | BEGIN_CALL
+    #9  | SET_PARAM_ADDR 0 %5
+    #10 | CALL $0
+    #11 | END_CALL
+    #12 | DEALLOCATE 4
+    #13 | DEALLOCATE 16
+    #14 | RETURN
+@function_end
+
