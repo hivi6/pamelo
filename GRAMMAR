@@ -25,7 +25,7 @@ GRAMMAR
 <add-expr>     := <mul-expr> ((PLUS | MINUS) <mul-expr>)*
 <mul-expr>     := <cast-expr> ((STAR | FSLASH | MOD) <cast-exor>)*
 <cast-expr>    := <prefix-expr> (AS_KEYWORD <type-specifier>)?
-<prefix-expr>  := AMPERSAND <prefix-expr>
+<prefix-expr>  := (AMPERSAND | STAR) <prefix-expr>
                 | <postfix-expr>
 <postfix-expr> := <primary-expr> <postfix-op>*
 <primary-expr> := <var-expr> | <literal-expr>

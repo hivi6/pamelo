@@ -45,6 +45,7 @@ static ast_t *malloc_ast_var_expr(token_t *token);
 static ast_t *malloc_ast_call_expr(ast_t *left, token_t *lparen, 
 	token_t *rparen);
 static ast_t *malloc_ast_address_of_expr(token_t *ampersand, ast_t *right);
+static ast_t *malloc_ast_dereference_expr(token_t *star, ast_t *right);
 static ast_t *malloc_ast_cast_expr(ast_t *left, token_t *as_keyword, 
 	ast_t *type_specifier);
 static ast_t *malloc_ast_mul_expr(ast_t *left, token_t *op, ast_t *right);
@@ -71,6 +72,7 @@ static ast_t *postfix_expr(parser_t *parser);
 static ast_t *call_expr(parser_t *parser, ast_t *left);
 static ast_t *prefix_expr(parser_t *parser);
 static ast_t *address_of_expr(parser_t *parser);
+static ast_t *dereference_expr(parser_t *parser);
 static ast_t *cast_expr(parser_t *parser);
 static ast_t *mul_expr(parser_t *parser);
 static ast_t *add_expr(parser_t *parser);
@@ -280,6 +282,16 @@ static void print_ast_helper(ast_t *ast, char *indent, int depth,
 
 		indent[depth+1] = 0;
 		print_ast_helper(ast->ast.address_of_expr.right, indent, 
+			depth+1, NULL);
+		break;
+	}
+	case AST_DEREFERENCE_EXPR: {
+		char *type_info = type_str(ast->type);
+		printf("AST_DEREFERENCE_EXPR [%s]\n", type_info);
+		free(type_info);
+
+		indent[depth+1] = 0;
+		print_ast_helper(ast->ast.dereference_expr.right, indent,
 			depth+1, NULL);
 		break;
 	}
@@ -537,6 +549,14 @@ static ast_t *malloc_ast_address_of_expr(token_t *ampersand, ast_t *right) {
 		ampersand->source, ampersand->start, right->end);
 	res->ast.address_of_expr.ampersand = ampersand;
 	res->ast.address_of_expr.right = right;
+	return res;
+}
+
+static ast_t *malloc_ast_dereference_expr(token_t *star, ast_t *right) {
+	ast_t *res = malloc_ast(AST_DEREFERENCE_EXPR, star->filepath,
+		star->source, star->start, right->end);
+	res->ast.dereference_expr.star = star;
+	res->ast.dereference_expr.right = right;
 	return res;
 }
 
@@ -824,6 +844,7 @@ static ast_t *call_expr(parser_t *parser, ast_t *left) {
 
 static ast_t *prefix_expr(parser_t *parser) {
 	if (check(parser, 0, TOKEN_AMPERSAND)) return address_of_expr(parser);
+	if (check(parser, 0, TOKEN_STAR)) return dereference_expr(parser);
 	return postfix_expr(parser);
 }
 
@@ -831,6 +852,12 @@ static ast_t *address_of_expr(parser_t *parser) {
 	token_t *ampersand = match(parser, TOKEN_AMPERSAND, "Expected &");
 	ast_t *right = prefix_expr(parser);
 	return malloc_ast_address_of_expr(ampersand, right);
+}
+
+static ast_t *dereference_expr(parser_t *parser) {
+	token_t *star = match(parser, TOKEN_STAR, "Expected *");
+	ast_t *right = prefix_expr(parser);
+	return malloc_ast_dereference_expr(star, right);
 }
 
 static ast_t *cast_expr(parser_t *parser) {

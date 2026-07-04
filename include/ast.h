@@ -22,6 +22,7 @@ enum {
 	AST_VAR_EXPR,
 	AST_CALL_EXPR,
 	AST_ADDRESS_OF_EXPR,
+	AST_DEREFERENCE_EXPR,
 	AST_CAST_EXPR,
 	AST_MUL_EXPR,
 	AST_ADD_EXPR,
@@ -143,6 +144,11 @@ struct ast_t {
 			token_t *ampersand;
 			ast_t *right;
 		} address_of_expr;
+
+		struct {
+			token_t *star;
+			ast_t *right;
+		} dereference_expr;
 
 		struct {
 			ast_t *left;

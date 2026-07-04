@@ -79,4 +79,8 @@
 	- [x] Parsing
 	- [x] IR Generation
 	- [x] VM Support
+- [ ] Add support for dereference operator
+	- [x] Parsing
+	- [ ] IR Generation
+	- [ ] VM Support
 

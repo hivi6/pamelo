@@ -47,6 +47,7 @@ static type_t *literal_expr(ast_t *ast, scope_t *scope);
 static type_t *var_expr(ast_t *ast, scope_t *scope);
 static type_t *call_expr(ast_t *ast, scope_t *scope);
 static type_t *address_of_expr(ast_t *ast, scope_t *scope);
+static type_t *dereference_expr(ast_t *ast, scope_t *scope);
 static type_t *cast_expr(ast_t *ast, scope_t *scope);
 static type_t *mul_expr(ast_t *ast, scope_t *scope);
 static type_t *add_expr(ast_t *ast, scope_t *scope);
@@ -460,6 +461,9 @@ static type_t *expr(ast_t *ast, scope_t *scope) {
 	else if (ast->kind == AST_ADDRESS_OF_EXPR) {
 		type = address_of_expr(ast, scope);
 	}
+	else if (ast->kind == AST_DEREFERENCE_EXPR) {
+		type = dereference_expr(ast, scope);
+	}
 	else if (ast->kind == AST_CAST_EXPR) {
 		type = cast_expr(ast, scope);
 	}
@@ -564,6 +568,21 @@ static type_t *address_of_expr(ast_t *ast, scope_t *scope) {
 	}
 
 	return create_pointer_type(right_type);
+}
+
+static type_t *dereference_expr(ast_t *ast, scope_t *scope) {
+	match(ast, AST_DEREFERENCE_EXPR, "Expected AST_DEREFERENCE_EXPR");
+
+	ast_t *right = ast->ast.dereference_expr.right;
+	type_t *right_type = expr(right, scope);
+	if (right_type->kind != TYPE_POINTER) {
+		eprintf(right->filepath, right->source, right->start, right->end,
+			"Expected pointer type");
+		exit(1);
+	}
+	ast->is_lvalue = 1;
+
+	return right_type->type.pointer_type.base_type;
 }
 
 static type_t *cast_expr(ast_t *ast, scope_t *scope) {

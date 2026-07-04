@@ -1,0 +1,11 @@
+fn printNum(a u32) void extern;
+
+fn main() void {
+	var a u64 = 12;
+	printNum(a);
+
+	var b *u64 = &a;
+	*b = 10;
+	printNum(a);
+}
+
