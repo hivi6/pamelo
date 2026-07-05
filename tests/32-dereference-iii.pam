@@ -1,0 +1,17 @@
+fn printNum(a u32) void
+extern;
+
+fn change(a *u32, b u32) void {
+	*a = b * 2;
+}
+
+fn main() void {
+	var a = 13;
+	printNum(a);
+
+	*a = 14;
+
+	change(&a, a + 12);
+	printNum(a);
+}
+

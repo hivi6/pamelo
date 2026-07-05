@@ -1,0 +1,58 @@
+// SYMBOL MEANING:
+// $ = Accessing function index
+// % = Accessing temp index
+// # = Accessing instruction index
+
+$0: // fn printNum (u32) -> void
+extern
+
+$1: // fn change (*u32, u32) -> void
+@function_start
+    #0 | %0 := GET_PARAM_ADDR 0
+    #1 | %1 := GET_PARAM_ADDR 1
+    #2 | %3 := LOAD %0 8
+    #3 | %4 := LOAD %1 4
+    #4 | %5 := CONST 2
+    #5 | %6 := MUL %4 %5 4
+    #6 | STORE %3 4 := %6
+    #7 | RETURN
+@function_end
+
+$2: // fn main () -> void
+@function_start
+    #0  | %0 := ALLOCATE 4
+    #1  | %2 := CONST 13
+    #2  | STORE %0 4 := %2
+    #3  | %3 := LOAD %0 4
+    #4  | %4 := ALLOCATE 4
+    #5  | STORE %4 4 := %3
+    #6  | BEGIN_CALL
+    #7  | SET_PARAM_ADDR 0 %4
+    #8  | CALL $0
+    #9  | END_CALL
+    #10 | DEALLOCATE 4
+    #11 | %5 := ALLOCATE 8
+    #12 | STORE %5 8 := %0
+    #13 | %6 := LOAD %0 4
+    #14 | %7 := CONST 12
+    #15 | %8 := ADD %6 %7 4
+    #16 | %9 := ALLOCATE 4
+    #17 | STORE %9 4 := %8
+    #18 | BEGIN_CALL
+    #19 | SET_PARAM_ADDR 0 %5
+    #20 | SET_PARAM_ADDR 1 %9
+    #21 | CALL $1
+    #22 | END_CALL
+    #23 | DEALLOCATE 12
+    #24 | %10 := LOAD %0 4
+    #25 | %11 := ALLOCATE 4
+    #26 | STORE %11 4 := %10
+    #27 | BEGIN_CALL
+    #28 | SET_PARAM_ADDR 0 %11
+    #29 | CALL $0
+    #30 | END_CALL
+    #31 | DEALLOCATE 4
+    #32 | DEALLOCATE 4
+    #33 | RETURN
+@function_end
+

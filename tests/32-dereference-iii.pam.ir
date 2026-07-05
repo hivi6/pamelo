@@ -1,0 +1,4 @@
+tests/32-dereference-iii.pam:[12:3]-[12:4]: Expected pointer type
+     |      v      
+  12 >     *a = 14;
+     | 
